@@ -10,7 +10,7 @@ This project uses **Prettier** for automatic code formatting.
 
 ---
 
-### 💻 IDE Setup (VS Code + Prettier)
+### IDE Setup (VS Code + Prettier)
 
 1. Open **Extensions** in VS Code  
 2. Search for **Prettier – Code formatter**  
@@ -19,7 +19,7 @@ This project uses **Prettier** for automatic code formatting.
 
 ---
 
-### ⚙️ Enable Auto Format
+### Enable Auto Format
 
 1. Open Command Palette:  
    - `Ctrl + Shift + P` (Windows)  
