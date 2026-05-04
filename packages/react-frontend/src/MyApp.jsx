@@ -1,5 +1,5 @@
 // src/MyApp.jsx
-//import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "./Table";
 import Form from "./Form";
 import HomeScreen from "./components/HomeScreen";
@@ -13,7 +13,7 @@ function MyApp() {
 
 
   // !! change screen name to see your corresponding page !!
-     const screen = "todo";
+     const [screen, setScreen] = useState("home");
   //   useEffect(() => {
   //     fetchUsers()
   //       .then((res) => res.json())
@@ -79,22 +79,26 @@ function MyApp() {
   //   }
 
   return (
-    <div>
-      <div>
-        <h1>helllo world</h1>
-      </div>
-      <div>
-        <NavBar></NavBar>
-        {screen == "home" ? (
-          <HomeScreen />
-        ) : screen == "notes" ? (
-          <NotesScreen></NotesScreen>
-        ) : (
-          <ToDoScreen></ToDoScreen>
-        )}
-      </div>
-    </div>
-  );
+  <div>
+    <NavBar />
+
+    {screen === "home" ? (
+      <HomeScreen
+        notes={[]}
+        labels={[]}
+        todos={[]}
+        onOpenNote={() => {}}
+        onGoToNotes={() => setScreen("notes")}
+        onGoToTodos={() => setScreen("todo")}
+        onToggleTodo={() => {}}
+      />
+    ) : screen === "notes" ? (
+      <NotesScreen />
+    ) : (
+      <ToDoScreen />
+    )}
+  </div>
+);
 }
 
 export default MyApp;
