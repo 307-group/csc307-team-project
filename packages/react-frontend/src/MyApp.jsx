@@ -80,10 +80,7 @@ function MyApp() {
 
   return (
     <div>
-      <div>
-        <h1>helllo world</h1>
-      </div>
-      <div>
+      <div style={{ display: "flex", flexDirection: "row" }}>
         <NavBar activeScreen={screen} onNavigate={setScreen}></NavBar>
         {screen === "home" && <HomeScreen />}
         {screen === "notes" && <NotesScreen />}{" "}

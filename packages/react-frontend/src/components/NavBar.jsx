@@ -1,4 +1,4 @@
-import { Menu, X, House, StickyNote, CheckSquare } from "lucide-react";
+import { X, House, StickyNote, CheckSquare } from "lucide-react";
 
 function NavBar({ activeScreen, onNavigate }) {
   const getBtnStyle = (screenName) => {
@@ -15,16 +15,25 @@ function NavBar({ activeScreen, onNavigate }) {
       cursor: "pointer",
       textAlign: "left",
       borderRadius: "8px",
-      backgroundColor: isActive ? "#dbeafe" : "transparent",
+      backgroundColor: isActive ? "#e5e7eb" : "transparent",
       color: isActive ? "#1e40af" : "#4b5563",
     };
   };
   return (
-    <div>
+    <div
+      style= {{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      border: "1px solid #e0e1e1",
+      padding: "10px",
+      paddingTop: "40px",
+      gap: "10px",
+      backgroundColor: "#f9fafb",
+      height: "100vh",
+      }}
+    >
       {/* Menu Button */}
-      <div>
-        <Menu size={24} color="black"></Menu>
-      </div>
 
       {/* Home Button */}
       <button style={getBtnStyle("home")} onClick={() => onNavigate("home")}>
