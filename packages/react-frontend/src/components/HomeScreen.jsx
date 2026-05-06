@@ -158,7 +158,7 @@ export default function HomeScreen({
       <div className="max-w-3xl mx-auto px-8 py-10 flex flex-col gap-10">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {greeting} 👋
+            {greeting} 
           </h1>
           <p className="text-gray-400 mt-1 text-sm">
             Here's a quick look at what's going on.
