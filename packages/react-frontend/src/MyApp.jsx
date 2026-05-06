@@ -11,7 +11,6 @@ function MyApp() {
   //   const [characters, setCharacters] = useState([]);
   //const [screen, setScreen] = useState < Screen > "home";
 
-
   // !! change screen name to see your corresponding page !!
      const [screen, setScreen] = useState("home");
   //   useEffect(() => {
@@ -77,6 +76,7 @@ function MyApp() {
   //     });
   //     return promise;
   //   }
+  const [screen, setScreen] = useState("home");
 
   return (
   <div>
