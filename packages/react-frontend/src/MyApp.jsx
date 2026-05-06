@@ -6,13 +6,6 @@ import Form from "./Form";
 function MyApp() {
     const [characters, setCharacters] = useState([]);
 
-    useEffect(() => {
-        fetchUsers()
-            .then((res) => res.json())
-            .then((json) => setCharacters(json["users_list"]))
-            .catch((error) => {console.log(error);});
-    }, []);
-
     function removeOneCharacter(index) {
         deleteUser(characters[index].id)
             .then((res) => {
@@ -67,6 +60,13 @@ function MyApp() {
         });
         return promise;
     }
+
+    useEffect(() => {
+        fetchUsers()
+            .then((res) => res.json())
+            .then((json) => setCharacters(json["users_list"]))
+            .catch((error) => {console.log(error);});
+    }, []);
 
     return (
         <div className="container">
