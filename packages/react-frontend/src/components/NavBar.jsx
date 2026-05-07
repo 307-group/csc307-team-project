@@ -1,4 +1,4 @@
-import { X, House, StickyNote, CheckSquare } from "lucide-react";
+import { House, StickyNote, CheckSquare } from "lucide-react";
 
 function NavBar({ activeScreen, onNavigate }) {
   const getBtnStyle = (screenName) => {
@@ -19,37 +19,34 @@ function NavBar({ activeScreen, onNavigate }) {
       color: isActive ? "#1e40af" : "#4b5563",
     };
   };
+
   return (
     <div
-      style= {{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      border: "1px solid #e0e1e1",
-      padding: "10px",
-      paddingTop: "40px",
-      gap: "10px",
-      backgroundColor: "#f9fafb",
-      height: "100vh",
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        border: "1px solid #e0e1e1",
+        padding: "10px",
+        paddingTop: "40px",
+        gap: "10px",
+        backgroundColor: "#f9fafb",
+        minHeight: "100vh",
       }}
     >
-      {/* Menu Button */}
-
-      {/* Home Button */}
       <button style={getBtnStyle("home")} onClick={() => onNavigate("home")}>
-        <House size={24} color="black"></House>
+        <House size={24} />
       </button>
 
-      {/* Notes Button */}
       <button style={getBtnStyle("notes")} onClick={() => onNavigate("notes")}>
-        <StickyNote size={24} color="black"></StickyNote>
+        <StickyNote size={24} />
       </button>
 
-      {/* Todo Button */}
       <button style={getBtnStyle("todo")} onClick={() => onNavigate("todo")}>
-        <CheckSquare size={24} color="black"></CheckSquare>
+        <CheckSquare size={24} />
       </button>
     </div>
   );
 }
+
 export default NavBar;

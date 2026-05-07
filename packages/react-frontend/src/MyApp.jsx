@@ -76,27 +76,28 @@ function MyApp() {
   //     });
   //     return promise;
   //   }
-  const [screen, setScreen] = useState("home");
 
   return (
-  <div>
-    <NavBar />
+  <div style = {{display: "flex", minHeight: "100vh"}}>
+    <NavBar activeScreen = {screen} onNavigate = {setScreen}/>
 
-    {screen === "home" ? (
-      <HomeScreen
-        notes={[]}
-        labels={[]}
-        todos={[]}
-        onOpenNote={() => {}}
-        onGoToNotes={() => setScreen("notes")}
-        onGoToTodos={() => setScreen("todo")}
-        onToggleTodo={() => {}}
-      />
-    ) : screen === "notes" ? (
-      <NotesScreen />
-    ) : (
-      <ToDoScreen />
-    )}
+    <div style = {{flex: 1}}>
+      {screen === "home" ? (
+        <HomeScreen
+          notes={[]}
+          labels={[]}
+          todos={[]}
+          onOpenNote={() => {}}
+          onGoToNotes={() => setScreen("notes")}
+          onGoToTodos={() => setScreen("todo")}
+          onToggleTodo={() => {}}
+        />
+      ) : screen === "notes" ? (
+        <NotesScreen />
+      ) : (
+        <ToDoScreen />
+      )}
+    </div>
   </div>
 );
 }
