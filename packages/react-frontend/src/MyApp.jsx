@@ -7,9 +7,11 @@ import NavBar from "./components/NavBar";
 
 const API = "http://localhost:8000";
 
+
 function MyApp() {
   const [notes, setNotes] = useState([]);
   const [screen, setScreen] = useState("home");
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
 
   // Fetch all notes on load
   useEffect(() => {
@@ -49,20 +51,24 @@ function MyApp() {
       <NavBar activeScreen={screen} onNavigate={setScreen} />
 
       <div style={{ flex: 1 }}>
-        {screen === "home" ? (
+        {screen === "home" && (
           <HomeScreen
             notes={notes}
             labels={[]}
             todos={[]}
-            onOpenNote={() => {}}
+            onOpenNote={(id) => { setSelectedNoteId(id); setScreen("notes"); }}
             onGoToNotes={() => setScreen("notes")}
-            onGoToTodos={() => setScreen("todo")}
+            onGoToTodos={() => setScreen("todos")}
             onToggleTodo={() => {}}
           />
-        ) : screen === "notes" ? (
-          <NotesScreen notes={notes} onAdd={addNote} onDelete={deleteNote} />
-        ) : (
-          <ToDoScreen />
+        )}
+        {screen === "notes" && (
+          <NotesScreen
+            notes={notes}
+            onAdd={addNote}
+            onDelete={deleteNote}
+            initialNoteId={selectedNoteId}
+          />
         )}
       </div>
     </div>
