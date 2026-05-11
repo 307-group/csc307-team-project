@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from 'react';
 import {
   ChevronDown,
   ChevronLeft,
@@ -6,10 +6,10 @@ import {
   Image as ImageIcon,
   PenTool,
   Trash2,
-} from "lucide-react";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { SketchPad } from "./SketchPad";
+} from 'lucide-react';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { SketchPad } from './SketchPad';
 
 export function NoteEditor({
   note,
@@ -31,13 +31,13 @@ export function NoteEditor({
       }
     };
 
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   if (!note) {
     return (
-      <div className="flex-1 flex flex-col bg-gray-50">
+      <div className="flex-1 flex flex-col bg-gray-50 min-h-0">
         {onBack && (
           <div className="lg:hidden border-b bg-white px-4 py-3">
             <button
@@ -78,64 +78,54 @@ export function NoteEditor({
         dataUrl,
       };
 
-      const updatedNote = {
+      onUpdateNote({
         ...note,
         images: [...(note.images || []), newImage],
-      };
-
-      onUpdateNote(updatedNote);
+      });
     };
 
     reader.readAsDataURL(file);
-    e.target.value = "";
+    e.target.value = '';
   };
 
   const handleDeleteImage = (imageId) => {
-    const updatedNote = {
+    onUpdateNote({
       ...note,
       images: note.images?.filter((img) => img.id !== imageId) || [],
-    };
-
-    onUpdateNote(updatedNote);
+    });
   };
 
   const handleAddSketch = () => {
     const newSketch = {
       id: Date.now().toString(),
-      dataUrl: "",
+      dataUrl: '',
     };
 
-    const updatedNote = {
+    onUpdateNote({
       ...note,
       sketches: [...(note.sketches || []), newSketch],
-    };
-
-    onUpdateNote(updatedNote);
+    });
   };
 
   const handleUpdateSketch = (sketchId, dataUrl) => {
-    const updatedNote = {
+    onUpdateNote({
       ...note,
       sketches:
         note.sketches?.map((s) =>
           s.id === sketchId ? { ...s, dataUrl } : s
         ) || [],
-    };
-
-    onUpdateNote(updatedNote);
+    });
   };
 
   const handleDeleteSketch = (sketchId) => {
-    const updatedNote = {
+    onUpdateNote({
       ...note,
       sketches: note.sketches?.filter((s) => s.id !== sketchId) || [],
-    };
-
-    onUpdateNote(updatedNote);
+    });
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white min-w-0">
+    <div className="flex-1 flex flex-col bg-white min-w-0 min-h-0">
       {onBack && (
         <div className="lg:hidden border-b px-4 py-3 flex items-center">
           <button
@@ -170,9 +160,9 @@ export function NoteEditor({
                       color: activeLabel.color,
                     }
                   : {
-                      borderStyle: "dashed",
-                      borderColor: "#d1d5db",
-                      color: "#9ca3af",
+                      borderStyle: 'dashed',
+                      borderColor: '#d1d5db',
+                      color: '#9ca3af',
                     }
               }
               type="button"
@@ -186,7 +176,7 @@ export function NoteEditor({
                   {activeLabel.name}
                 </>
               ) : (
-                "Add label"
+                'Add label'
               )}
 
               <ChevronDown className="size-3.5 ml-0.5 opacity-60" />
@@ -326,9 +316,7 @@ export function NoteEditor({
               <SketchPad
                 key={sketch.id}
                 initialDataUrl={sketch.dataUrl || undefined}
-                onSave={(dataUrl) =>
-                  handleUpdateSketch(sketch.id, dataUrl)
-                }
+                onSave={(dataUrl) => handleUpdateSketch(sketch.id, dataUrl)}
                 onDelete={() => handleDeleteSketch(sketch.id)}
               />
             ))}
