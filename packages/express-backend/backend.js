@@ -12,6 +12,7 @@ const notes = {
       id: "note_001",
       title: "Welcome Note",
       body: "This is your first note!",
+      updatedAt: Date.now(),
     },
   ],
 };
@@ -63,6 +64,7 @@ app.get("/notes/:id", (req, res) => {
 app.post("/notes", (req, res) => {
   const noteToAdd = req.body;
   noteToAdd["id"] = generateId();
+  noteToAdd["updatedAt"] = Date.now();
   let result = addNote(noteToAdd);
   res.status(201).send(result);
 });

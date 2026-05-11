@@ -88,7 +88,7 @@ function TodoRow({ todo, onToggle, onNavigate }) {
 
 function NoteCard({ note, label, onClick }) {
   const title = note.title || "Untitled Note";
-  const preview = note.content.slice(0, 120);
+  const preview = (note.body || "").slice(0, 120);
 
   return (
     <button
