@@ -1,11 +1,11 @@
 // src/components/NavBar.jsx
-import { useState } from "react";
-import { Menu, X, House, StickyNote, CheckSquare } from "lucide-react";
+import { useState } from 'react';
+import { Menu, X, House, StickyNote, CheckSquare } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { screen: "home", label: "Home", Icon: House },
-  { screen: "notes", label: "Notes", Icon: StickyNote },
-  { screen: "todos", label: "To-Do", Icon: CheckSquare },
+  { screen: 'home', label: 'Home', Icon: House },
+  { screen: 'notes', label: 'Notes', Icon: StickyNote },
+  { screen: 'todos', label: 'To-Do', Icon: CheckSquare },
 ];
 
 function NavBar({ activeScreen, onNavigate }) {
@@ -14,7 +14,7 @@ function NavBar({ activeScreen, onNavigate }) {
   return (
     <div
       className={`flex flex-col h-screen bg-white border-r border-gray-200 transition-all duration-200 flex-shrink-0 ${
-        expanded ? "w-44" : "w-14"
+        expanded ? 'w-44' : 'w-14'
       }`}
     >
       {/* Toggle button */}
@@ -36,14 +36,16 @@ function NavBar({ activeScreen, onNavigate }) {
               onClick={() => onNavigate(screen)}
               className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg transition-colors w-full ${
                 isActive
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700'
               }`}
               title={!expanded ? label : undefined}
             >
               <Icon size={18} className="flex-shrink-0" />
               {expanded && (
-                <span className="text-sm font-medium whitespace-nowrap">{label}</span>
+                <span className="text-sm font-medium whitespace-nowrap">
+                  {label}
+                </span>
               )}
             </button>
           );
