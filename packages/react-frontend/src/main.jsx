@@ -1,13 +1,15 @@
 // src/main.jsx
 import React from "react";
-import ReactDOMClient from "react-dom/client";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MyApp from "./MyApp";
 import "./main.css";
 
-const container = document.getElementById("root");
+const root = document.getElementById("root");
 
 // Create a root
-const root = ReactDOMClient.createRoot(container);
-
-// Initial render:
-root.render(<MyApp />);
+ReactDOM.createRoot(root).render(
+    <BrowserRouter>
+        <MyApp />
+    </BrowserRouter>
+);
