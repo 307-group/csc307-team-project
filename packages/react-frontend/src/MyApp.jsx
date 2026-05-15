@@ -10,10 +10,11 @@ const API = "http://localhost:8000";
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
+  const [todos, setTodos] = useState([]);
   const [screen, setScreen] = useState("home");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
 
-  // Fetch all notes on load
+  // fetch all notes on load
   useEffect(() => {
     fetch(`${API}/notes`)
       .then((res) => res.json())
@@ -21,7 +22,15 @@ function MyApp() {
       .catch((err) => console.log(err));
   }, []);
 
-  // Add a note
+  // fetch all todos on load
+  useEffect(() => {
+    fetch(`${API}/todos`)
+      .then((res) => res.json())
+      .then((json) => setTodos(json["todos_list"]))
+      .catch((err) => console.log(err));
+  }, []);
+
+  // add a note
   function addNote(note) {
     fetch(`${API}/notes`, {
       method: "POST",
@@ -35,12 +44,49 @@ function MyApp() {
       .catch((err) => console.log(err));
   }
 
-  // Delete a note
+  // delete a note
   function deleteNote(id) {
     fetch(`${API}/notes/${id}`, { method: "DELETE" })
       .then((res) => {
         if (res.status === 200) {
           setNotes(notes.filter((n) => n.id !== id));
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+
+  // create a todo
+  function createTodo(title, description) {
+    fetch(`${API}/todos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, description }),
+    })
+      .then((res) => (res.status === 201 ? res.json() : undefined))
+      .then((json) => {
+        if (json) setTodos([...todos, json]);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  // toggle a todo completed
+  function toggleTodo(id) {
+    fetch(`${API}/todos/${id}`, { method: "PATCH" })
+      .then((res) => (res.status === 200 ? res.json() : undefined))
+      .then((updated) => {
+        if (updated) {
+          setTodos(todos.map((t) => (t.id === id ? updated : t)));
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+
+  // delete a todo
+  function deleteTodo(id) {
+    fetch(`${API}/todos/${id}`, { method: "DELETE" })
+      .then((res) => {
+        if (res.status === 200) {
+          setTodos(todos.filter((t) => t.id !== id));
         }
       })
       .catch((err) => console.log(err));
@@ -55,11 +101,11 @@ function MyApp() {
           <HomeScreen
             notes={notes}
             labels={[]}
-            todos={[]}
+            todos={todos}
             onOpenNote={(id) => { setSelectedNoteId(id); setScreen("notes"); }}
             onGoToNotes={() => setScreen("notes")}
             onGoToTodos={() => setScreen("todos")}
-            onToggleTodo={() => {}}
+            onToggleTodo={toggleTodo}
           />
         )}
         {screen === "notes" && (
@@ -71,7 +117,12 @@ function MyApp() {
           />
         )}
         {screen === "todos" && (
-          <ToDoScreen />
+          <ToDoScreen
+            todos={todos}
+            onCreateTodo={createTodo}
+            onToggleTodo={toggleTodo}
+            onDeleteTodo={deleteTodo}
+          />
         )}
       </div>
     </div>

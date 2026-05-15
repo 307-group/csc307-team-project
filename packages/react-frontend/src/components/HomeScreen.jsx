@@ -57,18 +57,18 @@ function TodoRow({ todo, onToggle, onNavigate }) {
           onToggle();
         }}
         className={`mt-0.5 size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-          todo.done
+          todo.completed
             ? "bg-green-500 border-green-500"
             : "border-gray-300 hover:border-green-400"
         }`}
       >
-        {todo.done && <Check className="size-3 text-white" strokeWidth={3} />}
+        {todo.completed && <Check className="size-3 text-white" strokeWidth={3} />}
       </button>
 
       <button onClick={onNavigate} className="flex-1 min-w-0 text-left">
         <p
           className={`text-sm font-medium ${
-            todo.done
+            todo.completed
               ? "line-through text-gray-400"
               : "text-gray-800 group-hover:text-gray-600"
           } transition-colors`}
@@ -143,7 +143,7 @@ export default function HomeScreen({
   onGoToTodos,
   onToggleTodo,
 }) {
-  const activeTodos = todos.filter((t) => !t.done).slice(0, MAX_TODOS);
+  const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
     .sort((a, b) => b.updatedAt - a.updatedAt)
@@ -164,7 +164,7 @@ export default function HomeScreen({
         <section>
           <SectionHeader
             title="To-Do"
-            count={todos.filter((t) => !t.done).length}
+            count={todos.filter((t) => !t.completed).length}
             onViewAll={onGoToTodos}
           />
 
