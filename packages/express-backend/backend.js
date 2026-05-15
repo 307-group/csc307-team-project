@@ -124,6 +124,7 @@ app.get("/todos", (req, res) => {
 app.post("/todos", (req, res) => {
   const todoToAdd = req.body;
   todoToAdd["id"] = generateId();
+  todoToAdd["completed"] = false;
   let result = addTodo(todoToAdd);
   res.status(201).send(result);
 });
