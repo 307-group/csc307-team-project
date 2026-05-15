@@ -70,6 +70,9 @@ function MyApp() {
             initialNoteId={selectedNoteId}
           />
         )}
+        {screen === "todos" && (
+          <ToDoScreen />
+        )}
       </div>
     </div>
   );
