@@ -33,7 +33,7 @@ function NavBar() {
         height: '100vh'
       }}
     >
-      <NavLink to="/home" style={navStyle}>
+      <NavLink to="/" style={navStyle}>
         <House size={24} />
       </NavLink>
 

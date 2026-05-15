@@ -97,7 +97,7 @@ function MyApp() {
       <div style={{ flex: 1 }}>
         <Routes>
           <Route
-            path="/home"
+            path="/"
             element={<HomeScreen notes={notes} todos={todos} labels={[]} onToggleTodo={toggleTodo} onOpenNote={(id) => console.log("Opening note: ", id)} />}
           />
           <Route
