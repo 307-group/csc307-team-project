@@ -1,6 +1,10 @@
 // backend.js
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import { registerUser, loginUser, authenticateUser } from "./auth.js";
+
+dotenv.config();
 
 const app = express();
 const port = 8000;
@@ -18,6 +22,9 @@ const notes = {
 
 app.use(cors());
 app.use(express.json());
+
+app.post("/signup", registerUser);
+app.post("/login", loginUser);
 
 // random id generator
 const generateId = () => {
@@ -44,12 +51,12 @@ const deleteNoteById = (id) => {
 };
 
 // GET all notes
-app.get("/notes", (req, res) => {
+app.get("/notes", authenticateUser, (req, res) => {
   res.send(notes);
 });
 
 // GET one note by id
-app.get("/notes/:id", (req, res) => {
+app.get("/notes/:id", authenticateUser, (req, res) => {
   const id = req.params["id"];
   let result = findNoteById(id);
   if (result === undefined) {
@@ -60,7 +67,7 @@ app.get("/notes/:id", (req, res) => {
 });
 
 // POST create a note
-app.post("/notes", (req, res) => {
+app.post("/notes", authenticateUser,(req, res) => {
   const noteToAdd = req.body;
   noteToAdd["id"] = generateId();
   let result = addNote(noteToAdd);
@@ -68,7 +75,7 @@ app.post("/notes", (req, res) => {
 });
 
 // DELETE a note by id
-app.delete("/notes/:id", (req, res) => {
+app.delete("/notes/:id", authenticateUser, (req, res) => {
   const id = req.params["id"];
   let delete_result = deleteNoteById(id);
   if (delete_result === undefined) {
