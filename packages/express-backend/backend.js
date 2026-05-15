@@ -21,7 +21,6 @@ const todos = {
   todos_list: [],
 };
 
-
 app.use(cors());
 app.use(express.json());
 
@@ -69,13 +68,13 @@ app.get("/notes/:id", (req, res) => {
 const findTodoById = (id) =>
   todos["todos_list"].find((todo) => todo["id"] === id);
 
-//add to do 
+//add to do
 const addTodo = (todo) => {
   todos["todos_list"].push(todo);
   return todo;
 };
 
-//delete to do 
+//delete to do
 const deleteTodoById = (id) => {
   const index = todos["todos_list"].findIndex((todo) => todo["id"] === id);
   if (index !== -1) {
@@ -83,7 +82,6 @@ const deleteTodoById = (id) => {
   }
   return undefined;
 };
-
 
 // POST create a note
 app.post("/notes", (req, res) => {
