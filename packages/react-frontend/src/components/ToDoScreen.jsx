@@ -147,58 +147,57 @@ function TodoCard({ todo, onToggle, onDelete }) {
 }
 
 // main to-do screen
-function ToDoScreen() {
-  const [todos, setTodos] = useState([]);
+function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
   const [showModal, setShowModal] = useState(false);
   const [doneExpanded, setDoneExpanded] = useState(true);
 
   const activeTodos = todos.filter((t) => !t.completed);
   const doneTodos = todos.filter((t) => t.completed);
 
-  // fetch all todos on load
-  useEffect(() => {
-    fetch(`${API}/todos`)
-      .then((res) => res.json())
-      .then((json) => setTodos(json['todos_list']))
-      .catch((err) => console.log(err));
-  }, []);
+  // // fetch all todos on load
+  // useEffect(() => {
+  //   fetch(`${API}/todos`)
+  //     .then((res) => res.json())
+  //     .then((json) => setTodos(json['todos_list']))
+  //     .catch((err) => console.log(err));
+  // }, []);
 
-  // create a todo
-  function createTodo(title, description) {
-    fetch(`${API}/todos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, description }),
-    })
-      .then((res) => (res.status === 201 ? res.json() : undefined))
-      .then((json) => {
-        if (json) setTodos([...todos, json]);
-      })
-      .catch((err) => console.log(err));
-  }
+  // // create a todo
+  // function createTodo(title, description) {
+  //   fetch(`${API}/todos`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ title, description }),
+  //   })
+  //     .then((res) => (res.status === 201 ? res.json() : undefined))
+  //     .then((json) => {
+  //       if (json) setTodos([...todos, json]);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }
 
-  // toggle todo completed
-  function toggleTodo(id) {
-    fetch(`${API}/todos/${id}`, { method: 'PATCH' })
-      .then((res) => (res.status === 200 ? res.json() : undefined))
-      .then((updated) => {
-        if (updated) {
-          setTodos(todos.map((t) => (t.id === id ? updated : t)));
-        }
-      })
-      .catch((err) => console.log(err));
-  }
+  // // toggle todo completed
+  // function toggleTodo(id) {
+  //   fetch(`${API}/todos/${id}`, { method: 'PATCH' })
+  //     .then((res) => (res.status === 200 ? res.json() : undefined))
+  //     .then((updated) => {
+  //       if (updated) {
+  //         setTodos(todos.map((t) => (t.id === id ? updated : t)));
+  //       }
+  //     })
+  //     .catch((err) => console.log(err));
+  // }
 
-  // delete a todo
-  function deleteTodo(id) {
-    fetch(`${API}/todos/${id}`, { method: 'DELETE' })
-      .then((res) => {
-        if (res.status === 200) {
-          setTodos(todos.filter((t) => t.id !== id));
-        }
-      })
-      .catch((err) => console.log(err));
-  }
+  // // delete a todo
+  // function deleteTodo(id) {
+  //   fetch(`${API}/todos/${id}`, { method: 'DELETE' })
+  //     .then((res) => {
+  //       if (res.status === 200) {
+  //         setTodos(todos.filter((t) => t.id !== id));
+  //       }
+  //     })
+  //     .catch((err) => console.log(err));
+  // }
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 min-w-0 h-full overflow-y-auto">
@@ -239,8 +238,8 @@ function ToDoScreen() {
                 <TodoCard
                   key={todo.id}
                   todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
+                  onToggle={() => onToggleTodo(todo.id)}
+                  onDelete={() => onDeleteTodo(todo.id)}
                 />
               ))}
             </div>
@@ -268,8 +267,8 @@ function ToDoScreen() {
                   <TodoCard
                     key={todo.id}
                     todo={todo}
-                    onToggle={() => toggleTodo(todo.id)}
-                    onDelete={() => deleteTodo(todo.id)}
+                    onToggle={() => onToggleTodo(todo.id)}
+                    onDelete={() => onDeleteTodo(todo.id)}
                   />
                 ))}
               </div>
@@ -280,7 +279,7 @@ function ToDoScreen() {
 
       {/* new task modal */}
       {showModal && (
-        <NewTaskModal onAdd={createTodo} onClose={() => setShowModal(false)} />
+        <NewTaskModal onAdd={onCreateTodo} onClose={() => setShowModal(false)} />
       )}
     </div>
   );
