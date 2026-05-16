@@ -279,7 +279,10 @@ function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
 
       {/* new task modal */}
       {showModal && (
-        <NewTaskModal onAdd={onCreateTodo} onClose={() => setShowModal(false)} />
+        <NewTaskModal
+          onAdd={onCreateTodo}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   );
