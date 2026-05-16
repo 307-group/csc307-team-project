@@ -28,7 +28,7 @@ function NavBar({ activeScreen, onNavigate }) {
 
       {/* Nav items */}
       <nav className="flex flex-col gap-1 p-2 flex-1">
-        {NAV_ITEMS.map(({ screen, label, Icon }) => {
+        {NAV_ITEMS.map(({ screen, label, Icon }) => { // eslint-disable-line no-unused-vars
           const isActive = activeScreen === screen;
           return (
             <button
