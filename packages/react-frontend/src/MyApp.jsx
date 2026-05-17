@@ -4,6 +4,7 @@ import HomeScreen from "./components/HomeScreen";
 import NotesScreen from "./components/NotesScreen";
 import ToDoScreen from "./components/ToDoScreen";
 import NavBar from "./components/NavBar";
+import SignInScreen from "./components/SignInScreen";
 
 const API = "http://localhost:8000";
 
@@ -59,7 +60,7 @@ function MyApp() {
             onOpenNote={(id) => { setSelectedNoteId(id); setScreen("notes"); }}
             onGoToNotes={() => setScreen("notes")}
             onGoToTodos={() => setScreen("todos")}
-            onToggleTodo={() => {}}
+            onToggleTodo={() => setScreen("signin")}
           />
         )}
         {screen === "notes" && (
@@ -70,6 +71,7 @@ function MyApp() {
             initialNoteId={selectedNoteId}
           />
         )}
+        {screen === "profile" && <SignInScreen />}
       </div>
     </div>
   );
