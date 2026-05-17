@@ -4,6 +4,7 @@ import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
+import SignInScreen from './components/SignInScreen';
 
 const API = 'http://localhost:8000';
 
@@ -96,6 +97,15 @@ function MyApp() {
       <NavBar activeScreen={screen} onNavigate={setScreen} />
 
       <div style={{ flex: 1 }}>
+        <div className="flex justify-end px-8 py-4 border-b border-gray-200 bg-white">
+          <button
+            onClick={() => setScreen('signin')}
+            className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+
         {screen === 'home' && (
           <HomeScreen
             notes={notes}
@@ -126,6 +136,7 @@ function MyApp() {
             onDeleteTodo={deleteTodo}
           />
         )}
+        {screen === 'signin' && <SignInScreen />}
       </div>
     </div>
   );
