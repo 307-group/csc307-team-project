@@ -122,5 +122,7 @@ app.patch("/todos/:id", async (req, res) => {
 
 // listen
 app.listen(process.env.PORT || port, () => {
-  console.log(`Backend running at http://localhost:${process.env.PORT || port}`);
+  console.log(
+    `Backend running at http://localhost:${process.env.PORT || port}`,
+  );
 });

@@ -45,4 +45,10 @@ async function toggleTodoComplete(id) {
   }
 }
 
-export default { getTodos, getTodoById, addTodo, deleteTodo, toggleTodoComplete };
+export default {
+  getTodos,
+  getTodoById,
+  addTodo,
+  deleteTodo,
+  toggleTodoComplete,
+};
