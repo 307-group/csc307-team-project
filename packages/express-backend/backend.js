@@ -5,88 +5,58 @@ import cors from "cors";
 const app = express();
 const port = 8000;
 
-const users = {
-  users_list: [
+// notes data store
+const notes = {
+  notes_list: [
     {
-      id: "xyz789",
-      name: "Charlie",
-      job: "Janitor"
+      id: "note_001",
+      title: "Welcome Note",
+      body: "This is your first note!",
     },
-    {
-      id: "abc123",
-      name: "Mac",
-      job: "Bouncer"
-    },
-    {
-      id: "ppp222",
-      name: "Mac",
-      job: "Professor"
-    },
-    {
-      id: "yat999",
-      name: "Dee",
-      job: "Aspiring actress"
-    },
-    {
-      id: "zap555",
-      name: "Dennis",
-      job: "Bartender"
-    }
-  ]
+  ],
+};
+
+// to-do data store
+const todos = {
+  todos_list: [],
 };
 
 app.use(cors());
 app.use(express.json());
 
-//find user by name
-const findUserByName = (name) => {
-  return users["users_list"].filter(
-    (user) => user["name"] === name
-  );
+// random id generator
+const generateId = () => {
+  return Math.random().toString(36).substring(2, 7);
 };
 
-app.get("/", (req, res) => {
-  res.send("go to /users chat");
-});
+// find note by id
+const findNoteById = (id) =>
+  notes["notes_list"].find((note) => note["id"] === id);
 
-app.get("/users", (req, res) => {
-  const name = req.query.name;
-  if (name != undefined) {
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
-  } else {
-    res.send(users);
-  }
-});
-
-//find user by name and job
-const findUserByNameAndJob = (name, job) => {
-  return users["users_list"].filter(
-    (user) => user["name"] === name && user["job"] === job
-  );
+// add note
+const addNote = (note) => {
+  notes["notes_list"].push(note);
+  return note;
 };
 
-app.get("/users/search", (req, res) => {
-  const name = req.query.name;
-  const job = req.query.job;
-  if (name != undefined && job != undefined) {
-    let result = findUserByNameAndJob(name, job);
-    result = { users_list: result };
-    res.send(result);
-  } else {
-    res.status(400).send("Please provide both name and job query parameters.");
+// delete note by id
+const deleteNoteById = (id) => {
+  const index = notes["notes_list"].findIndex((note) => note["id"] === id);
+  if (index !== -1) {
+    return notes["notes_list"].splice(index, 1);
   }
-})
+  return undefined;
+};
 
+// GET all notes
+app.get("/notes", (req, res) => {
+  res.send(notes);
+});
 
-//find user by id
-const findUserById = (id) =>
-  users["users_list"].find((user) => user["id"] === id);
-
-app.get("/users/:id", (req, res) => {
-  const id = req.params["id"]; //or req.params.id
-  let result = findUserById(id);
+// GET one note by id
+app.get("/notes/:id", (req, res) => {
+  const id = req.params["id"];
+  let result = findNoteById(id);
   if (result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
@@ -94,47 +64,93 @@ app.get("/users/:id", (req, res) => {
   }
 });
 
-//add user
-const addUser = (user) => {
-  users["users_list"].push(user);
-  return user;
+//find to do by id
+const findTodoById = (id) =>
+  todos["todos_list"].find((todo) => todo["id"] === id);
 
+//add to do
+const addTodo = (todo) => {
+  todos["todos_list"].push(todo);
+  return todo;
 };
 
-app.post("/users", (req, res) => {
-  const userToAdd = req.body;
-  userToAdd["id"] = generateId();
-  let result = addUser(userToAdd);
+//delete to do
+const deleteTodoById = (id) => {
+  const index = todos["todos_list"].findIndex((todo) => todo["id"] === id);
+  if (index !== -1) {
+    return todos["todos_list"].splice(index, 1);
+  }
+  return undefined;
+};
+
+// POST create a note
+app.post("/notes", (req, res) => {
+  const noteToAdd = req.body;
+  noteToAdd["id"] = generateId();
+  let result = addNote(noteToAdd);
   res.status(201).send(result);
 });
 
-//random id generator
-const generateId = () => {
-  return Math.random().toString(36).substring(2, 7);
-}
-
-//delete user
-const deleteUserById = (id) => {
-    const index = users["users_list"].findIndex((user) => user["id"] === id);
-    if (index !== -1) {
-        return users["users_list"].splice(index, 1);
-    }
-    return undefined;
-};
-
-app.delete("/users/:id", (req, res) => {
-    const id = req.params["id"];
-    let delete_result = deleteUserById(id);
-    if (delete_result === undefined) {
-        res.status(404).send("Resource not found.");
-    } else {
-      res.status(200).send(delete_result);
-    }
+// DELETE a note by id
+app.delete("/notes/:id", (req, res) => {
+  const id = req.params["id"];
+  let delete_result = deleteNoteById(id);
+  if (delete_result === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.status(200).send(delete_result);
+  }
 });
 
-//listen
+//GET one todo by ID
+app.get("/todos/:id", (req, res) => {
+  const id = req.params["id"];
+  let result = findTodoById(id);
+  if (result === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.send(result);
+  }
+});
+
+//GET all todos
+app.get("/todos", (req, res) => {
+  res.send(todos);
+});
+
+//POST create a todo
+app.post("/todos", (req, res) => {
+  const todoToAdd = req.body;
+  todoToAdd["id"] = generateId();
+  todoToAdd["completed"] = false;
+  let result = addTodo(todoToAdd);
+  res.status(201).send(result);
+});
+
+//DELETE a todo by id
+app.delete("/todos/:id", (req, res) => {
+  const id = req.params["id"];
+  let delete_result = deleteTodoById(id);
+  if (delete_result === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.status(200).send(delete_result);
+  }
+});
+
+//PATCH toggle to do complete
+app.patch("/todos/:id", (req, res) => {
+  const id = req.params["id"];
+  let todo = findTodoById(id);
+  if (todo === undefined) {
+    res.status(404).send("Resource not found.");
+  } else {
+    todo["completed"] = !todo["completed"];
+    res.status(200).send(todo);
+  }
+});
+
+// listen
 app.listen(port, () => {
-  console.log(
-    `Example app listening at http://localhost:${port}`
-);
+  console.log(`Backend running at http://localhost:${port}`);
 });
