@@ -1,6 +1,6 @@
 // src/MyApp.jsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
@@ -98,7 +98,7 @@ function MyApp() {
         <Routes>
           <Route
             path="/"
-            element={<HomeScreen notes={notes} todos={todos} labels={[]} onToggleTodo={toggleTodo} onOpenNote={(id) => console.log("Opening note: ", id)} />}
+            element={<HomeScreen notes={notes} todos={todos} labels={[]} onToggleTodo={toggleTodo} />}
           />
           <Route
             path="/notes"

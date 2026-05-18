@@ -141,7 +141,6 @@ export default function HomeScreen({
   notes,
   labels,
   todos,
-  onOpenNote = () => {},
   onToggleTodo = () => {},
 }) {
   const navigate = useNavigate();
@@ -223,7 +222,7 @@ export default function HomeScreen({
                   key={note._id}
                   note={note}
                   label={labels.find((l) => l._id === note.labelId)}
-                  onClick={() => onOpenNote(note._id)}
+                  onClick={() => navigate(`/notes?id=${note._id || note.id}`)}
                 />
               ))}
             </div>
