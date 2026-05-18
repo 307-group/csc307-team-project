@@ -12,6 +12,7 @@ const INVALID_TOKEN = 'INVALID_TOKEN';
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
+  const [todos, setTodos] = useState([]);
   const [screen, setScreen] = useState('home');
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [token, setToken] = useState(INVALID_TOKEN);
@@ -28,11 +29,19 @@ function MyApp() {
           setNotes(json['notes_list']);
         } else {
           setNotes([]);
-          setMessage('Data unavailable. Please log in.');
+          setMessage('Please log in.');
         }
       })
       .catch((err) => console.log(err));
   }, [token]);
+
+  // fetch all todos on load
+  useEffect(() => {
+    fetch(`${API}/todos`)
+      .then((res) => res.json())
+      .then((json) => setTodos(json['todos_list']))
+      .catch((err) => console.log(err));
+  }, []);
 
   function addAuthHeader(otherHeaders = {}) {
     if (token === INVALID_TOKEN) {
@@ -73,20 +82,18 @@ function MyApp() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(creds),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          response.json().then((payload) => setToken(payload.token));
-          setMessage(
-            `Signup successful for user: ${creds.username}; auth token saved`
-          );
-        } else {
-          setMessage(`Signup Error ${response.status}: ${response.data}`);
-        }
-      })
-      .catch((error) => {
-        setMessage(`Signup Error: ${error}`);
-      });
+    }).then(async (response) => {
+      if (response.status === 201) {
+        const payload = await response.json();
+        setToken(payload.token);
+        setMessage(
+          `Signup successful for user: ${creds.username}; auth token saved`
+        );
+      } else {
+        const text = await response.text();
+        setMessage(`Signup Error ${response.status}: ${text}`);
+      }
+    });
 
     return promise;
   }
@@ -120,28 +127,78 @@ function MyApp() {
       })
       .catch((err) => console.log(err));
   }
+
+  // create a todo
+  function createTodo(title, description) {
+    fetch(`${API}/todos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description }),
+    })
+      .then((res) => (res.status === 201 ? res.json() : undefined))
+      .then((json) => {
+        if (json) setTodos([...todos, json]);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  // toggle a todo completed
+  function toggleTodo(id) {
+    fetch(`${API}/todos/${id}`, { method: 'PATCH' })
+      .then((res) => (res.status === 200 ? res.json() : undefined))
+      .then((updated) => {
+        if (updated) {
+          setTodos(todos.map((t) => (t.id === id ? updated : t)));
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+
+  // delete a todo
+  function deleteTodo(id) {
+    fetch(`${API}/todos/${id}`, { method: 'DELETE' })
+      .then((res) => {
+        if (res.status === 200) {
+          setTodos(todos.filter((t) => t.id !== id));
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <NavBar activeScreen={screen} onNavigate={setScreen} />
 
       <div style={{ flex: 1 }}>
-        <div style={{ padding: '10px' }}>
-          <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
-          <Login handleSubmit={loginUser} />
-          <p>{message}</p>
-        </div>
+        {screen === 'home' && token === INVALID_TOKEN && (
+          <div
+            style={{
+              padding: '16px',
+              background: '#f9fafb',
+              borderBottom: '1px solid #e5e7eb',
+            }}
+          >
+            <div
+              style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}
+            >
+              <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
+              <Login handleSubmit={loginUser} buttonLabel="Log In" />
+            </div>
+            <p>{message}</p>
+          </div>
+        )}
         {screen === 'home' && (
           <HomeScreen
             notes={notes}
             labels={[]}
-            todos={[]}
+            todos={todos}
             onOpenNote={(id) => {
               setSelectedNoteId(id);
               setScreen('notes');
             }}
             onGoToNotes={() => setScreen('notes')}
             onGoToTodos={() => setScreen('todos')}
-            onToggleTodo={() => {}}
+            onToggleTodo={toggleTodo}
           />
         )}
         {screen === 'notes' && (
@@ -150,6 +207,14 @@ function MyApp() {
             onAdd={addNote}
             onDelete={deleteNote}
             initialNoteId={selectedNoteId}
+          />
+        )}
+        {screen === 'todos' && (
+          <ToDoScreen
+            todos={todos}
+            onCreateTodo={createTodo}
+            onToggleTodo={toggleTodo}
+            onDeleteTodo={deleteTodo}
           />
         )}
       </div>

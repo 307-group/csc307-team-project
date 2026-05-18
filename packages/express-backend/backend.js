@@ -1,24 +1,23 @@
 // backend.js
+import dns from "dns";
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import noteServices from "./models/note-services.js";
+import todoServices from "./models/todo-services.js";
+import mongoose from "mongoose";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
-
 dotenv.config();
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("MongoDB connection error:", err));
 
 const app = express();
 const port = 8000;
-
-// notes data store
-const notes = {
-  notes_list: [
-    {
-      id: "note_001",
-      title: "Welcome Note",
-      body: "This is your first note!",
-    },
-  ],
-};
 
 app.use(cors());
 app.use(express.json());
@@ -26,40 +25,33 @@ app.use(express.json());
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-// random id generator
-const generateId = () => {
-  return Math.random().toString(36).substring(2, 7);
-};
-
-// find note by id
-const findNoteById = (id) =>
-  notes["notes_list"].find((note) => note["id"] === id);
-
-// add note
-const addNote = (note) => {
-  notes["notes_list"].push(note);
-  return note;
-};
-
-// delete note by id
-const deleteNoteById = (id) => {
-  const index = notes["notes_list"].findIndex((note) => note["id"] === id);
-  if (index !== -1) {
-    return notes["notes_list"].splice(index, 1);
-  }
-  return undefined;
-};
-
 // GET all notes
-app.get("/notes", authenticateUser, (req, res) => {
-  res.send(notes);
+app.get("/notes", authenticateUser, async (req, res) => {
+  try {
+    const notes = await noteServices.getNotes();
+    res.send({ notes_list: notes });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred in the server.");
+  }
+});
+
+// DELETE a note by id
+app.delete("/notes/:id", authenticateUser, async (req, res) => {
+  const id = req.params["id"];
+  const result = await noteServices.deleteNote(id);
+  if (result === undefined || result === null) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.status(200).send(result);
+  }
 });
 
 // GET one note by id
-app.get("/notes/:id", authenticateUser, (req, res) => {
+app.get("/notes/:id", authenticateUser, async (req, res) => {
   const id = req.params["id"];
-  let result = findNoteById(id);
-  if (result === undefined) {
+  const result = await noteServices.getNoteById(id);
+  if (result === undefined || result === null) {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
@@ -67,25 +59,74 @@ app.get("/notes/:id", authenticateUser, (req, res) => {
 });
 
 // POST create a note
-app.post("/notes", authenticateUser,(req, res) => {
-  const noteToAdd = req.body;
-  noteToAdd["id"] = generateId();
-  let result = addNote(noteToAdd);
-  res.status(201).send(result);
+app.post("/notes", authenticateUser, async (req, res) => {
+  const note = req.body;
+  const result = await noteServices.addNote(note);
+  if (result) {
+    res.status(201).send(result);
+  } else {
+    res.status(500).send("An error occurred in the server.");
+  }
 });
 
-// DELETE a note by id
-app.delete("/notes/:id", authenticateUser, (req, res) => {
+// GET all todos
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await todoServices.getTodos();
+    res.send({ todos_list: todos });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred in the server.");
+  }
+});
+
+// GET one todo by id
+app.get("/todos/:id", async (req, res) => {
   const id = req.params["id"];
-  let delete_result = deleteNoteById(id);
-  if (delete_result === undefined) {
+  const result = await todoServices.getTodoById(id);
+  if (result === undefined || result === null) {
     res.status(404).send("Resource not found.");
   } else {
-    res.status(200).send(delete_result);
+    res.send(result);
+  }
+});
+
+// POST create a todo
+app.post("/todos", async (req, res) => {
+  const todo = req.body;
+  const result = await todoServices.addTodo(todo);
+  if (result) {
+    res.status(201).send(result);
+  } else {
+    res.status(500).send("An error occurred in the server.");
+  }
+});
+
+// DELETE a todo by id
+app.delete("/todos/:id", async (req, res) => {
+  const id = req.params["id"];
+  const result = await todoServices.deleteTodo(id);
+  if (result === undefined || result === null) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.status(200).send(result);
+  }
+});
+
+// PATCH toggle todo complete
+app.patch("/todos/:id", async (req, res) => {
+  const id = req.params["id"];
+  const result = await todoServices.toggleTodoComplete(id);
+  if (result === undefined || result === null) {
+    res.status(404).send("Resource not found.");
+  } else {
+    res.status(200).send(result);
   }
 });
 
 // listen
-app.listen(port, () => {
-  console.log(`Backend running at http://localhost:${port}`);
+app.listen(process.env.PORT || port, () => {
+  console.log(
+    `Backend running at http://localhost:${process.env.PORT || port}`,
+  );
 });

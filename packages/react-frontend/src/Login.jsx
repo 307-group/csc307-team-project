@@ -1,33 +1,47 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 function Login(props) {
   const [creds, setCreds] = useState({
-    username: "",
-    pwd: ""
+    username: '',
+    pwd: '',
   });
 
   return (
-    <form>
-      <label htmlFor="username">UserName</label>
+    <form
+      onSubmit={(e) => e.preventDefault()}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        maxWidth: '250px',
+        marginBottom: '20px',
+      }}
+    >
+      <h3>{props.buttonLabel || 'Log In'}</h3>
+
       <input
         type="text"
         name="username"
-        id="username"
+        placeholder="Username"
         value={creds.username}
         onChange={handleChange}
+        style={{ padding: '8px' }}
       />
-      <label htmlFor="password">Password</label>
+
       <input
         type="password"
         name="password"
-        id="password"
+        placeholder="Password"
         value={creds.pwd}
         onChange={handleChange}
+        style={{ padding: '8px' }}
       />
+
       <input
         type="button"
-        value={props.buttonLabel || "Log In"}
+        value={props.buttonLabel || 'Log In'}
         onClick={submitForm}
+        style={{ padding: '8px', cursor: 'pointer' }}
       />
     </form>
   );
@@ -35,10 +49,10 @@ function Login(props) {
   function handleChange(event) {
     const { name, value } = event.target;
     switch (name) {
-      case "username":
+      case 'username':
         setCreds({ ...creds, username: value });
         break;
-      case "password":
+      case 'password':
         setCreds({ ...creds, pwd: value });
         break;
     }
@@ -46,7 +60,7 @@ function Login(props) {
 
   function submitForm() {
     props.handleSubmit(creds);
-    setCreds({ username: "", pwd: "" });
+    setCreds({ username: '', pwd: '' });
   }
 }
 export default Login;

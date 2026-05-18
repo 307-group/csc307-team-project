@@ -1,5 +1,5 @@
 // src/Table.jsx
-import React from "react";
+import React from 'react';
 
 function TableHeader() {
   return (
@@ -15,10 +15,9 @@ function TableHeader() {
 }
 
 function TableBody(props) {
-  
-    if (props.characterData === null) {
-      return <caption>Data Unavailable</caption>;
-    }
+  if (props.characterData === null) {
+    return <caption>Data Unavailable</caption>;
+  }
   const rows = props.characterData.map((row, index) => {
     return (
       <tr key={index}>

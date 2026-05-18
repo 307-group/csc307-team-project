@@ -1,30 +1,30 @@
-import { Check, ArrowRight, StickyNote, ClipboardList } from "lucide-react";
+import { Check, ArrowRight, StickyNote, ClipboardList } from 'lucide-react';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getGreeting() {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
 }
 
 function timeAgo(ms) {
   const diff = Date.now() - ms;
   const mins = Math.floor(diff / 60000);
 
-  if (mins < 1) return "just now";
+  if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
 
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
 
   const days = Math.floor(hrs / 24);
-  if (days === 1) return "yesterday";
+  if (days === 1) return 'yesterday';
   if (days < 7) return `${days}d ago`;
 
   return new Date(ms).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
+    month: 'short',
+    day: 'numeric',
   });
 }
 
@@ -57,20 +57,22 @@ function TodoRow({ todo, onToggle, onNavigate }) {
           onToggle();
         }}
         className={`mt-0.5 size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-          todo.done
-            ? "bg-green-500 border-green-500"
-            : "border-gray-300 hover:border-green-400"
+          todo.completed
+            ? 'bg-green-500 border-green-500'
+            : 'border-gray-300 hover:border-green-400'
         }`}
       >
-        {todo.done && <Check className="size-3 text-white" strokeWidth={3} />}
+        {todo.completed && (
+          <Check className="size-3 text-white" strokeWidth={3} />
+        )}
       </button>
 
       <button onClick={onNavigate} className="flex-1 min-w-0 text-left">
         <p
           className={`text-sm font-medium ${
-            todo.done
-              ? "line-through text-gray-400"
-              : "text-gray-800 group-hover:text-gray-600"
+            todo.completed
+              ? 'line-through text-gray-400'
+              : 'text-gray-800 group-hover:text-gray-600'
           } transition-colors`}
         >
           {todo.title}
@@ -87,8 +89,8 @@ function TodoRow({ todo, onToggle, onNavigate }) {
 }
 
 function NoteCard({ note, label, onClick }) {
-  const title = note.title || "Untitled Note";
-  const preview = (note.body || "").slice(0, 120);
+  const title = note.title || 'Untitled Note';
+  const preview = (note.body || '').slice(0, 120);
 
   return (
     <button
@@ -97,7 +99,7 @@ function NoteCard({ note, label, onClick }) {
     >
       <div
         className="h-1 w-8 rounded-full"
-        style={{ backgroundColor: label ? label.color : "#e5e7eb" }}
+        style={{ backgroundColor: label ? label.color : '#e5e7eb' }}
       />
 
       <p className="text-sm font-semibold text-gray-800 truncate">{title}</p>
@@ -115,7 +117,7 @@ function NoteCard({ note, label, onClick }) {
           <span
             className="text-xs px-2 py-0.5 rounded-full"
             style={{
-              backgroundColor: label.color + "1a",
+              backgroundColor: label.color + '1a',
               color: label.color,
             }}
           >
@@ -143,7 +145,7 @@ export default function HomeScreen({
   onGoToTodos,
   onToggleTodo,
 }) {
-  const activeTodos = todos.filter((t) => !t.done).slice(0, MAX_TODOS);
+  const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
     .sort((a, b) => b.updatedAt - a.updatedAt)
@@ -164,7 +166,7 @@ export default function HomeScreen({
         <section>
           <SectionHeader
             title="To-Do"
-            count={todos.filter((t) => !t.done).length}
+            count={todos.filter((t) => !t.completed).length}
             onViewAll={onGoToTodos}
           />
 
