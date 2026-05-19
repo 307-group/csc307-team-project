@@ -48,7 +48,7 @@ function MyApp() {
     fetch(`${API}/notes/${id}`, { method: 'DELETE' })
       .then((res) => {
         if (res.status === 200) {
-          setNotes(notes.filter((n) => n.id !== id));
+          setNotes(notes.filter((n) => n._id !== id));
         }
       })
       .catch((err) => console.log(err));
@@ -74,7 +74,7 @@ function MyApp() {
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((updated) => {
         if (updated) {
-          setTodos(todos.map((t) => (t.id === id ? updated : t)));
+          setTodos(todos.map((t) => (t._id === id ? updated : t)));
         }
       })
       .catch((err) => console.log(err));
@@ -85,7 +85,7 @@ function MyApp() {
     fetch(`${API}/todos/${id}`, { method: 'DELETE' })
       .then((res) => {
         if (res.status === 200) {
-          setTodos(todos.filter((t) => t.id !== id));
+          setTodos(todos.filter((t) => t._id !== id));
         }
       })
       .catch((err) => console.log(err));
