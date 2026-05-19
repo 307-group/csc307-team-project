@@ -148,7 +148,7 @@ export default function HomeScreen({
   const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, MAX_NOTES);
 
   const greeting = getGreeting();
