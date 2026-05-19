@@ -5,7 +5,7 @@ import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 
-const API = 'https://markr.azurewebsites.net';
+const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
