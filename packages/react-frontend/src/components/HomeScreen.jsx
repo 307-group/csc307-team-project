@@ -9,7 +9,7 @@ function getGreeting() {
 }
 
 function timeAgo(ms) {
-  const diff = Date.now() - ms;
+  const diff = Date.now() - new Date(ms).getTime();
   const mins = Math.floor(diff / 60000);
 
   if (mins < 1) return 'just now';
@@ -148,7 +148,7 @@ export default function HomeScreen({
   const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
-    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
     .slice(0, MAX_NOTES);
 
   const greeting = getGreeting();
