@@ -186,9 +186,9 @@ export default function HomeScreen({
             <div className="bg-white border border-gray-200 rounded-2xl px-4 divide-y divide-gray-100">
               {activeTodos.map((todo) => (
                 <TodoRow
-                  key={todo.id}
+                  key={todo._id}
                   todo={todo}
-                  onToggle={() => onToggleTodo(todo.id)}
+                  onToggle={() => onToggleTodo(todo._id)}
                   onNavigate={onGoToTodos}
                 />
               ))}
@@ -219,10 +219,10 @@ export default function HomeScreen({
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {recentNotes.map((note) => (
                 <NoteCard
-                  key={note.id}
+                  key={note._id}
                   note={note}
-                  label={labels.find((l) => l.id === note.labelId)}
-                  onClick={() => onOpenNote(note.id)}
+                  label={labels.find((l) => l._id === note.labelId)}
+                  onClick={() => onOpenNote(note._id)}
                 />
               ))}
             </div>

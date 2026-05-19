@@ -36,7 +36,7 @@ function NotesScreen({ notes, onAdd, onDelete }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
-  const selectedNote = notes.find((n) => n.id === selectedId);
+  const selectedNote = notes.find((n) => n._id === selectedId);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -78,16 +78,16 @@ function NotesScreen({ notes, onAdd, onDelete }) {
           ) : (
             notes.map((note) => (
               <NoteListItem
-                key={note.id}
+                key={note._id}
                 note={note}
-                isActive={selectedId === note.id && !showForm}
+                isActive={selectedId === note._id && !showForm}
                 onClick={() => {
-                  setSelectedId(note.id);
+                  setSelectedId(note._id);
                   setShowForm(false);
                 }}
                 onDelete={() => {
-                  onDelete(note.id);
-                  if (selectedId === note.id) setSelectedId(null);
+                  onDelete(note._id);
+                  if (selectedId === note._id) setSelectedId(null);
                 }}
               />
             ))
@@ -145,7 +145,7 @@ function NotesScreen({ notes, onAdd, onDelete }) {
               </h1>
               <button
                 onClick={() => {
-                  onDelete(selectedNote.id);
+                  onDelete(selectedNote._id);
                   setSelectedId(null);
                 }}
                 className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-4 flex-shrink-0"
