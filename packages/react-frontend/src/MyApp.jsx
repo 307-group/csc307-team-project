@@ -6,11 +6,12 @@ import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 
-const API = 'http://localhost:8000';
+const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
   const [todos, setTodos] = useState([]);
+  const [labels, setLabels] = useState([]);
 
   // fetch all notes on load
   useEffect(() => {
@@ -47,7 +48,7 @@ function MyApp() {
     fetch(`${API}/notes/${id}`, { method: 'DELETE' })
       .then((res) => {
         if (res.status === 200) {
-          setNotes(notes.filter((n) => n._id !== id));
+          setNotes(notes.filter((n) => String(n._id || n.id) !== String(id)));
         }
       })
       .catch((err) => console.log(err));
@@ -73,7 +74,7 @@ function MyApp() {
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((updated) => {
         if (updated) {
-          setTodos(todos.map((t) => (t._id === id ? updated : t)));
+          setTodos(todos.map((t) => String(t._id || t.id) === String(id) ? updated : t));
         }
       })
       .catch((err) => console.log(err));
@@ -84,7 +85,7 @@ function MyApp() {
     fetch(`${API}/todos/${id}`, { method: 'DELETE' })
       .then((res) => {
         if (res.status === 200) {
-          setTodos(todos.filter((t) => t._id !== id));
+          setTodos(todos.filter((t) => String(t._id || t.id) !== String(id)));
         }
       })
       .catch((err) => console.log(err));
@@ -98,7 +99,7 @@ function MyApp() {
         <Routes>
           <Route
             path="/"
-            element={<HomeScreen notes={notes} todos={todos} labels={[]} onToggleTodo={toggleTodo} />}
+            element={<HomeScreen notes={notes} todos={todos} labels={labels} onToggleTodo={toggleTodo} />}
           />
           <Route
             path="/notes"

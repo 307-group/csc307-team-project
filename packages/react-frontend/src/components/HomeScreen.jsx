@@ -10,7 +10,7 @@ function getGreeting() {
 }
 
 function timeAgo(ms) {
-  const diff = Date.now() - ms;
+  const diff = Date.now() - new Date(ms).getTime();
   const mins = Math.floor(diff / 60000);
 
   if (mins < 1) return 'just now';
@@ -138,9 +138,9 @@ const MAX_TODOS = 5;
 const MAX_NOTES = 6;
 
 export default function HomeScreen({
-  notes,
-  labels,
-  todos,
+  notes = [],
+  labels = [],
+  todos = [],
   onToggleTodo = () => {},
 }) {
   const navigate = useNavigate();
@@ -148,7 +148,10 @@ export default function HomeScreen({
   const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
     .slice(0, MAX_NOTES);
 
   const greeting = getGreeting();
@@ -186,9 +189,9 @@ export default function HomeScreen({
             <div className="bg-white border border-gray-200 rounded-2xl px-4 divide-y divide-gray-100">
               {activeTodos.map((todo) => (
                 <TodoRow
-                  key={todo._id}
+                  key={todo._id || todo.id}
                   todo={todo}
-                  onToggle={() => onToggleTodo(todo._id)}
+                  onToggle={() => onToggleTodo(todo._id || todo.id)}
                   onNavigate={() => navigate('/todos')}
                 />
               ))}
@@ -219,9 +222,9 @@ export default function HomeScreen({
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {recentNotes.map((note) => (
                 <NoteCard
-                  key={note._id}
+                  key={note._id || note.id}
                   note={note}
-                  label={labels.find((l) => l._id === note.labelId)}
+                  label={labels.find((l) => note.labelId && String((l._id || l.id) === note.labelId))}
                   onClick={() => navigate(`/notes?id=${note._id || note.id}`)}
                 />
               ))}

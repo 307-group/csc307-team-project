@@ -1,5 +1,5 @@
 function Tasks(props) {
-  const rows = props.tasks.map((task, index) => {
+  const rows = props.tasks.map((task) => {
     return (
       <div key={task.id}>
         <input

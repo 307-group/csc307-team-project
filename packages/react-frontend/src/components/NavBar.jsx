@@ -29,7 +29,6 @@ function NavBar() {
 
         {expanded && <span className="text-sm font-medium"> </span>}
       </button>
-
       <NavLink to="/" className={getNavClass}>
         <div className="w-10 flex justify-center items-center shrink-0">
           <House size={24} className="shrink-0" />
