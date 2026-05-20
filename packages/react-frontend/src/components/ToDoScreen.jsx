@@ -236,10 +236,10 @@ function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
             <div className="flex flex-col gap-2">
               {activeTodos.map((todo) => (
                 <TodoCard
-                  key={todo.id}
+                  key={todo._id}
                   todo={todo}
-                  onToggle={() => onToggleTodo(todo.id)}
-                  onDelete={() => onDeleteTodo(todo.id)}
+                  onToggle={() => onToggleTodo(todo._id)}
+                  onDelete={() => onDeleteTodo(todo._id)}
                 />
               ))}
             </div>
@@ -265,10 +265,10 @@ function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
               <div className="flex flex-col gap-2">
                 {doneTodos.map((todo) => (
                   <TodoCard
-                    key={todo.id}
+                    key={todo._id}
                     todo={todo}
-                    onToggle={() => onToggleTodo(todo.id)}
-                    onDelete={() => onDeleteTodo(todo.id)}
+                    onToggle={() => onToggleTodo(todo._id)}
+                    onDelete={() => onDeleteTodo(todo._id)}
                   />
                 ))}
               </div>
