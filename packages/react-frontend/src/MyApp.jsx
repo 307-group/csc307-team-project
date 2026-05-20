@@ -74,7 +74,11 @@ function MyApp() {
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((updated) => {
         if (updated) {
-          setTodos(todos.map((t) => String(t._id || t.id) === String(id) ? updated : t));
+          setTodos(
+            todos.map((t) =>
+              String(t._id || t.id) === String(id) ? updated : t
+            )
+          );
         }
       })
       .catch((err) => console.log(err));
@@ -91,6 +95,14 @@ function MyApp() {
       .catch((err) => console.log(err));
   }
 
+  // fetch all labels on load
+  useEffect(() => {
+    fetch(`${API}/labels`) // Or whatever your backend endpoint path is named
+      .then((res) => res.json())
+      .then((json) => setLabels(json['labels_list'] || json || []))
+      .catch((err) => console.log('Error fetching labels:', err));
+  }, []);
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <NavBar />
@@ -99,7 +111,14 @@ function MyApp() {
         <Routes>
           <Route
             path="/"
-            element={<HomeScreen notes={notes} todos={todos} labels={labels} onToggleTodo={toggleTodo} />}
+            element={
+              <HomeScreen
+                notes={notes}
+                todos={todos}
+                labels={labels}
+                onToggleTodo={toggleTodo}
+              />
+            }
           />
           <Route
             path="/notes"
