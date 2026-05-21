@@ -1,5 +1,6 @@
 // src/components/NotesScreen.jsx
 import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Trash2, StickyNote, FileText } from 'lucide-react';
 
 function NoteListItem({ note, isActive, onClick, onDelete }) {
@@ -31,12 +32,27 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
 }
 
 function NotesScreen({ notes, onAdd, onDelete }) {
-  const [selectedId, setSelectedId] = useState(null);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
-  const selectedNote = notes.find((n) => n._id === selectedId);
+  const selectedId = searchParams.get('id');
+
+  const selectedNote = notes.find(
+    (n) => String(n._id || n.id) === String(selectedId)
+  );
+
+  function handleSelectNote(id) {
+    setSearchParams({ id });
+    setShowForm(false);
+  }
+
+  function handleNewNote() {
+    setSearchParams({});
+    setShowForm(true);
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -45,11 +61,6 @@ function NotesScreen({ notes, onAdd, onDelete }) {
     setTitle('');
     setBody('');
     setShowForm(false);
-  }
-
-  function handleNewNote() {
-    setShowForm(true);
-    setSelectedId(null);
   }
 
   return (
@@ -80,14 +91,14 @@ function NotesScreen({ notes, onAdd, onDelete }) {
               <NoteListItem
                 key={note._id}
                 note={note}
-                isActive={selectedId === note._id && !showForm}
-                onClick={() => {
-                  setSelectedId(note._id);
-                  setShowForm(false);
-                }}
+                isActive={
+                  String(selectedId) === String(note._id || note.id) &&
+                  !showForm
+                }
+                onClick={() => handleSelectNote(note._id || note.id)}
                 onDelete={() => {
-                  onDelete(note._id);
-                  if (selectedId === note._id) setSelectedId(null);
+                  onDelete(note._id || note.id);
+                  if (selectedId === (note._id || note.id)) setSearchParams({});
                 }}
               />
             ))
@@ -145,8 +156,9 @@ function NotesScreen({ notes, onAdd, onDelete }) {
               </h1>
               <button
                 onClick={() => {
-                  onDelete(selectedNote._id);
-                  setSelectedId(null);
+                  onDelete(selectedNote._id || selectedNote.id);
+                  setSearchParams({});
+                  navigate('/notes');
                 }}
                 className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-4 flex-shrink-0"
               >
