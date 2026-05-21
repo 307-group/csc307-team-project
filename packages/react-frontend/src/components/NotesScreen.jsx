@@ -40,7 +40,9 @@ function NotesScreen({ notes, onAdd, onDelete }) {
 
   const selectedId = searchParams.get('id');
 
-  const selectedNote = notes.find((n) => String(n._id || n.id) === String(selectedId));
+  const selectedNote = notes.find(
+    (n) => String(n._id || n.id) === String(selectedId)
+  );
 
   function handleSelectNote(id) {
     setSearchParams({ id });
@@ -89,15 +91,18 @@ function NotesScreen({ notes, onAdd, onDelete }) {
               <NoteListItem
                 key={note._id}
                 note={note}
-                isActive={String(selectedId) === String(note._id || note.id) && !showForm}
+                isActive={
+                  String(selectedId) === String(note._id || note.id) &&
+                  !showForm
+                }
                 onClick={() => handleSelectNote(note._id || note.id)}
                 onDelete={() => {
                   onDelete(note._id || note.id);
                   if (selectedId === (note._id || note.id)) setSearchParams({});
                 }}
               />
-          ))
-        )}
+            ))
+          )}
         </div>
       </div>
 

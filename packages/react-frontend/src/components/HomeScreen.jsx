@@ -224,7 +224,10 @@ export default function HomeScreen({
                 <NoteCard
                   key={note._id || note.id}
                   note={note}
-                  label={labels.find((l) => note.labelId && String((l._id || l.id) === note.labelId))}
+                  label={labels.find(
+                    (l) =>
+                      note.labelId && String((l._id || l.id) === note.labelId)
+                  )}
                   onClick={() => navigate(`/notes?id=${note._id || note.id}`)}
                 />
               ))}
