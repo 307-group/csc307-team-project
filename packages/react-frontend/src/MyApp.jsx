@@ -44,7 +44,7 @@ function MyApp() {
     setNotes([]);
     setTodos([]);
     setMessage('');
-    navigate('/');
+    navigate('/account');
   }
 
   // Fetch notes when logged in
