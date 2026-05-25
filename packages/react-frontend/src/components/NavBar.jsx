@@ -16,7 +16,7 @@ function NavBar() {
   return (
     <div
       className={`flex flex-col items-center border-r border-gray-200 p-2.5 pt-10 gap-3 bg-[#fafafa] h-screen transition-all duration-300 ${
-        expanded ? 'w-36' : 'w-14'
+        expanded ? 'w-44' : 'w-14'
       }`}
     >
       <button
