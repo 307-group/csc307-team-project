@@ -3,52 +3,51 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu, X, House, StickyNote, CheckSquare } from 'lucide-react';
 
+const NAV_ITEMS = [
+  { to: '/', label: 'Home', Icon: House },
+  { to: '/notes', label: 'Notes', Icon: StickyNote },
+  { to: '/todos', label: 'To-Do', Icon: CheckSquare },
+];
+
 function NavBar() {
   const [expanded, setExpanded] = useState(false);
 
-  const getNavClass = ({ isActive }) =>
-    `flex items-center gap-3 p-2.5 px-4 rounded-lg transition-colors w-full no-underline ${
-      isActive
-        ? 'bg-gray-200 text-neutral-900'
-        : 'bg-transparent text-gray-600 hover:bg-gray-100'
-    }`;
-
   return (
     <div
-      className={`flex flex-col items-center border-r border-gray-200 p-2.5 pt-10 gap-3 bg-[#fafafa] h-screen transition-all duration-300 ${
+      className={`${
         expanded ? 'w-44' : 'w-14'
-      }`}
+      } shrink-0 border-r border-gray-200 bg-white flex flex-col h-screen transition-all duration-200 overflow-hidden`}
     >
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="flex items-center w-full gap-3 p-2.5 px-4 rounded-lg hover:bg-gray-100 transition-colors shrink-0 text-gray-600"
+        className="flex items-center justify-center h-14 hover:bg-gray-100 transition-colors shrink-0 text-gray-400 hover:text-gray-700"
+        title={expanded ? 'Collapse menu' : 'Expand menu'}
       >
-        <div className="w-6 flex justify-center items-center shrink-0">
-          {expanded ? <X size={18} /> : <Menu size={18} />}
-        </div>
-        {expanded && <span className="text-sm font-medium"> </span>}
+        {expanded ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
 
-      <NavLink to="/" end className={getNavClass}>
-        <div className="w-6 flex justify-center items-center shrink-0">
-          <House size={18} className="shrink-0" />
-        </div>
-        {expanded && <span className="text-sm font-medium">HOME</span>}
-      </NavLink>
+      <nav className="flex flex-col gap-1 p-2 pt-1">
+        {NAV_ITEMS.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors whitespace-nowrap no-underline ${
+                isActive
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
+              }`
+            }
+            title={!expanded ? label : undefined}
+          >
+            <Icon className="size-5 shrink-0" />
+            {expanded && <span className="text-sm font-medium">{label}</span>}
+          </NavLink>
+        ))}
+      </nav>
 
-      <NavLink to="/notes" className={getNavClass}>
-        <div className="w-6 flex justify-center items-center shrink-0">
-          <StickyNote size={18} className="shrink-0" />
-        </div>
-        {expanded && <span className="text-sm font-medium">NOTES</span>}
-      </NavLink>
-
-      <NavLink to="/todos" className={getNavClass}>
-        <div className="w-6 flex justify-center items-center shrink-0">
-          <CheckSquare size={18} className="shrink-0" />
-        </div>
-        {expanded && <span className="text-sm font-medium">TODOS</span>}
-      </NavLink>
+      <div className="flex-1" />
     </div>
   );
 }
