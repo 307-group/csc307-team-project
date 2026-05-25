@@ -1,102 +1,184 @@
 // src/components/SignInScreen.jsx
 import { useState } from 'react';
-import { User, Lock, LogIn } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, ArrowRight } from 'lucide-react';
 
-function SignInScreen({ loginUser, signupUser, message }) {
-  const [creds, setCreds] = useState({
-    username: '',
-    password: '',
-  });
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setCreds({ ...creds, [name]: value });
-  }
-  function handleLogin() {
-    loginUser(creds);
-  }
-  function handleSignup() {
-    signupUser(creds);
-  }
+const API = 'http://localhost:8000';
+
+export function SignInScreen({ onAuth }) {
+  const [mode, setMode] = useState('signin');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const switchMode = (next) => {
+    setMode(next);
+    setError(null);
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
+  const validate = () => {
+    if (mode === 'signup' && !name.trim()) return 'Please enter your name.';
+    if (!email.trim()) return 'Please enter your email.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      return 'Please enter a valid email address.';
+    if (!password) return 'Please enter a password.';
+    if (password.length < 6) return 'Password must be at least 6 characters.';
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const endpoint = mode === 'signup' ? '/signup' : '/login';
+      const body =
+        mode === 'signup'
+          ? { name: name.trim(), email: email.trim(), password }
+          : { email: email.trim(), password };
+
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const text = await res.text();
+      if (!res.ok) {
+        setError(text || `Error ${res.status}`);
+        return;
+      }
+
+      const payload = JSON.parse(text);
+      onAuth(payload.token, payload.user);
+    } catch (err) {
+      setError('Network error. Is the server running?');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex-1 bg-gray-50 h-full overflow-y-auto">
-      <div className="min-h-screen flex items-center justify-center px-8 py-10">
-        <div className="w-full max-w-sm bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Please enter your info.
-            </p>
+    <div className="flex-1 flex items-center justify-center bg-gray-50 p-6 min-h-screen">
+      <div className="w-full max-w-sm">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-gray-900 text-white mb-4 text-2xl font-bold">
+            N
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {mode === 'signin' ? 'Welcome back' : 'Create an account'}
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            {mode === 'signin'
+              ? 'Sign in to access your notes and tasks.'
+              : 'Get started — it only takes a moment.'}
+          </p>
+        </div>
+
+        {/* Tab toggle */}
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+          {['signin', 'signup'].map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => switchMode(m)}
+              className={`flex-1 text-sm py-1.5 rounded-lg font-medium transition-all ${
+                mode === m
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-400 hover:text-gray-700'
+              }`}
+            >
+              {m === 'signin' ? 'Sign in' : 'Sign up'}
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {mode === 'signup' && (
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+              />
+            </div>
+          )}
+
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+            />
           </div>
 
-          <form className="flex flex-col gap-4">
-            {/*<form className="flex flex-col gap-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Email
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <Mail size={16} className="text-gray-300" />
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-           */}
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Username
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <User size={16} className="text-gray-300" />
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  value={creds.username}
-                  onChange={handleChange}
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Password
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <Lock size={16} className="text-gray-300" />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  value={creds.password}
-                  onChange={handleChange}
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={
+                mode === 'signup' ? 'new-password' : 'current-password'
+              }
+              className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+            />
             <button
               type="button"
-              onClick={handleLogin}
-              className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
+              tabIndex={-1}
             >
-              <LogIn size={16} />
-              Sign In
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
             </button>
+          </div>
 
-            <button
-              type="button"
-              onClick={handleSignup}
-              className="px-4 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Create Account
-            </button>
+          {error && (
+            <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
 
-            {message && <p className="text-sm text-gray-500">{message}</p>}
-          </form>
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {loading ? (
+              <span className="inline-block size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                {mode === 'signin' ? 'Sign in' : 'Create account'}
+                <ArrowRight className="size-4" />
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );
