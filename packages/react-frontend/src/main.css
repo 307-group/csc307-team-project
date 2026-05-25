@@ -2,6 +2,42 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+  --surface: #f5f5f5;
+  --border: #e0e0e0;
+  --muted-foreground: #888888;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --input-background: #ffffff;
+  --ring: #2563eb;
+}
+
+.dark {
+  --background: #1c1c1e;
+  --foreground: #f0f0f0;
+  --surface: #2c2c2e;
+  --border: #3a3a3c;
+  --muted-foreground: #8e8e93;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --input-background: #2c2c2e;
+  --ring: #3b82f6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+}
+
 body {
-  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
 }

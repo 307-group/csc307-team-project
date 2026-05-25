@@ -47,7 +47,7 @@ function SectionHeader({ title, count, to }) {
 
 function TodoRow({ todo, onToggle, onNavigate }) {
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-gray-800 last:border-0 group">
+    <div className="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-[var(--border)] last:border-0 group">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -91,7 +91,7 @@ function NoteCard({ note, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
+      className="text-left bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
     >
       <div
         className="h-1 w-8 rounded-full"
@@ -150,7 +150,7 @@ export default function HomeScreen({
   const greeting = getGreeting();
 
   return (
-    <div className="flex-1 bg-gray-50 dark:bg-gray-950 h-full overflow-y-auto">
+    <div className="flex-1 bg-gray-50 dark:bg-[var(--background)] h-full overflow-y-auto">
       <div className="max-w-3xl mx-auto px-8 py-10 flex flex-col gap-10">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -168,7 +168,7 @@ export default function HomeScreen({
             to="/todos"
           />
           {activeTodos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900">
+            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-[var(--border)] rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-[var(--surface)]">
               <ClipboardList className="size-7 mb-2 opacity-30" />
               <p className="text-sm">No active tasks right now.</p>
               <button
@@ -179,7 +179,7 @@ export default function HomeScreen({
               </button>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-2xl px-4 divide-y divide-gray-100 dark:divide-gray-800">
               {activeTodos.map((todo) => (
                 <TodoRow
                   key={todo._id || todo.id}
@@ -199,7 +199,7 @@ export default function HomeScreen({
             to="/notes"
           />
           {recentNotes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900">
+            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-[var(--border)] rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-[var(--surface)]">
               <StickyNote className="size-7 mb-2 opacity-30" />
               <p className="text-sm">No notes yet.</p>
               <button

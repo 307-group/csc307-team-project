@@ -122,9 +122,12 @@ function MyApp() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div
+      className="flex min-h-screen text-gray-900 dark:text-gray-100"
+      style={{ backgroundColor: darkMode ? '#252525' : '#ffffff' }}
+    >
+      {' '}
       <NavBar darkMode={darkMode} onToggleDark={() => setDarkMode((v) => !v)} />
-
       <div style={{ flex: 1 }}>
         <Routes>
           <Route

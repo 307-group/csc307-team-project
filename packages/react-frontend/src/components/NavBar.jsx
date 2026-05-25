@@ -22,33 +22,38 @@ function NavBar({ darkMode, onToggleDark }) {
 
   return (
     <div
-      className={`${
-        expanded ? 'w-44' : 'w-14'
-      } shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col h-screen transition-all duration-200 overflow-hidden`}
+      className={`${expanded ? 'w-44' : 'w-14'} shrink-0 flex flex-col h-screen transition-all duration-200 overflow-hidden`}
+      style={{
+        borderRight: '1px solid var(--border)',
+        backgroundColor: 'var(--background)',
+      }}
     >
-      {/* Expand/collapse toggle */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="flex items-center justify-center h-14 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
+        className="flex items-center justify-center h-14 shrink-0 transition-colors"
+        style={{ color: 'var(--muted-foreground)' }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor = 'var(--surface)')
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor = 'transparent')
+        }
         title={expanded ? 'Collapse menu' : 'Expand menu'}
       >
         {expanded ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
 
-      {/* Nav links */}
       <nav className="flex flex-col gap-1 p-2 pt-1">
         {NAV_ITEMS.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors whitespace-nowrap no-underline ${
-                isActive
-                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                  : 'text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200'
-              }`
-            }
+            className="flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors whitespace-nowrap no-underline"
+            style={({ isActive }) => ({
+              backgroundColor: isActive ? 'var(--surface)' : 'transparent',
+              color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
+            })}
             title={!expanded ? label : undefined}
           >
             <Icon className="size-5 shrink-0" />
@@ -59,11 +64,17 @@ function NavBar({ darkMode, onToggleDark }) {
 
       <div className="flex-1" />
 
-      {/* Dark mode toggle at bottom */}
       <div className="p-2 pb-4">
         <button
           onClick={onToggleDark}
-          className="flex items-center gap-3 px-2 py-2.5 rounded-lg w-full transition-colors text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
+          className="flex items-center gap-3 px-2 py-2.5 rounded-lg w-full transition-colors"
+          style={{ color: 'var(--muted-foreground)' }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = 'var(--surface)')
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = 'transparent')
+          }
           title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {darkMode ? (

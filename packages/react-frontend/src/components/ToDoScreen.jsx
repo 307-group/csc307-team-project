@@ -32,7 +32,7 @@ function NewTaskModal({ onAdd, onClose }) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
+      <div className="bg-white dark:bg-[var(--surface)] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
           New Task
         </h2>
@@ -50,7 +50,7 @@ function NewTaskModal({ onAdd, onClose }) {
             if (e.key === 'Enter') submit();
             if (e.key === 'Escape') onClose();
           }}
-          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent mb-3"
+          className="w-full border border-gray-200 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-100 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent mb-3"
         />
 
         <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
@@ -67,13 +67,13 @@ function NewTaskModal({ onAdd, onClose }) {
             if (e.key === 'Escape') onClose();
           }}
           rows={3}
-          className="w-full border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent resize-none mb-5"
+          className="w-full border border-gray-200 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-100 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-transparent resize-none mb-5"
         />
 
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-[var(--border)] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             Cancel
           </button>
@@ -95,8 +95,8 @@ function TodoCard({ todo, onToggle, onDelete }) {
     <div
       className={`group flex items-start gap-3 p-4 rounded-xl border transition-all ${
         todo.completed
-          ? 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700'
-          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
+          ? 'bg-gray-50 dark:bg-[var(--surface)] border-gray-100 dark:border-[var(--border)]'
+          : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)] hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
       }`}
     >
       <button
@@ -155,8 +155,8 @@ function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
   const doneTodos = todos.filter((t) => t.completed);
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 min-w-0 h-full overflow-y-auto">
-      <div className="sticky top-0 bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700 px-8 py-5 flex items-center justify-between z-10">
+    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-[var(--background)] min-w-0 h-full overflow-y-auto">
+      <div className="sticky top-0 bg-gray-50 dark:bg-[var(--background)] border-b border-gray-200 dark:border-[var(--border)] px-8 py-5 flex items-center justify-between z-10">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           To-Do
         </h1>
@@ -175,7 +175,7 @@ function ToDoScreen({ todos, onCreateTodo, onToggleTodo, onDeleteTodo }) {
             Tasks · {activeTodos.length}
           </h2>
           {activeTodos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 dark:text-gray-500">
+            <div className="flex flex-col items-center justify-center py-12 border border-dashed border-gray-200 dark:border-[var(--border)] rounded-2xl text-gray-400 dark:text-gray-500">
               <ClipboardList className="size-8 mb-2 opacity-40" />
               <p className="text-sm">Nothing here — enjoy the break!</p>
               <button

@@ -10,7 +10,7 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
       onClick={onClick}
       className={`group relative w-full text-left px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
         isActive
-          ? 'bg-gray-100 dark:bg-gray-800'
+          ? 'bg-gray-100 dark:bg-[var(--surface)]'
           : 'hover:bg-gray-50 dark:hover:bg-gray-800'
       }`}
     >
@@ -65,10 +65,10 @@ function NotesScreen({ notes, onAdd, onDelete }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-[var(--background)] overflow-hidden">
       {/* ── Left Sidebar ───────────────────────────────────────── */}
-      <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col flex-shrink-0">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="w-64 bg-white dark:bg-[var(--surface)] border-r border-gray-200 dark:border-[var(--border)] flex flex-col flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-[var(--border)]">
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
             Notes
           </span>
@@ -130,7 +130,7 @@ function NotesScreen({ notes, onAdd, onDelete }) {
                 onChange={(e) => setBody(e.target.value)}
                 className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent placeholder-gray-300 dark:placeholder-gray-600 leading-relaxed"
               />
-              <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-[var(--border)]">
                 <button
                   type="submit"
                   className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 transition-colors"
