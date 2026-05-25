@@ -1,4 +1,5 @@
 import { Check, ArrowRight, StickyNote, ClipboardList } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getGreeting() {
@@ -9,7 +10,7 @@ function getGreeting() {
 }
 
 function timeAgo(ms) {
-  const diff = Date.now() - ms;
+  const diff = Date.now() - new Date(ms).getTime();
   const mins = Math.floor(diff / 60000);
 
   if (mins < 1) return 'just now';
@@ -28,7 +29,7 @@ function timeAgo(ms) {
   });
 }
 
-function SectionHeader({ title, count, onViewAll }) {
+function SectionHeader({ title, count, to }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
@@ -38,12 +39,12 @@ function SectionHeader({ title, count, onViewAll }) {
         <span className="text-xs text-gray-400">· {count}</span>
       </div>
 
-      <button
-        onClick={onViewAll}
+      <Link
+        to={to}
         className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
       >
         View all <ArrowRight className="size-3" />
-      </button>
+      </Link>
     </div>
   );
 }
@@ -137,18 +138,20 @@ const MAX_TODOS = 5;
 const MAX_NOTES = 6;
 
 export default function HomeScreen({
-  notes,
-  labels,
-  todos,
-  onOpenNote,
-  onGoToNotes,
-  onGoToTodos,
-  onToggleTodo,
+  notes = [],
+  labels = [],
+  todos = [],
+  onToggleTodo = () => {},
 }) {
+  const navigate = useNavigate();
+
   const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
 
   const recentNotes = [...notes]
-    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
     .slice(0, MAX_NOTES);
 
   const greeting = getGreeting();
@@ -167,7 +170,7 @@ export default function HomeScreen({
           <SectionHeader
             title="To-Do"
             count={todos.filter((t) => !t.completed).length}
-            onViewAll={onGoToTodos}
+            to="/todos"
           />
 
           {activeTodos.length === 0 ? (
@@ -176,7 +179,7 @@ export default function HomeScreen({
               <p className="text-sm">No active tasks right now.</p>
 
               <button
-                onClick={onGoToTodos}
+                onClick={() => navigate('/todos')}
                 className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 transition-colors"
               >
                 Go to To-Do
@@ -186,10 +189,10 @@ export default function HomeScreen({
             <div className="bg-white border border-gray-200 rounded-2xl px-4 divide-y divide-gray-100">
               {activeTodos.map((todo) => (
                 <TodoRow
-                  key={todo.id}
+                  key={todo._id || todo.id}
                   todo={todo}
-                  onToggle={() => onToggleTodo(todo.id)}
-                  onNavigate={onGoToTodos}
+                  onToggle={() => onToggleTodo(todo._id || todo.id)}
+                  onNavigate={() => navigate('/todos')}
                 />
               ))}
             </div>
@@ -200,7 +203,7 @@ export default function HomeScreen({
           <SectionHeader
             title="Recent Notes"
             count={notes.length}
-            onViewAll={onGoToNotes}
+            to="/notes"
           />
 
           {recentNotes.length === 0 ? (
@@ -209,7 +212,7 @@ export default function HomeScreen({
               <p className="text-sm">No notes yet.</p>
 
               <button
-                onClick={onGoToNotes}
+                onClick={() => navigate('/notes')}
                 className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 transition-colors"
               >
                 Go to Notes
@@ -219,10 +222,13 @@ export default function HomeScreen({
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {recentNotes.map((note) => (
                 <NoteCard
-                  key={note.id}
+                  key={note._id || note.id}
                   note={note}
-                  label={labels.find((l) => l.id === note.labelId)}
-                  onClick={() => onOpenNote(note.id)}
+                  label={labels.find(
+                    (l) =>
+                      note.labelId && String((l._id || l.id) === note.labelId)
+                  )}
+                  onClick={() => navigate(`/notes?id=${note._id || note.id}`)}
                 />
               ))}
             </div>

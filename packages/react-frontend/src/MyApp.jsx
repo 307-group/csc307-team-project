@@ -1,25 +1,43 @@
 // src/MyApp.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 import Login from './Login';
 
-const API = 'http://localhost:8000';
+const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
 
 const INVALID_TOKEN = 'INVALID_TOKEN';
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
   const [todos, setTodos] = useState([]);
-  const [screen, setScreen] = useState('home');
-  const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [token, setToken] = useState(INVALID_TOKEN);
   const [message, setMessage] = useState('');
+  const [labels, setLabels] = useState([]);
+
+  const addAuthHeader = useCallback(
+    (otherHeaders = {}) => {
+      if (token === INVALID_TOKEN) {
+        return otherHeaders;
+      } else {
+        return {
+          ...otherHeaders,
+          Authorization: `Bearer ${token}`,
+        };
+      }
+    },
+    [token]
+  );
 
   // Fetch all notes on load
   useEffect(() => {
+    if (token === INVALID_TOKEN) {
+      return;
+    }
+
     fetch(`${API}/notes`, {
       headers: addAuthHeader(),
     })
@@ -33,7 +51,7 @@ function MyApp() {
         }
       })
       .catch((err) => console.log(err));
-  }, [token]);
+  }, [token, addAuthHeader]);
 
   // fetch all todos on load
   useEffect(() => {
@@ -43,16 +61,6 @@ function MyApp() {
       .catch((err) => console.log(err));
   }, []);
 
-  function addAuthHeader(otherHeaders = {}) {
-    if (token === INVALID_TOKEN) {
-      return otherHeaders;
-    } else {
-      return {
-        ...otherHeaders,
-        Authorization: `Bearer ${token}`,
-      };
-    }
-  }
   function loginUser(creds) {
     const promise = fetch(`${API}/login`, {
       method: 'POST',
@@ -122,7 +130,7 @@ function MyApp() {
     })
       .then((res) => {
         if (res.status === 200) {
-          setNotes(notes.filter((n) => n.id !== id));
+          setNotes(notes.filter((n) => String(n._id || n.id) !== String(id)));
         }
       })
       .catch((err) => console.log(err));
@@ -148,7 +156,11 @@ function MyApp() {
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((updated) => {
         if (updated) {
-          setTodos(todos.map((t) => (t.id === id ? updated : t)));
+          setTodos(
+            todos.map((t) =>
+              String(t._id || t.id) === String(id) ? updated : t
+            )
+          );
         }
       })
       .catch((err) => console.log(err));
@@ -159,64 +171,82 @@ function MyApp() {
     fetch(`${API}/todos/${id}`, { method: 'DELETE' })
       .then((res) => {
         if (res.status === 200) {
-          setTodos(todos.filter((t) => t.id !== id));
+          setTodos(todos.filter((t) => String(t._id || t.id) !== String(id)));
         }
       })
       .catch((err) => console.log(err));
   }
 
+  // fetch all labels on load
+  useEffect(() => {
+    fetch(`${API}/labels`) // Or whatever your backend endpoint path is named
+      .then((res) => res.json())
+      .then((json) => setLabels(json['labels_list'] || json || []))
+      .catch((err) => console.log('Error fetching labels:', err));
+  }, []);
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <NavBar activeScreen={screen} onNavigate={setScreen} />
+      <NavBar />
 
       <div style={{ flex: 1 }}>
-        {screen === 'home' && token === INVALID_TOKEN && (
-          <div
-            style={{
-              padding: '16px',
-              background: '#f9fafb',
-              borderBottom: '1px solid #e5e7eb',
-            }}
-          >
-            <div
-              style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}
-            >
-              <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
-              <Login handleSubmit={loginUser} buttonLabel="Log In" />
-            </div>
-            <p>{message}</p>
-          </div>
-        )}
-        {screen === 'home' && (
-          <HomeScreen
-            notes={notes}
-            labels={[]}
-            todos={todos}
-            onOpenNote={(id) => {
-              setSelectedNoteId(id);
-              setScreen('notes');
-            }}
-            onGoToNotes={() => setScreen('notes')}
-            onGoToTodos={() => setScreen('todos')}
-            onToggleTodo={toggleTodo}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                {token === INVALID_TOKEN && (
+                  <div
+                    style={{
+                      padding: '16px',
+                      background: '#f9fafb',
+                      borderBottom: '1px solid #e5e7eb',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '24px',
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
+                      <Login handleSubmit={loginUser} buttonLabel="Log In" />
+                    </div>
+                    <p>{message}</p>
+                  </div>
+                )}
+                <HomeScreen
+                  notes={notes}
+                  todos={todos}
+                  labels={labels}
+                  onToggleTodo={toggleTodo}
+                />
+              </>
+            }
           />
-        )}
-        {screen === 'notes' && (
-          <NotesScreen
-            notes={notes}
-            onAdd={addNote}
-            onDelete={deleteNote}
-            initialNoteId={selectedNoteId}
+          <Route
+            path="/notes"
+            element={
+              <NotesScreen
+                notes={notes}
+                onAdd={addNote}
+                onDelete={deleteNote}
+              />
+            }
           />
-        )}
-        {screen === 'todos' && (
-          <ToDoScreen
-            todos={todos}
-            onCreateTodo={createTodo}
-            onToggleTodo={toggleTodo}
-            onDeleteTodo={deleteTodo}
+          <Route
+            path="/todos"
+            element={
+              <ToDoScreen
+                todos={todos}
+                onCreateTodo={createTodo}
+                onToggleTodo={toggleTodo}
+                onDeleteTodo={deleteTodo}
+              />
+            }
           />
-        )}
+        </Routes>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 function Login(props) {
   const [creds, setCreds] = useState({
     username: '',
-    pwd: '',
+    password: '',
   });
 
   return (
@@ -53,14 +53,14 @@ function Login(props) {
         setCreds({ ...creds, username: value });
         break;
       case 'password':
-        setCreds({ ...creds, pwd: value });
+        setCreds({ ...creds, password: value });
         break;
     }
   }
 
   function submitForm() {
     props.handleSubmit(creds);
-    setCreds({ username: '', pwd: '' });
+    setCreds({ username: '', password: '' });
   }
 }
 export default Login;

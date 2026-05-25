@@ -4,16 +4,16 @@ import jwt from "jsonwebtoken";
 const creds = [];
 
 export function registerUser(req, res) {
-  const { username, pwd } = req.body; // from form
+  const { username, password } = req.body; // from form
 
-  if (!username || !pwd) {
+  if (!username || !password) {
     res.status(400).send("Bad request: Invalid input data.");
   } else if (creds.find((c) => c.username === username)) {
     res.status(409).send("Username already taken");
   } else {
     bcrypt
       .genSalt(10)
-      .then((salt) => bcrypt.hash(pwd, salt))
+      .then((salt) => bcrypt.hash(password, salt))
       .then((hashedPassword) => {
         generateAccessToken(username).then((token) => {
           console.log("Token:", token);
@@ -59,7 +59,7 @@ export function authenticateUser(req, res, next) {
   }
 }
 export function loginUser(req, res) {
-  const { username, pwd } = req.body; // from form
+  const { username, password } = req.body; // from form
   const retrievedUser = creds.find((c) => c.username === username);
 
   if (!retrievedUser) {
@@ -67,7 +67,7 @@ export function loginUser(req, res) {
     res.status(401).send("Unauthorized");
   } else {
     bcrypt
-      .compare(pwd, retrievedUser.hashedPassword)
+      .compare(password, retrievedUser.hashedPassword)
       .then((matched) => {
         if (matched) {
           generateAccessToken(username).then((token) => {
