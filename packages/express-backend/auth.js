@@ -1,24 +1,32 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import credentialServices from "./models/credentials-services.js";
 
-const creds = [];
+// const creds = [];
 
-export function registerUser(req, res) {
+export async function registerUser(req, res) {
   const { username, password } = req.body; // from form
+  const credentialExists = await credentialServices.getCredential(username);
 
   if (!username || !password) {
     res.status(400).send("Bad request: Invalid input data.");
-  } else if (creds.find((c) => c.username === username)) {
+  } else if (credentialExists) {
     res.status(409).send("Username already taken");
   } else {
     bcrypt
       .genSalt(10)
       .then((salt) => bcrypt.hash(password, salt))
       .then((hashedPassword) => {
-        generateAccessToken(username).then((token) => {
-          console.log("Token:", token);
-          res.status(201).send({ token: token });
-          creds.push({ username, hashedPassword });
+        credentialServices
+          .addCredential({ username, hashedPassword })
+          .then((savedCredential) => {
+            if (!savedCredential) {
+            return res.status(500).send("Could not save credentials");
+          }
+          generateAccessToken(username).then((token) => {
+            console.log("Token:", token);
+            res.status(201).send({ token: token });
+          });
         });
       });
   }
@@ -58,9 +66,9 @@ export function authenticateUser(req, res, next) {
     });
   }
 }
-export function loginUser(req, res) {
+export async function loginUser(req, res) {
   const { username, password } = req.body; // from form
-  const retrievedUser = creds.find((c) => c.username === username);
+  const retrievedUser = await credentialServices.getCredential(username);
 
   if (!retrievedUser) {
     // invalid username
