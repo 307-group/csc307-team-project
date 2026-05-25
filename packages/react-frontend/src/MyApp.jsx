@@ -5,10 +5,11 @@ import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
-import Login from './Login';
+//import Login from './Login';
+import SignInScreen from './components/SignInScreen';
 
-const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
-
+//const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
+const API = 'http://localhost:8000';
 const INVALID_TOKEN = 'INVALID_TOKEN';
 
 function MyApp() {
@@ -17,6 +18,7 @@ function MyApp() {
   const [token, setToken] = useState(INVALID_TOKEN);
   const [message, setMessage] = useState('');
   const [labels, setLabels] = useState([]);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const addAuthHeader = useCallback(
     (otherHeaders = {}) => {
@@ -187,7 +189,10 @@ function MyApp() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <NavBar />
+      <NavBar
+        onSignInClick={() => setShowSignIn(true)}
+        isLoggedIn={token !== INVALID_TOKEN}
+      />
 
       <div style={{ flex: 1 }}>
         <Routes>
@@ -195,27 +200,6 @@ function MyApp() {
             path="/"
             element={
               <>
-                {token === INVALID_TOKEN && (
-                  <div
-                    style={{
-                      padding: '16px',
-                      background: '#f9fafb',
-                      borderBottom: '1px solid #e5e7eb',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '24px',
-                        alignItems: 'flex-start',
-                      }}
-                    >
-                      <Login handleSubmit={signupUser} buttonLabel="Sign Up" />
-                      <Login handleSubmit={loginUser} buttonLabel="Log In" />
-                    </div>
-                    <p>{message}</p>
-                  </div>
-                )}
                 <HomeScreen
                   notes={notes}
                   todos={todos}
@@ -225,6 +209,7 @@ function MyApp() {
               </>
             }
           />
+
           <Route
             path="/notes"
             element={
@@ -247,6 +232,15 @@ function MyApp() {
             }
           />
         </Routes>
+        {token === INVALID_TOKEN && showSignIn && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+            <SignInScreen
+              loginUser={loginUser}
+              signupUser={signupUser}
+              message={message}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

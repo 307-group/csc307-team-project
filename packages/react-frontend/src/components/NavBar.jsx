@@ -1,7 +1,14 @@
 // src/components/NavBar.jsx
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, House, StickyNote, CheckSquare } from 'lucide-react';
+import {
+  Menu,
+  X,
+  House,
+  StickyNote,
+  CheckSquare,
+  UserCircle,
+} from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home', Icon: House },
@@ -9,7 +16,7 @@ const NAV_ITEMS = [
   { to: '/todos', label: 'To-Do', Icon: CheckSquare },
 ];
 
-function NavBar() {
+function NavBar({ onSignInClick, isLoggedIn }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -25,7 +32,18 @@ function NavBar() {
       >
         {expanded ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
-
+      <div className="flex justify-center py-3 border-b border-gray-200 bg-white">
+        {!isLoggedIn && (
+          <button
+            type="button"
+            onClick={onSignInClick}
+            className="flex items-center justify-center h-1 hover:bg-gray-100 transition-colors shrink-0 text-gray-400 hover:text-gray-700"
+            title="Sign In"
+          >
+            <UserCircle className="size-5" />
+          </button>
+        )}
+      </div>
       <nav className="flex flex-col gap-1 p-2 pt-1">
         {NAV_ITEMS.map(({ to, label, Icon }) => (
           <NavLink
