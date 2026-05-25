@@ -5,6 +5,7 @@ import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 import SignInScreen from './components/SignInScreen';
+import CreateAccountScreen from './components/CreateAccountScreen';
 
 const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
 
@@ -136,7 +137,10 @@ function MyApp() {
             onDeleteTodo={deleteTodo}
           />
         )}
-        {screen === 'signin' && <SignInScreen />}
+        {screen === 'signin' && <SignInScreen 
+        onGoToCreate = {() => setScreen('createacc')}
+        />}
+        {screen === 'createacc' && <CreateAccountScreen />}
       </div>
     </div>
   );
