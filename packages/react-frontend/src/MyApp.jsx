@@ -7,11 +7,29 @@ import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 
 const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
+const DARK_KEY = 'notes-app-dark';
 
 function MyApp() {
   const [notes, setNotes] = useState([]);
   const [todos, setTodos] = useState([]);
   const [labels, setLabels] = useState([]);
+
+  //dark mode state - local persistence
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem(DARK_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  //dark mode toggle
+  useEffect(() => {
+    try {
+      localStorage.setItem(DARK_KEY, darkMode);
+    } catch {}
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
 
   // fetch all notes on load
   useEffect(() => {
@@ -104,8 +122,8 @@ function MyApp() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <NavBar />
+    <div className="flex min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <NavBar darkMode={darkMode} onToggleDark={() => setDarkMode((v) => !v)} />
 
       <div style={{ flex: 1 }}>
         <Routes>
