@@ -9,6 +9,7 @@ import { SignInScreen } from './components/SignInScreen';
 import { AccountScreen } from './components/AccountScreen';
 
 const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
+const INVALID_TOKEN = 'INVALID_TOKEN';
 const DARK_KEY = 'notes-app-dark';
 
 function MyApp() {
@@ -162,7 +163,12 @@ function MyApp() {
       style={{ backgroundColor: darkMode ? '#252525' : '#ffffff' }}
     >
       {' '}
-      <NavBar darkMode={darkMode} onToggleDark={() => setDarkMode((v) => !v)} />
+      <NavBar
+        darkMode={darkMode}
+        onToggleDark={() => setDarkMode((v) => !v)}
+        isLoggedIn={isLoggedIn}
+        currentUser={currentUser}
+      />
       <div style={{ flex: 1 }}>
         <Routes>
           <Route

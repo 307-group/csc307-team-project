@@ -17,35 +17,34 @@ const NAV_ITEMS = [
   { to: '/todos', label: 'To-Do', Icon: CheckSquare },
 ];
 
-function NavBar({ darkMode, onToggleDark }) {
-function avatarColor(str) {
-  const colors = [
-    '#3b82f6',
-    '#ef4444',
-    '#22c55e',
-    '#eab308',
-    '#a855f7',
-    '#ec4899',
-    '#f97316',
-    '#14b8a6',
-  ];
-  let hash = 0;
-  for (let i = 0; i < str.length; i++)
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  return colors[Math.abs(hash) % colors.length];
-}
+function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
+  function avatarColor(str) {
+    const colors = [
+      '#3b82f6',
+      '#ef4444',
+      '#22c55e',
+      '#eab308',
+      '#a855f7',
+      '#ec4899',
+      '#f97316',
+      '#14b8a6',
+    ];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++)
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  }
 
-function getInitials(name) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
+  function getInitials(name) {
+    return name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
 
-function NavBar({ isLoggedIn, currentUser }) {
   const [expanded, setExpanded] = useState(false);
 
   const color =
@@ -78,7 +77,7 @@ function NavBar({ isLoggedIn, currentUser }) {
       </button>
 
       {/* Divider */}
-      <div className="border-b border-gray-200" />
+      <div style={{ borderBottom: '1px solid var(--border)' }} />
 
       {/* Account button */}
       <NavLink
@@ -121,7 +120,9 @@ function NavBar({ isLoggedIn, currentUser }) {
       </NavLink>
 
       {/* Divider */}
-      <div className="border-b border-gray-200 mx-2" />
+      <div
+        style={{ borderBottom: '1px solid var(--border)', margin: '0 0.5rem' }}
+      />
 
       {/* Nav items */}
       <nav className="flex flex-col gap-1 p-2 pt-1">
