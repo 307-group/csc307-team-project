@@ -31,9 +31,7 @@ function MyApp() {
   useEffect(() => {
     try {
       localStorage.setItem(DARK_KEY, darkMode);
-    } catch (e) {
-      // localStorage may be unavailable in some environments
-    }
+    } catch {}
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
@@ -50,7 +48,7 @@ function MyApp() {
   function handleAuth(newToken, user) {
     setToken(newToken);
     setCurrentUser(user);
-    setMessage('');
+    //setMessage('');
     navigate('/');
   }
 
@@ -59,7 +57,7 @@ function MyApp() {
     setCurrentUser(null);
     setNotes([]);
     setTodos([]);
-    setMessage('');
+    //setMessage('');
     navigate('/account');
   }
 
@@ -71,7 +69,7 @@ function MyApp() {
         if (json) setNotes(json['notes_list']);
         else {
           setNotes([]);
-          setMessage('Could not load notes.');
+          //setMessage('Could not load notes.');
         }
       })
       .catch((err) => console.log(err));
