@@ -98,7 +98,7 @@ export function AccountScreen({ user, onLogout }) {
                 label: 'Member since',
                 value: formatDate(user.createdAt),
               },
-            ].map(({ label, value }, i, arr) => (
+            ].map(({ Icon, label, value }, i, arr) => (
               <div
                 key={label}
                 className="flex items-center gap-3 px-5 py-4"
