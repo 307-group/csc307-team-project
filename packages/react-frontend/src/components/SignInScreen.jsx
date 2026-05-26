@@ -69,6 +69,13 @@ export function SignInScreen({ onAuth }) {
     }
   };
 
+  // Flex wrapper approach — icons always perfectly centered with input text
+  const wrapperClass =
+    'flex items-center gap-2 px-3 rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-gray-900 focus-within:border-transparent transition-shadow';
+  const inputClass =
+    'flex-1 py-2.5 text-sm bg-transparent text-gray-700 placeholder-gray-300 outline-none';
+  const iconClass = 'size-4 shrink-0 text-gray-300';
+
   return (
     <div className="flex-1 flex items-center justify-center bg-gray-50 p-6 min-h-screen">
       <div className="w-full max-w-sm">
@@ -106,34 +113,37 @@ export function SignInScreen({ onAuth }) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {/* Name — signup only */}
           {mode === 'signup' && (
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+            <div className={wrapperClass}>
+              <User className={iconClass} />
               <input
                 type="text"
                 placeholder="Full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+                className={inputClass}
               />
             </div>
           )}
 
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+          {/* Email */}
+          <div className={wrapperClass}>
+            <Mail className={iconClass} />
             <input
               type="email"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+              className={inputClass}
             />
           </div>
 
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 mt-px text-gray-300 pointer-events-none" />
+          {/* Password */}
+          <div className={wrapperClass}>
+            <Lock className={iconClass} />
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
@@ -142,12 +152,12 @@ export function SignInScreen({ onAuth }) {
               autoComplete={
                 mode === 'signup' ? 'new-password' : 'current-password'
               }
-              className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 placeholder-gray-300 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+              className={inputClass}
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-colors"
+              className="text-gray-300 hover:text-gray-600 transition-colors shrink-0"
               tabIndex={-1}
             >
               {showPassword ? (
@@ -158,12 +168,14 @@ export function SignInScreen({ onAuth }) {
             </button>
           </div>
 
+          {/* Error */}
           {error && (
             <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
