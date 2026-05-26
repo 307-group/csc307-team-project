@@ -1,102 +1,254 @@
 // src/components/SignInScreen.jsx
 import { useState } from 'react';
-import { User, Lock, LogIn } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, ArrowRight } from 'lucide-react';
 
-function SignInScreen({ loginUser, signupUser, message }) {
-  const [creds, setCreds] = useState({
-    username: '',
-    password: '',
-  });
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setCreds({ ...creds, [name]: value });
-  }
-  function handleLogin() {
-    loginUser(creds);
-  }
-  function handleSignup() {
-    signupUser(creds);
-  }
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export function SignInScreen({ onAuth }) {
+  const [mode, setMode] = useState('signin');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const switchMode = (next) => {
+    setMode(next);
+    setError(null);
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
+  const validate = () => {
+    if (mode === 'signup' && !name.trim()) return 'Please enter your name.';
+    if (!email.trim()) return 'Please enter your email.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      return 'Please enter a valid email address.';
+    if (!password) return 'Please enter a password.';
+    if (password.length < 6) return 'Password must be at least 6 characters.';
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const endpoint = mode === 'signup' ? '/signup' : '/login';
+      const body =
+        mode === 'signup'
+          ? { name: name.trim(), email: email.trim(), password }
+          : { email: email.trim(), password };
+
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const text = await res.text();
+      if (!res.ok) {
+        setError(text || `Error ${res.status}`);
+        return;
+      }
+
+      const payload = JSON.parse(text);
+      onAuth(payload.token, payload.user);
+    } catch (_err) {
+      setError('Network error. Is the server running?');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex-1 bg-gray-50 h-full overflow-y-auto">
-      <div className="min-h-screen flex items-center justify-center px-8 py-10">
-        <div className="w-full max-w-sm bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Please enter your info.
-            </p>
+    <div
+      className="flex-1 flex items-center justify-center p-6 min-h-screen"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
+      <div className="w-full max-w-sm">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div
+            className="inline-flex items-center justify-center size-14 rounded-2xl text-2xl font-bold mb-4"
+            style={{
+              backgroundColor: 'var(--foreground)',
+              color: 'var(--background)',
+            }}
+          >
+            N
+          </div>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: 'var(--foreground)' }}
+          >
+            {mode === 'signin' ? 'Welcome back' : 'Create an account'}
+          </h1>
+          <p
+            className="text-sm mt-1"
+            style={{ color: 'var(--muted-foreground)' }}
+          >
+            {mode === 'signin'
+              ? 'Sign in to access your notes and tasks.'
+              : 'Get started — it only takes a moment.'}
+          </p>
+        </div>
+
+        {/* Tab toggle */}
+        <div
+          className="flex rounded-xl p-1 mb-6"
+          style={{ backgroundColor: 'var(--surface)' }}
+        >
+          {['signin', 'signup'].map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => switchMode(m)}
+              className="flex-1 text-sm py-1.5 rounded-lg font-medium transition-all"
+              style={
+                mode === m
+                  ? {
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--foreground)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    }
+                  : { color: 'var(--muted-foreground)' }
+              }
+            >
+              {m === 'signin' ? 'Sign in' : 'Sign up'}
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {/* Name — signup only */}
+          {mode === 'signup' && (
+            <div
+              className="flex items-center gap-2 px-3 rounded-xl border transition-shadow"
+              style={{
+                backgroundColor: 'var(--input-background)',
+                borderColor: 'var(--border)',
+              }}
+            >
+              <User
+                className="size-4 shrink-0"
+                style={{ color: 'var(--muted-foreground)' }}
+              />
+              <input
+                type="text"
+                placeholder="Full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                className="flex-1 py-2.5 text-sm bg-transparent outline-none"
+                style={{ color: 'var(--foreground)' }}
+              />
+            </div>
+          )}
+
+          {/* Email */}
+          <div
+            className="flex items-center gap-2 px-3 rounded-xl border transition-shadow"
+            style={{
+              backgroundColor: 'var(--input-background)',
+              borderColor: 'var(--border)',
+            }}
+          >
+            <Mail
+              className="size-4 shrink-0"
+              style={{ color: 'var(--muted-foreground)' }}
+            />
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="flex-1 py-2.5 text-sm bg-transparent outline-none"
+              style={{ color: 'var(--foreground)' }}
+            />
           </div>
 
-          <form className="flex flex-col gap-4">
-            {/*<form className="flex flex-col gap-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Email
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <Mail size={16} className="text-gray-300" />
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-           */}
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Username
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <User size={16} className="text-gray-300" />
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  value={creds.username}
-                  onChange={handleChange}
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Password
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white">
-                <Lock size={16} className="text-gray-300" />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  value={creds.password}
-                  onChange={handleChange}
-                  className="flex-1 text-sm outline-none text-gray-700 placeholder-gray-300"
-                />
-              </div>
-            </div>
-
+          {/* Password */}
+          <div
+            className="flex items-center gap-2 px-3 rounded-xl border transition-shadow"
+            style={{
+              backgroundColor: 'var(--input-background)',
+              borderColor: 'var(--border)',
+            }}
+          >
+            <Lock
+              className="size-4 shrink-0"
+              style={{ color: 'var(--muted-foreground)' }}
+            />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={
+                mode === 'signup' ? 'new-password' : 'current-password'
+              }
+              className="flex-1 py-2.5 text-sm bg-transparent outline-none"
+              style={{ color: 'var(--foreground)' }}
+            />
             <button
               type="button"
-              onClick={handleLogin}
-              className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+              onClick={() => setShowPassword((v) => !v)}
+              className="transition-colors shrink-0"
+              style={{ color: 'var(--muted-foreground)' }}
+              tabIndex={-1}
             >
-              <LogIn size={16} />
-              Sign In
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
             </button>
+          </div>
 
-            <button
-              type="button"
-              onClick={handleSignup}
-              className="px-4 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          {/* Error */}
+          {error && (
+            <p
+              className="text-xs rounded-lg px-3 py-2 border"
+              style={{
+                color: '#ef4444',
+                backgroundColor: 'var(--surface)',
+                borderColor: 'var(--border)',
+              }}
             >
-              Create Account
-            </button>
+              {error}
+            </p>
+          )}
 
-            {message && <p className="text-sm text-gray-500">{message}</p>}
-          </form>
-        </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            style={{
+              backgroundColor: 'var(--foreground)',
+              color: 'var(--background)',
+            }}
+          >
+            {loading ? (
+              <span className="inline-block size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                {mode === 'signin' ? 'Sign in' : 'Create account'}
+                <ArrowRight className="size-4" />
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

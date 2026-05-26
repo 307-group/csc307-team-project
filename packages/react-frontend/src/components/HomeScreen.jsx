@@ -1,7 +1,6 @@
 import { Check, ArrowRight, StickyNote, ClipboardList } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -12,17 +11,13 @@ function getGreeting() {
 function timeAgo(ms) {
   const diff = Date.now() - new Date(ms).getTime();
   const mins = Math.floor(diff / 60000);
-
   if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
-
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
-
   const days = Math.floor(hrs / 24);
   if (days === 1) return 'yesterday';
   if (days < 7) return `${days}d ago`;
-
   return new Date(ms).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
@@ -33,15 +28,16 @@ function SectionHeader({ title, count, to }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
           {title}
         </h2>
-        <span className="text-xs text-gray-400">· {count}</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">
+          · {count}
+        </span>
       </div>
-
       <Link
         to={to}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+        className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
       >
         View all <ArrowRight className="size-3" />
       </Link>
@@ -51,7 +47,7 @@ function SectionHeader({ title, count, to }) {
 
 function TodoRow({ todo, onToggle, onNavigate }) {
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 group">
+    <div className="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-[var(--border)] last:border-0 group">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -72,15 +68,14 @@ function TodoRow({ todo, onToggle, onNavigate }) {
         <p
           className={`text-sm font-medium ${
             todo.completed
-              ? 'line-through text-gray-400'
-              : 'text-gray-800 group-hover:text-gray-600'
+              ? 'line-through text-gray-400 dark:text-gray-600'
+              : 'text-gray-800 dark:text-gray-200 group-hover:text-gray-600 dark:group-hover:text-gray-400'
           } transition-colors`}
         >
           {todo.title}
         </p>
-
         {todo.description && (
-          <p className="text-xs text-gray-400 truncate mt-0.5">
+          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
             {todo.description}
           </p>
         )}
@@ -96,39 +91,38 @@ function NoteCard({ note, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="text-left bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
+      className="text-left bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
     >
       <div
         className="h-1 w-8 rounded-full"
         style={{ backgroundColor: label ? label.color : '#e5e7eb' }}
       />
-
-      <p className="text-sm font-semibold text-gray-800 truncate">{title}</p>
-
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+        {title}
+      </p>
       {preview ? (
-        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-2 leading-relaxed">
           {preview}
         </p>
       ) : (
-        <p className="text-xs text-gray-300 italic">No content</p>
+        <p className="text-xs text-gray-300 dark:text-gray-600 italic">
+          No content
+        </p>
       )}
-
       <div className="flex items-center justify-between mt-auto pt-1">
         {label ? (
           <span
             className="text-xs px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: label.color + '1a',
-              color: label.color,
-            }}
+            style={{ backgroundColor: label.color + '1a', color: label.color }}
           >
             {label.name}
           </span>
         ) : (
           <span />
         )}
-
-        <span className="text-xs text-gray-300">{timeAgo(note.updatedAt)}</span>
+        <span className="text-xs text-gray-300 dark:text-gray-600">
+          {timeAgo(note.updatedAt)}
+        </span>
       </div>
     </button>
   );
@@ -146,7 +140,6 @@ export default function HomeScreen({
   const navigate = useNavigate();
 
   const activeTodos = todos.filter((t) => !t.completed).slice(0, MAX_TODOS);
-
   const recentNotes = [...notes]
     .sort(
       (a, b) =>
@@ -157,11 +150,13 @@ export default function HomeScreen({
   const greeting = getGreeting();
 
   return (
-    <div className="flex-1 bg-gray-50 h-full overflow-y-auto">
+    <div className="flex-1 bg-gray-50 dark:bg-[var(--background)] h-full overflow-y-auto">
       <div className="max-w-3xl mx-auto px-8 py-10 flex flex-col gap-10">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{greeting}</h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {greeting}
+          </h1>
+          <p className="text-gray-400 dark:text-gray-500 mt-1 text-sm">
             Here's a quick look at what's going on.
           </p>
         </div>
@@ -172,21 +167,19 @@ export default function HomeScreen({
             count={todos.filter((t) => !t.completed).length}
             to="/todos"
           />
-
           {activeTodos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 rounded-2xl text-gray-400 bg-white">
+            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-[var(--border)] rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-[var(--surface)]">
               <ClipboardList className="size-7 mb-2 opacity-30" />
               <p className="text-sm">No active tasks right now.</p>
-
               <button
                 onClick={() => navigate('/todos')}
-                className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 transition-colors"
+                className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 Go to To-Do
               </button>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200 rounded-2xl px-4 divide-y divide-gray-100">
+            <div className="bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-2xl px-4 divide-y divide-gray-100 dark:divide-gray-800">
               {activeTodos.map((todo) => (
                 <TodoRow
                   key={todo._id || todo.id}
@@ -205,15 +198,13 @@ export default function HomeScreen({
             count={notes.length}
             to="/notes"
           />
-
           {recentNotes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 rounded-2xl text-gray-400 bg-white">
+            <div className="flex flex-col items-center justify-center py-10 border border-dashed border-gray-200 dark:border-[var(--border)] rounded-2xl text-gray-400 dark:text-gray-500 bg-white dark:bg-[var(--surface)]">
               <StickyNote className="size-7 mb-2 opacity-30" />
               <p className="text-sm">No notes yet.</p>
-
               <button
                 onClick={() => navigate('/notes')}
-                className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 transition-colors"
+                className="mt-1.5 text-xs underline underline-offset-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 Go to Notes
               </button>
