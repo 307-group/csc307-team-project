@@ -31,7 +31,9 @@ function MyApp() {
   useEffect(() => {
     try {
       localStorage.setItem(DARK_KEY, darkMode);
-    } catch {}
+    } catch {
+      // ignore: localstorage unavailable
+    }
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
