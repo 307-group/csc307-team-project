@@ -49,6 +49,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-surface: var(--surface);
+  --color-sidebar: var(--sidebar);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-muted: var(--muted);

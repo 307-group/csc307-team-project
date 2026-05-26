@@ -76,13 +76,10 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
         {expanded ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
 
-      {/* Divider */}
-      <div style={{ borderBottom: '1px solid var(--border)' }} />
-
       {/* Account button */}
       <NavLink
         to="/account"
-        className="flex items-center gap-3 px-2 py-2.5 m-2 rounded-lg transition-colors no-underline"
+        className="flex items-center gap-3 px-2 py-2.5 m-2 mt-1 rounded-lg transition-colors no-underline"
         style={({ isActive }) => ({
           backgroundColor: isActive ? 'var(--surface)' : 'transparent',
           color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
