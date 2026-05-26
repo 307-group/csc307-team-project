@@ -121,7 +121,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
 
       {/* Nav items */}
       <nav className="flex flex-col gap-1 p-2 pt-1">
-        {NAV_ITEMS.map(({ to, label, Icon }) => (
+        {NAV_ITEMS.map(({ to, label, Icon: IconComponent }) => (
           <NavLink
             key={to}
             to={to}
@@ -133,7 +133,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
             })}
             title={!expanded ? label : undefined}
           >
-            <Icon className="size-5 shrink-0" />
+            <IconComponent className="size-5 shrink-0" />
             {expanded && <span className="text-sm font-medium">{label}</span>}
           </NavLink>
         ))}

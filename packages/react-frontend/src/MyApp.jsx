@@ -19,7 +19,6 @@ function MyApp() {
   const [labels, setLabels] = useState([]);
   const [token, setToken] = useState(INVALID_TOKEN);
   const [currentUser, setCurrentUser] = useState(null);
-  const [message, setMessage] = useState('');
 
   const [darkMode, setDarkMode] = useState(() => {
     try {
@@ -32,7 +31,9 @@ function MyApp() {
   useEffect(() => {
     try {
       localStorage.setItem(DARK_KEY, darkMode);
-    } catch {}
+    } catch (e) {
+      // localStorage may be unavailable in some environments
+    }
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
