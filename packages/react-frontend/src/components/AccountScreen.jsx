@@ -1,4 +1,4 @@
-//AccountScreen.jsx
+// src/components/AccountScreen.jsx
 import { LogOut, Mail, Calendar, User } from 'lucide-react';
 
 function formatDate(ms) {
@@ -41,7 +41,10 @@ export function AccountScreen({ user, onLogout }) {
   const color = avatarColor(user.email);
 
   return (
-    <div className="flex-1 bg-gray-50 h-full overflow-y-auto">
+    <div
+      className="flex-1 h-full overflow-y-auto"
+      style={{ backgroundColor: 'var(--background)' }}
+    >
       <div className="max-w-lg mx-auto px-6 py-10 flex flex-col gap-6">
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-3 py-6">
@@ -52,60 +55,112 @@ export function AccountScreen({ user, onLogout }) {
             {initials}
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{user.email}</p>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: 'var(--foreground)' }}
+            >
+              {user.name}
+            </h1>
+            <p
+              className="text-sm mt-0.5"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
+              {user.email}
+            </p>
           </div>
         </div>
 
         {/* Info card */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-          <div className="px-5 py-3 border-b border-gray-200">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div
+          className="rounded-2xl overflow-hidden border"
+          style={{
+            backgroundColor: 'var(--surface)',
+            borderColor: 'var(--border)',
+          }}
+        >
+          <div
+            className="px-5 py-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
               Account Details
             </h2>
           </div>
-          <div className="divide-y divide-gray-200">
-            <div className="flex items-center gap-3 px-5 py-4">
-              <User className="size-4 text-gray-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 mb-0.5">Full name</p>
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user.name}
-                </p>
+          <div>
+            {[
+              { Icon: User, label: 'Full name', value: user.name },
+              { Icon: Mail, label: 'Email address', value: user.email },
+              {
+                Icon: Calendar,
+                label: 'Member since',
+                value: formatDate(user.createdAt),
+              },
+            ].map(({ Icon, label, value }, i, arr) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 px-5 py-4"
+                style={
+                  i < arr.length - 1
+                    ? { borderBottom: '1px solid var(--border)' }
+                    : {}
+                }
+              >
+                <Icon
+                  className="size-4 shrink-0"
+                  style={{ color: 'var(--muted-foreground)' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-xs mb-0.5"
+                    style={{ color: 'var(--muted-foreground)' }}
+                  >
+                    {label}
+                  </p>
+                  <p
+                    className="text-sm font-medium truncate"
+                    style={{ color: 'var(--foreground)' }}
+                  >
+                    {value}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-4">
-              <Mail className="size-4 text-gray-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 mb-0.5">Email address</p>
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-5 py-4">
-              <Calendar className="size-4 text-gray-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 mb-0.5">Member since</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {formatDate(user.createdAt)}
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Sign out card */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-          <div className="px-5 py-3 border-b border-gray-200">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div
+          className="rounded-2xl overflow-hidden border"
+          style={{
+            backgroundColor: 'var(--surface)',
+            borderColor: 'var(--border)',
+          }}
+        >
+          <div
+            className="px-5 py-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--muted-foreground)' }}
+            >
               Session
             </h2>
           </div>
           <div className="px-5 py-4">
             <button
               onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 border border-red-200 hover:bg-red-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{ color: '#ef4444', border: '1px solid var(--border)' }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = 'var(--surface)')
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = 'transparent')
+              }
             >
               <LogOut className="size-4" />
               Sign out

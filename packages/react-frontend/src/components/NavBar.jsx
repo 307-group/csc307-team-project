@@ -57,7 +57,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
       className={`${expanded ? 'w-44' : 'w-14'} shrink-0 flex flex-col h-screen transition-all duration-200 overflow-hidden`}
       style={{
         borderRight: '1px solid var(--border)',
-        backgroundColor: 'var(--background)',
+        backgroundColor: 'var(--sidebar)',
       }}
     >
       {/* Hamburger */}
@@ -82,13 +82,11 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
       {/* Account button */}
       <NavLink
         to="/account"
-        className={({ isActive }) =>
-          `flex items-center gap-3 px-2 py-2.5 m-2 rounded-lg transition-colors no-underline ${
-            isActive
-              ? 'bg-gray-100 text-gray-900'
-              : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'
-          }`
-        }
+        className="flex items-center gap-3 px-2 py-2.5 m-2 rounded-lg transition-colors no-underline"
+        style={({ isActive }) => ({
+          backgroundColor: isActive ? 'var(--surface)' : 'transparent',
+          color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
+        })}
         title={
           !expanded ? (isLoggedIn ? currentUser?.name : 'Account') : undefined
         }

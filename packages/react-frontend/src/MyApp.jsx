@@ -8,7 +8,7 @@ import NavBar from './components/NavBar';
 import { SignInScreen } from './components/SignInScreen';
 import { AccountScreen } from './components/AccountScreen';
 
-const API = 'https://markr-cvbwfhb9ecd2hjhr.eastus-01.azurewebsites.net';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const INVALID_TOKEN = 'INVALID_TOKEN';
 const DARK_KEY = 'notes-app-dark';
 
@@ -21,7 +21,6 @@ function MyApp() {
   const [currentUser, setCurrentUser] = useState(null);
   const [message, setMessage] = useState('');
 
-  //dark mode state - local persistence
   const [darkMode, setDarkMode] = useState(() => {
     try {
       return localStorage.getItem(DARK_KEY) === 'true';
@@ -30,7 +29,6 @@ function MyApp() {
     }
   });
 
-  //dark mode toggle
   useEffect(() => {
     try {
       localStorage.setItem(DARK_KEY, darkMode);
@@ -38,7 +36,6 @@ function MyApp() {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
-  // fetch all notes on load
   const isLoggedIn = token !== INVALID_TOKEN;
 
   const addAuthHeader = useCallback(
@@ -49,7 +46,6 @@ function MyApp() {
     [token]
   );
 
-  // Handle successful auth (login or signup)
   function handleAuth(newToken, user) {
     setToken(newToken);
     setCurrentUser(user);
@@ -66,7 +62,6 @@ function MyApp() {
     navigate('/account');
   }
 
-  // Fetch notes when logged in
   useEffect(() => {
     if (token === INVALID_TOKEN) return;
     fetch(`${API}/notes`, { headers: addAuthHeader() })
@@ -81,7 +76,6 @@ function MyApp() {
       .catch((err) => console.log(err));
   }, [token, addAuthHeader]);
 
-  // Fetch todos when logged in
   useEffect(() => {
     if (token === INVALID_TOKEN) return;
     fetch(`${API}/todos`, { headers: addAuthHeader() })
@@ -90,7 +84,6 @@ function MyApp() {
       .catch((err) => console.log(err));
   }, [token, addAuthHeader]);
 
-  // Fetch labels
   useEffect(() => {
     if (token === INVALID_TOKEN) return;
     fetch(`${API}/labels`, { headers: addAuthHeader() })
@@ -158,11 +151,7 @@ function MyApp() {
   }
 
   return (
-    <div
-      className="flex min-h-screen text-gray-900 dark:text-gray-100"
-      style={{ backgroundColor: darkMode ? '#252525' : '#ffffff' }}
-    >
-      {' '}
+    <div className="flex min-h-screen">
       <NavBar
         darkMode={darkMode}
         onToggleDark={() => setDarkMode((v) => !v)}
