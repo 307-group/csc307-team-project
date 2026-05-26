@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import noteServices from "./models/note-services.js";
 import todoServices from "./models/todo-services.js";
 import mongoose from "mongoose";
+import User from "./models/user.js";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
 dotenv.config();
 
@@ -22,10 +23,28 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
+// Auth routes (unprotected)
 app.post("/signup", registerUser);
 app.post("/login", loginUser);
 
-// GET all notes
+// GET current user profile from token
+app.get("/me", authenticateUser, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-hashedPassword");
+    if (!user) return res.status(404).send("User not found.");
+    res.status(200).send({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt.getTime(),
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Server error.");
+  }
+});
+
+// Notes routes (protected)
 app.get("/notes", authenticateUser, async (req, res) => {
   try {
     const notes = await noteServices.getNotes();
@@ -35,42 +54,24 @@ app.get("/notes", authenticateUser, async (req, res) => {
     res.status(500).send("An error occurred in the server.");
   }
 });
-
-// DELETE a note by id
-app.delete("/notes/:id", authenticateUser, async (req, res) => {
-  const id = req.params["id"];
-  const result = await noteServices.deleteNote(id);
-  if (result === undefined || result === null) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.status(200).send(result);
-  }
-});
-
-// GET one note by id
 app.get("/notes/:id", authenticateUser, async (req, res) => {
-  const id = req.params["id"];
-  const result = await noteServices.getNoteById(id);
-  if (result === undefined || result === null) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
-  }
+  const result = await noteServices.getNoteById(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.send(result);
 });
-
-// POST create a note
 app.post("/notes", authenticateUser, async (req, res) => {
-  const note = req.body;
-  const result = await noteServices.addNote(note);
-  if (result) {
-    res.status(201).send(result);
-  } else {
-    res.status(500).send("An error occurred in the server.");
-  }
+  const result = await noteServices.addNote(req.body);
+  if (result) res.status(201).send(result);
+  else res.status(500).send("An error occurred in the server.");
+});
+app.delete("/notes/:id", authenticateUser, async (req, res) => {
+  const result = await noteServices.deleteNote(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
 });
 
-// GET all todos
-app.get("/todos", async (req, res) => {
+// Todos routes (all protected now)
+app.get("/todos", authenticateUser, async (req, res) => {
   try {
     const todos = await todoServices.getTodos();
     res.send({ todos_list: todos });
@@ -79,52 +80,27 @@ app.get("/todos", async (req, res) => {
     res.status(500).send("An error occurred in the server.");
   }
 });
-
-// GET one todo by id
-app.get("/todos/:id", async (req, res) => {
-  const id = req.params["id"];
-  const result = await todoServices.getTodoById(id);
-  if (result === undefined || result === null) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
-  }
+app.get("/todos/:id", authenticateUser, async (req, res) => {
+  const result = await todoServices.getTodoById(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.send(result);
+});
+app.post("/todos", authenticateUser, async (req, res) => {
+  const result = await todoServices.addTodo(req.body);
+  if (result) res.status(201).send(result);
+  else res.status(500).send("An error occurred in the server.");
+});
+app.delete("/todos/:id", authenticateUser, async (req, res) => {
+  const result = await todoServices.deleteTodo(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
+});
+app.patch("/todos/:id", authenticateUser, async (req, res) => {
+  const result = await todoServices.toggleTodoComplete(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
 });
 
-// POST create a todo
-app.post("/todos", async (req, res) => {
-  const todo = req.body;
-  const result = await todoServices.addTodo(todo);
-  if (result) {
-    res.status(201).send(result);
-  } else {
-    res.status(500).send("An error occurred in the server.");
-  }
-});
-
-// DELETE a todo by id
-app.delete("/todos/:id", async (req, res) => {
-  const id = req.params["id"];
-  const result = await todoServices.deleteTodo(id);
-  if (result === undefined || result === null) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.status(200).send(result);
-  }
-});
-
-// PATCH toggle todo complete
-app.patch("/todos/:id", async (req, res) => {
-  const id = req.params["id"];
-  const result = await todoServices.toggleTodoComplete(id);
-  if (result === undefined || result === null) {
-    res.status(404).send("Resource not found.");
-  } else {
-    res.status(200).send(result);
-  }
-});
-
-// listen
 app.listen(process.env.PORT || port, () => {
   console.log(
     `Backend running at http://localhost:${process.env.PORT || port}`,
