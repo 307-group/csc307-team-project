@@ -87,9 +87,9 @@ app.post("/labels", authenticateUser, async (req, res) => {
   if (result) res.status(201).send(result);
   else res.status(500).send("An error occurred in the server.");
 });
-app.delete('/labels/:id', authenticateUser, async (req, res) => {
+app.delete("/labels/:id", authenticateUser, async (req, res) => {
   const result = await labelServices.deleteLabel(req.params["id"]);
-  if (!result) return res.status(404).send('Resource not found.');
+  if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });
 

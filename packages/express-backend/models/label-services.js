@@ -15,12 +15,12 @@ async function addLabel(label) {
   }
 }
 async function deleteLabel(id) {
-    try {
+  try {
     return await Label.findByIdAndDelete(id);
   } catch (error) {
     console.log(error);
     return undefined;
   }
 }
-  
+
 export default { getLabels, addLabel, deleteLabel };

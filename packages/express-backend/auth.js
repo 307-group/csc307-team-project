@@ -107,8 +107,8 @@ export function authenticateUser(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  console.log('Auth header received:', Boolean(req.headers.authorization));
-  
+  console.log("Auth header received:", Boolean(req.headers.authorization));
+
   if (!token) {
     console.log("No token received");
     return res.status(401).end();
