@@ -17,8 +17,22 @@ function MyApp() {
   const [notes, setNotes] = useState([]);
   const [todos, setTodos] = useState([]);
   const [labels, setLabels] = useState([]);
-  const [token, setToken] = useState(INVALID_TOKEN);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('token') || INVALID_TOKEN;
+    } catch {
+      return INVALID_TOKEN;
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [darkMode, setDarkMode] = useState(() => {
     try {
@@ -50,7 +64,14 @@ function MyApp() {
   function handleAuth(newToken, user) {
     setToken(newToken);
     setCurrentUser(user);
-    //setMessage('');
+
+    try {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch {
+      // ignore localStorage errors
+    }
+
     navigate('/');
   }
 
@@ -59,7 +80,15 @@ function MyApp() {
     setCurrentUser(null);
     setNotes([]);
     setTodos([]);
-    //setMessage('');
+    setLabels([]);
+
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } catch {
+      // ignore localStorage errors
+    }
+
     navigate('/account');
   }
 
@@ -179,6 +208,8 @@ function MyApp() {
                 notes={notes}
                 onAdd={addNote}
                 onDelete={deleteNote}
+                API={API}
+                addAuthHeader={addAuthHeader}
               />
             }
           />

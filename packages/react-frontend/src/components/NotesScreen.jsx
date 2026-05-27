@@ -1,7 +1,7 @@
 // src/components/NotesScreen.jsx
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Trash2, StickyNote, FileText } from 'lucide-react';
+import { Plus, Trash2, StickyNote, FileText, Download } from 'lucide-react';
 
 function NoteListItem({ note, isActive, onClick, onDelete }) {
   const preview = (note.body || '').slice(0, 55);
@@ -33,7 +33,7 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
   );
 }
 
-function NotesScreen({ notes, onAdd, onDelete }) {
+function NotesScreen({ notes, onAdd, onDelete, API, addAuthHeader }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
@@ -62,6 +62,43 @@ function NotesScreen({ notes, onAdd, onDelete }) {
     setTitle('');
     setBody('');
     setShowForm(false);
+  }
+
+  async function handleDownloadPdf(note) {
+    try {
+      const noteId = note._id || note.id;
+
+      const response = await fetch(`${API}/notes/${noteId}/pdf`, {
+        method: 'GET',
+        headers: addAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const safeTitle =
+        note.title
+          ?.replace(/[^\w\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-') || 'note';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${safeTitle}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert('Could not download PDF.');
+    }
   }
 
   return (
@@ -151,18 +188,29 @@ function NotesScreen({ notes, onAdd, onDelete }) {
           <div className="flex-1 flex flex-col p-8 max-w-2xl w-full overflow-y-auto">
             <div className="flex items-start justify-between mb-3">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                {selectedNote.title}
+                {selectedNote.title || 'Untitled Note'}
               </h1>
-              <button
-                onClick={() => {
-                  onDelete(selectedNote._id || selectedNote.id);
-                  setSearchParams({});
-                  navigate('/notes');
-                }}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors ml-4 flex-shrink-0"
-              >
-                <Trash2 size={16} />
-              </button>
+
+              <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                <button
+                  onClick={() => handleDownloadPdf(selectedNote)}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  <Download size={16} />
+                  PDF
+                </button>
+
+                <button
+                  onClick={() => {
+                    onDelete(selectedNote._id || selectedNote.id);
+                    setSearchParams({});
+                    navigate('/notes');
+                  }}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
             <div className="h-px bg-gray-100 dark:bg-gray-700 mb-4" />
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
