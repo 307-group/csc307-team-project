@@ -151,6 +151,33 @@ function MyApp() {
       .catch((err) => console.log(err));
   }
 
+  function createLabel(label) {
+    fetch(`${API}/labels`, {
+      method: 'POST',
+      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(label),
+    })
+      .then((res) => (res.status === 201 ? res.json() : undefined))
+      .then((json) => {
+        if (json) {
+          setLabels([...labels, json]);
+        }
+      })
+      .catch((err) => console.log(err));
+  }
+  function deleteLabel(id) {
+    fetch(`${API}/labels/${id}`, { method: 'DELETE', headers: addAuthHeader() })
+      .then((res) => {
+        if (res.status === 200) {
+          setLabels(
+            labels.filter(
+              (label) => String(label._id || label.id) !== String(id)
+            )
+          );
+        }
+      })
+      .catch((err) => console.log(err));
+  }
   return (
     <div className="flex min-h-screen">
       <NavBar
@@ -177,8 +204,11 @@ function MyApp() {
             element={
               <NotesScreen
                 notes={notes}
+                labels={labels}
                 onAdd={addNote}
                 onDelete={deleteNote}
+                onCreateLabel={createLabel}
+                onDeleteLabel={deleteLabel}
               />
             }
           />

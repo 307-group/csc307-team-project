@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Trash2, StickyNote, FileText } from 'lucide-react';
+import LabelsNotesBar from './LabelsNotesBar';
 
 function NoteListItem({ note, isActive, onClick, onDelete }) {
   const preview = (note.body || '').slice(0, 55);
@@ -33,7 +34,7 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
   );
 }
 
-function NotesScreen({ notes, onAdd, onDelete }) {
+function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
@@ -41,6 +42,8 @@ function NotesScreen({ notes, onAdd, onDelete }) {
   const [body, setBody] = useState('');
 
   const selectedId = searchParams.get('id');
+  const selectedLabelId = searchParams.get('labelId');
+  const unlabeledNotes = notes.filter((note) => !note.labelId);
   const selectedNote = notes.find(
     (n) => String(n._id || n.id) === String(selectedId)
   );
@@ -58,7 +61,7 @@ function NotesScreen({ notes, onAdd, onDelete }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
-    onAdd({ title, body });
+    onAdd({ title, body, labelId: selectedLabelId });
     setTitle('');
     setBody('');
     setShowForm(false);
@@ -82,13 +85,24 @@ function NotesScreen({ notes, onAdd, onDelete }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
-          {notes.length === 0 ? (
+          <LabelsNotesBar
+            labels={labels}
+            notes={notes}
+            onCreateLabel={onCreateLabel}
+            onNewNoteForLabel={(labelId) => {
+              setSearchParams({ labelId });
+              setShowForm(true);
+            }}
+            onSelectNote={handleSelectNote}
+            onDeleteNote={onDelete}
+          />
+          {unlabeledNotes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-300 dark:text-gray-600 py-8">
               <StickyNote size={28} />
               <p className="text-xs">No notes yet</p>
             </div>
           ) : (
-            notes.map((note) => (
+            unlabeledNotes.map((note) => (
               <NoteListItem
                 key={note._id}
                 note={note}

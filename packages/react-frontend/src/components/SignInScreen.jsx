@@ -62,7 +62,7 @@ export function SignInScreen({ onAuth }) {
 
       const payload = JSON.parse(text);
       onAuth(payload.token, payload.user);
-    } catch (_err) {
+    } catch {
       setError('Network error. Is the server running?');
     } finally {
       setLoading(false);
