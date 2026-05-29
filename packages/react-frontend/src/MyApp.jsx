@@ -17,8 +17,22 @@ function MyApp() {
   const [notes, setNotes] = useState([]);
   const [todos, setTodos] = useState([]);
   const [labels, setLabels] = useState([]);
-  const [token, setToken] = useState(INVALID_TOKEN);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('token') || INVALID_TOKEN;
+    } catch {
+      return INVALID_TOKEN;
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [darkMode, setDarkMode] = useState(() => {
     try {
@@ -50,7 +64,14 @@ function MyApp() {
   function handleAuth(newToken, user) {
     setToken(newToken);
     setCurrentUser(user);
-    //setMessage('');
+
+    try {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch {
+      // ignore localStorage errors
+    }
+
     navigate('/');
   }
 
@@ -59,7 +80,15 @@ function MyApp() {
     setCurrentUser(null);
     setNotes([]);
     setTodos([]);
-    //setMessage('');
+    setLabels([]);
+
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } catch {
+      // ignore localStorage errors
+    }
+
     navigate('/account');
   }
 
@@ -178,6 +207,43 @@ function MyApp() {
       })
       .catch((err) => console.log(err));
   }
+
+  async function downloadNotePdf(note) {
+    try {
+      const noteId = note._id || note.id;
+
+      const response = await fetch(`${API}/notes/${noteId}/pdf`, {
+        method: 'GET',
+        headers: addAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const safeTitle =
+        note.title
+          ?.replace(/[^\w\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-') || 'note';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${safeTitle}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert('Could not download PDF.');
+    }
+  }
   return (
     <div className="flex min-h-screen">
       <NavBar
@@ -209,6 +275,7 @@ function MyApp() {
                 onDelete={deleteNote}
                 onCreateLabel={createLabel}
                 onDeleteLabel={deleteLabel}
+                onDownloadPdf={downloadNotePdf}
               />
             }
           />

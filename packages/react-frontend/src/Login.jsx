@@ -32,7 +32,7 @@ function Login(props) {
         type="password"
         name="password"
         placeholder="Password"
-        value={creds.pwd}
+        value={creds.password}
         onChange={handleChange}
         style={{ padding: '8px' }}
       />
