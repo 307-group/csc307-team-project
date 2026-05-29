@@ -34,7 +34,15 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
   );
 }
 
-function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel,  onDownloadPdf }) {
+function NotesScreen({
+  notes,
+  labels,
+  onAdd,
+  onDelete,
+  onCreateLabel,
+  onDeleteLabel,
+  onDownloadPdf,
+}) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
@@ -67,7 +75,6 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel,  onDownloa
     setShowForm(false);
   }
 
-
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[var(--background)] overflow-hidden">
       {/* ── Left Sidebar ───────────────────────────────────────── */}
@@ -90,6 +97,7 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel,  onDownloa
             labels={labels}
             notes={notes}
             onCreateLabel={onCreateLabel}
+            onDeleteLabel={onDeleteLabel}
             onNewNoteForLabel={(labelId) => {
               setSearchParams({ labelId });
               setShowForm(true);
