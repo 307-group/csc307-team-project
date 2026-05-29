@@ -24,6 +24,7 @@ function LabelsNotesBar({
   labels = [],
   notes = [],
   onCreateLabel,
+  onDeleteLabel,
   onNewNoteForLabel,
   onSelectNote,
   onDeleteNote,
@@ -177,6 +178,7 @@ function LabelsNotesBar({
 
                     <button
                       type="button"
+                      onClick={() => onDeleteLabel(label._id || label.id)}
                       className="p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
                       title="Delete label"
                     >
