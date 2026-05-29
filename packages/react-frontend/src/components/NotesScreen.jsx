@@ -34,7 +34,7 @@ function NoteListItem({ note, isActive, onClick, onDelete }) {
   );
 }
 
-function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel, API, addAuthHeader }) {
+function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel,  onDownloadPdf }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
@@ -67,42 +67,6 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel, API, addAu
     setShowForm(false);
   }
 
-  async function handleDownloadPdf(note) {
-    try {
-      const noteId = note._id || note.id;
-
-      const response = await fetch(`${API}/notes/${noteId}/pdf`, {
-        method: 'GET',
-        headers: addAuthHeader(),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to download PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-
-      const safeTitle =
-        note.title
-          ?.replace(/[^\w\s-]/g, '')
-          .trim()
-          .replace(/\s+/g, '-') || 'note';
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${safeTitle}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(error);
-      alert('Could not download PDF.');
-    }
-  }
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[var(--background)] overflow-hidden">
@@ -207,7 +171,7 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel, API, addAu
 
               <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                 <button
-                  onClick={() => handleDownloadPdf(selectedNote)}
+                  onClick={() => onDownloadPdf(selectedNote)}
                   className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   <Download size={16} />

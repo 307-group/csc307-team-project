@@ -207,6 +207,43 @@ function MyApp() {
       })
       .catch((err) => console.log(err));
   }
+
+  async function downloadNotePdf(note) {
+    try {
+      const noteId = note._id || note.id;
+
+      const response = await fetch(`${API}/notes/${noteId}/pdf`, {
+        method: 'GET',
+        headers: addAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const safeTitle =
+        note.title
+          ?.replace(/[^\w\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-') || 'note';
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${safeTitle}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert('Could not download PDF.');
+    }
+  }
   return (
     <div className="flex min-h-screen">
       <NavBar
@@ -233,13 +270,9 @@ function MyApp() {
             element={
               <NotesScreen
                 notes={notes}
-                labels={labels}
                 onAdd={addNote}
                 onDelete={deleteNote}
-                onCreateLabel={createLabel}
-                onDeleteLabel={deleteLabel}
-                API={API}
-                addAuthHeader={addAuthHeader}
+                onDownloadPdf={downloadNotePdf}
               />
             }
           />
