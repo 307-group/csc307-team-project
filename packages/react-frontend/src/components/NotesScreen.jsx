@@ -1,5 +1,5 @@
 // src/components/NotesScreen.jsx
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Trash2, StickyNote, FileText } from 'lucide-react';
 import LabelsNotesBar from './LabelsNotesBar';
@@ -40,6 +40,10 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [imageURL, setImageURL] = useState(null);
+  const [rawFile, setRawFile] = useState(null);
+
+  const fileUploadRef = useRef();
 
   const selectedId = searchParams.get('id');
   const selectedLabelId = searchParams.get('labelId');
@@ -61,11 +65,40 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
-    onAdd({ title, body, labelId: selectedLabelId });
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('body', body);
+    formData.append('labelId', selectedLabelId);
+
+    if (rawFile) {
+      formData.append('image', rawFile);
+    }
+
+    onAdd({ formData });
+
     setTitle('');
     setBody('');
+    setImageURL('');
+    setRawFile(null);
     setShowForm(false);
   }
+
+  function handleImageUpload(e) {
+    e.preventDefault();
+    fileUploadRef.current.click();
+  }
+
+    function uploadImageDisplay() {
+    const uploadedFile = fileUploadRef.current.files[0];
+    if (!uploadedFile) return;
+
+
+    setRawFile(uploadedFile);
+    const cachedURL = URL.createObjectURL(uploadedFile);
+    setImageURL(cachedURL);
+  }
+
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[var(--background)] overflow-hidden">
@@ -144,6 +177,35 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
                 onChange={(e) => setBody(e.target.value)}
                 className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent placeholder-gray-300 dark:placeholder-gray-600 leading-relaxed"
               />
+              <div className="relative h-96 w-96 m-8">
+                {imageURL && (
+                  <div className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                    <img
+                      src={imageURL}
+                      alt="Image"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+
+
+                <form id="form" encType="multipart/form-data">
+                  <button
+                    type="button"
+                    onClick={handleImageUpload}
+                    className="px-4 py-2 bg-white dark:bg-gray-100 text-black dark:text-gray-900 text-sm rounded-lg hover:bg-muted dark:hover:bg-gray-300 border border-border transition-colors"
+                  >
+                    Add Image
+                  </button>
+                  <input
+                    type="file"
+                    id="file"
+                    ref={fileUploadRef}
+                    onChange={uploadImageDisplay}
+                    hidden
+                  />
+                </form>
+              </div>
               <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-[var(--border)]">
                 <button
                   type="submit"
