@@ -270,8 +270,11 @@ function MyApp() {
             element={
               <NotesScreen
                 notes={notes}
+                labels={labels}
                 onAdd={addNote}
                 onDelete={deleteNote}
+                onCreateLabel={createLabel}
+                onDeleteLabel={deleteLabel}
                 onDownloadPdf={downloadNotePdf}
               />
             }
