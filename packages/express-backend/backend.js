@@ -7,10 +7,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import PDFDocument from "pdfkit";
 import noteServices from "./models/note-services.js";
+import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
 import mongoose from "mongoose";
 import User from "./models/user.js";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
+
 dotenv.config();
 
 mongoose
@@ -116,6 +118,30 @@ app.post("/notes", authenticateUser, async (req, res) => {
 });
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
   const result = await noteServices.deleteNote(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
+});
+
+// Labels routes (protected)
+app.get("/labels", authenticateUser, async (req, res) => {
+  try {
+    const labels = await labelServices.getLabels(req.user.userId);
+    res.send({ labels_list: labels });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred in the server.");
+  }
+});
+app.post("/labels", authenticateUser, async (req, res) => {
+  const result = await labelServices.addLabel(req.body, req.user.userId);
+  if (result) res.status(201).send(result);
+  else res.status(500).send("An error occurred in the server.");
+});
+app.delete("/labels/:id", authenticateUser, async (req, res) => {
+  const result = await labelServices.deleteLabel(
+    req.params["id"],
+    req.user.userId,
+  );
   if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });
