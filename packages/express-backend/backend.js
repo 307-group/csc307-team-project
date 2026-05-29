@@ -5,12 +5,15 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import multer from "multer";
 import noteServices from "./models/note-services.js";
 import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
 import mongoose from "mongoose";
 import User from "./models/user.js";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 dotenv.config();
 
@@ -24,6 +27,23 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "notes-app",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+
+const upload = multer({ storage });
 
 // Auth routes (unprotected)
 app.post("/signup", registerUser);
@@ -61,10 +81,23 @@ app.get("/notes/:id", authenticateUser, async (req, res) => {
   if (!result) return res.status(404).send("Resource not found.");
   res.send(result);
 });
-app.post("/notes", authenticateUser, async (req, res) => {
-  const result = await noteServices.addNote(req.body);
-  if (result) res.status(201).send(result);
-  else res.status(500).send("An error occurred in the server.");
+app.post("/notes", authenticateUser, upload.single("image"), async (req, res) => {
+  try {
+    const { title, body, labelId } = req.body;
+
+    const noteData = ({
+      title,
+      body,
+      labelId: labelId && labelId !== "null" && labelId !== "undefined" ? labelId : null,
+      imageUrl: req.file ? req.file.path : null,
+    });
+    const result = await noteServices.addNote(noteData);
+    if (result) res.status(201).send(result);
+    else res.status(500).send("An error occurred in the server.");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An error occured in the server");
+  }
 });
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
   const result = await noteServices.deleteNote(req.params["id"]);

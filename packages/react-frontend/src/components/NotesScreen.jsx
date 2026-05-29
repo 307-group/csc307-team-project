@@ -45,6 +45,8 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
 
   const fileUploadRef = useRef();
 
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
   const selectedId = searchParams.get('id');
   const selectedLabelId = searchParams.get('labelId');
   const unlabeledNotes = notes.filter((note) => !note.labelId);
@@ -69,7 +71,9 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('body', body);
-    formData.append('labelId', selectedLabelId);
+    if (selectedLabelId) {
+      formData.append('labelId', selectedLabelId);
+    }
 
     if (rawFile) {
       formData.append('image', rawFile);
@@ -98,7 +102,6 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
     const cachedURL = URL.createObjectURL(uploadedFile);
     setImageURL(cachedURL);
   }
-
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[var(--background)] overflow-hidden">
@@ -189,7 +192,7 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
                 )}
 
 
-                <form id="form" encType="multipart/form-data">
+                <div>
                   <button
                     type="button"
                     onClick={handleImageUpload}
@@ -204,7 +207,7 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
                     onChange={uploadImageDisplay}
                     hidden
                   />
-                </form>
+                </div>
               </div>
               <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-[var(--border)]">
                 <button
@@ -248,6 +251,12 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
                 </span>
               )}
             </p>
+            {selectedNote.imageUrl && (
+              <img
+              src={selectedNote.imageUrl}
+              alt={selectedNote.title}
+              className="mt-4 rounded-lg max-w-lg w-full object-cover"/>
+            )}
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-gray-300 dark:text-gray-600">

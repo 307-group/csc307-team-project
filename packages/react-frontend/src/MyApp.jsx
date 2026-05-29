@@ -93,15 +93,15 @@ function MyApp() {
       .catch((err) => console.log('Error fetching labels:', err));
   }, [token, addAuthHeader]);
 
-  function addNote(note) {
+  function addNote({ formData }) {
     fetch(`${API}/notes`, {
       method: 'POST',
-      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(note),
+      headers: addAuthHeader(),
+      body: formData,
     })
       .then((res) => (res.status === 201 ? res.json() : undefined))
       .then((json) => {
-        if (json) setNotes([...notes, json]);
+        if (json) setNotes((prev) => [...prev, json]);
       })
       .catch((err) => console.log(err));
   }
