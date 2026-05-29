@@ -5,6 +5,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import PDFDocument from "pdfkit";
 import noteServices from "./models/note-services.js";
 import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
@@ -56,11 +57,60 @@ app.get("/notes", authenticateUser, async (req, res) => {
     res.status(500).send("An error occurred in the server.");
   }
 });
+
+app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
+  try {
+    const note = await noteServices.getNoteById(req.params.id);
+
+    if (!note) {
+      return res.status(404).send("Note not found.");
+    }
+
+    const title = note.title || "Untitled Note";
+    const body = note.body || "";
+
+    const safeTitle =
+      title
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-") || "note";
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeTitle}.pdf"`,
+    );
+
+    const doc = new PDFDocument({
+      margin: 50,
+    });
+
+    doc.pipe(res);
+
+    doc.fontSize(24).text(title, {
+      underline: true,
+    });
+
+    doc.moveDown();
+
+    doc.fontSize(12).text(body, {
+      align: "left",
+      lineGap: 6,
+    });
+
+    doc.end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Could not generate PDF.");
+  }
+});
+
 app.get("/notes/:id", authenticateUser, async (req, res) => {
   const result = await noteServices.getNoteById(req.params["id"]);
   if (!result) return res.status(404).send("Resource not found.");
   res.send(result);
 });
+
 app.post("/notes", authenticateUser, async (req, res) => {
   const result = await noteServices.addNote(req.body);
   if (result) res.status(201).send(result);
