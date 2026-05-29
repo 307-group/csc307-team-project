@@ -27,7 +27,6 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

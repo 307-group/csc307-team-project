@@ -45,8 +45,6 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
 
   const fileUploadRef = useRef();
 
-  const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
   const selectedId = searchParams.get('id');
   const selectedLabelId = searchParams.get('labelId');
   const unlabeledNotes = notes.filter((note) => !note.labelId);
@@ -93,10 +91,9 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
     fileUploadRef.current.click();
   }
 
-    function uploadImageDisplay() {
+  function uploadImageDisplay() {
     const uploadedFile = fileUploadRef.current.files[0];
     if (!uploadedFile) return;
-
 
     setRawFile(uploadedFile);
     const cachedURL = URL.createObjectURL(uploadedFile);
@@ -159,7 +156,8 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
 
       {/* ── Right Editor / Form Panel ──────────────────────────── */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {showForm ? (
+        {showForm && !selectedId ? (
+          // new note form
           <div className="flex-1 flex flex-col p-8 max-w-2xl w-full">
             <form
               onSubmit={handleSubmit}
@@ -190,7 +188,6 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
                     />
                   </div>
                 )}
-
 
                 <div>
                   <button
@@ -227,6 +224,7 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
             </form>
           </div>
         ) : selectedNote ? (
+          // selected note view
           <div className="flex-1 flex flex-col p-8 max-w-2xl w-full overflow-y-auto">
             <div className="flex items-start justify-between mb-3">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -253,12 +251,14 @@ function NotesScreen({ notes, labels, onAdd, onDelete, onCreateLabel }) {
             </p>
             {selectedNote.imageUrl && (
               <img
-              src={selectedNote.imageUrl}
-              alt={selectedNote.title}
-              className="mt-4 rounded-lg max-w-lg w-full object-cover"/>
+                src={selectedNote.imageUrl}
+                alt={selectedNote.title}
+                className="mt-4 rounded-lg max-w-lg w-full object-cover"
+              />
             )}
           </div>
         ) : (
+          // no note selected (default)
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-gray-300 dark:text-gray-600">
             <FileText size={44} />
             <p className="text-sm text-gray-400 dark:text-gray-500">
