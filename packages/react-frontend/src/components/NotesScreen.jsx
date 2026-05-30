@@ -362,28 +362,23 @@ function NotesScreen({
                 className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent leading-relaxed"
               />
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
-                {selectedNote.body || (
-                  <span className="text-gray-300 dark:text-gray-600 italic">
-                    No content
-                  </span>
+              <>
+                {selectedNote.imageUrl && (
+                  <img
+                    src={selectedNote.imageUrl}
+                    alt={selectedNote.title}
+                    className="mt-4 rounded-lg max-w-lg w-full object-cover"
+                  />
                 )}
-              </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
+                  {selectedNote.body || (
+                    <span className="text-gray-300 dark:text-gray-600 italic">
+                      No content
+                    </span>
+                  )}
+                </p>
+              </>
             )}
-            {selectedNote.imageUrl && (
-              <img
-                src={selectedNote.imageUrl}
-                alt={selectedNote.title}
-                className="mt-4 rounded-lg max-w-lg w-full object-cover"
-              />
-            )}
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
-              {selectedNote.body || (
-                <span className="text-gray-300 dark:text-gray-600 italic">
-                  No content
-                </span>
-              )}
-            </p>
           </div>
         ) : (
           // no note selected (default)

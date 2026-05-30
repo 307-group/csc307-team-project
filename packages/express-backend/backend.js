@@ -62,7 +62,7 @@ app.get("/me", authenticateUser, async (req, res) => {
 // Notes routes (protected)
 app.get("/notes", authenticateUser, async (req, res) => {
   try {
-    const notes = await noteServices.getNotes();
+    const notes = await noteServices.getNotes(req.user.userId);
     res.send({ notes_list: notes });
   } catch (error) {
     console.log(error);
