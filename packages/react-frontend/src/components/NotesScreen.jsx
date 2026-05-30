@@ -1,7 +1,15 @@
 // src/components/NotesScreen.jsx
 import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Trash2, StickyNote, FileText, Download } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  StickyNote,
+  FileText,
+  Download,
+  ImageIcon,
+  X,
+} from 'lucide-react';
 import LabelsNotesBar from './LabelsNotesBar';
 
 function NoteListItem({ note, isActive, onClick, onDelete }) {
@@ -96,6 +104,7 @@ function NotesScreen({
 
   function handleImageUpload(e) {
     e.preventDefault();
+    fileUploadRef.current.value = null;
     fileUploadRef.current.click();
   }
 
@@ -167,70 +176,84 @@ function NotesScreen({
       <div className="flex-1 flex flex-col overflow-hidden">
         {showForm && !selectedId ? (
           // new note form
-          <div className="flex-1 flex flex-col p-8 max-w-2xl w-full">
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col h-full gap-3"
-            >
-              <input
-                type="text"
-                placeholder="Note title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                autoFocus
-                className="text-2xl font-bold border-none outline-none bg-transparent text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600"
-              />
-              <div className="h-px bg-gray-100 dark:bg-gray-700" />
-              <textarea
-                placeholder="Start typing your note..."
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent placeholder-gray-300 dark:placeholder-gray-600 leading-relaxed"
-              />
-              <div className="relative h-96 w-96 m-8">
-                {imageURL && (
-                  <div className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                    <img
-                      src={imageURL}
-                      alt="Image"
-                      className="h-full w-full object-cover"
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-8 max-w-2xl w-full">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  placeholder="Note title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  autoFocus
+                  className="text-2xl font-bold border-none outline-none bg-transparent text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600"
+                />
+                <div className="h-px bg-gray-100 dark:bg-gray-700" />
+                <textarea
+                  placeholder="Start typing your note..."
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent placeholder-gray-300 dark:placeholder-gray-600 leading-relaxed"
+                />
+                <div className="relative my-8 max-w-md">
+                  {imageURL && (
+                    <div className="relative rounded-lg overflow-hidden bg-gray-50">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageURL(null);
+                          setRawFile(null);
+                          if (fileUploadRef.current) {
+                            fileUploadRef.current.value = '';
+                          }
+                        }}
+                        className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700 shadow transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                      <img
+                        src={imageURL}
+                        alt="Image"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleImageUpload}
+                      className="flex items-center gap-2 px-4 py-2 text-black text-sm text-foreground rounded-lg hover:bg-muted border border-border transition-colors"
+                    >
+                      <ImageIcon className="size-4" />
+                      {imageURL ? 'Change Image' : 'Add Image'}
+                    </button>
+                    <input
+                      type="file"
+                      id="file"
+                      ref={fileUploadRef}
+                      onChange={uploadImageDisplay}
+                      hidden
                     />
                   </div>
-                )}
+                </div>
 
-                <div>
+                <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-[var(--border)]">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 transition-colors"
+                  >
+                    Save Note
+                  </button>
                   <button
                     type="button"
-                    onClick={handleImageUpload}
-                    className="px-4 py-2 bg-white dark:bg-gray-100 text-black dark:text-gray-900 text-sm rounded-lg hover:bg-muted dark:hover:bg-gray-300 border border-border transition-colors"
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                   >
-                    Add Image
+                    Cancel
                   </button>
-                  <input
-                    type="file"
-                    id="file"
-                    ref={fileUploadRef}
-                    onChange={uploadImageDisplay}
-                    hidden
-                  />
                 </div>
-              </div>
-              <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-[var(--border)]">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 transition-colors"
-                >
-                  Save Note
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         ) : selectedNote ? (
           // selected note view
