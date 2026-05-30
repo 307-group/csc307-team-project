@@ -160,7 +160,7 @@ app.post(
             (error, result) => {
               if (error) reject(error);
               else resolve(result);
-            }
+            },
           );
 
           stream.end(req.file.buffer);
