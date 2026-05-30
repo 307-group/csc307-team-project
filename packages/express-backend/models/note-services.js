@@ -1,8 +1,8 @@
 // models/note-services.js
 import Note from "./note.js";
 
-async function getNotes() {
-  return await Note.find();
+async function getNotes(userId) {
+  return await Note.find({ userId }).sort({ createdAt: -1 }); // newest first
 }
 
 async function getNoteById(id) {
