@@ -181,7 +181,6 @@ function NotesScreen({
             className="flex-1 flex flex-col overflow-hidden"
           >
             <div className="flex-1 overflow-y-auto">
-
               {/* Note Title */}
               <div className="p-8 w-full">
                 <input
@@ -192,13 +191,12 @@ function NotesScreen({
                   autoFocus
                   className="text-2xl font-bold border-none outline-none bg-transparent text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600"
                 />
-                
+
                 {/* Note Line Break */}
                 <div className="h-px bg-gray-100 dark:bg-gray-700" />
 
                 {/* Note Contents */}
                 <div className="relative my-2 max-w-md">
-
                   {/* Optional Image */}
                   {imageURL && (
                     <div className="relative rounded-lg overflow-hidden bg-gray-50 mb-4">
@@ -222,7 +220,7 @@ function NotesScreen({
                       />
                     </div>
                   )}
-                  
+
                   {/* Add Image Button */}
                   <button
                     type="button"
@@ -255,7 +253,7 @@ function NotesScreen({
                 />
               </div>
             </div>
-            
+
             {/* Save Changes Footer */}
             <div className="border-t border-gray-100 dark:border-[var(--border)] p-4 bg-white dark:bg-[var(--surface)]">
               <div className="max-w-2xl flex gap-3">
@@ -307,13 +305,6 @@ function NotesScreen({
               </div>
             </div>
             <div className="h-px bg-gray-100 dark:bg-gray-700 mb-4" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
-              {selectedNote.body || (
-                <span className="text-gray-300 dark:text-gray-600 italic">
-                  No content
-                </span>
-              )}
-            </p>
             {selectedNote.imageUrl && (
               <img
                 src={selectedNote.imageUrl}
@@ -321,6 +312,13 @@ function NotesScreen({
                 className="mt-4 rounded-lg max-w-lg w-full object-cover"
               />
             )}
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
+              {selectedNote.body || (
+                <span className="text-gray-300 dark:text-gray-600 italic">
+                  No content
+                </span>
+              )}
+            </p>
           </div>
         ) : (
           // no note selected (default)

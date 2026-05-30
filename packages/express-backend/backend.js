@@ -110,6 +110,26 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
       underline: true,
     });
 
+    if (note.imageUrl) {
+      try {
+        const imageResponse = await fetch(note.imageUrl);
+
+        if (imageResponse.ok) {
+          const imageArrayBuffer = await imageResponse.arrayBuffer();
+          const imageBuffer = Buffer.from(imageArrayBuffer);
+
+          doc.moveDown();
+
+          doc.image(imageBuffer, {
+            fit: [450, 300],
+            align: "center",
+          });
+        }
+      } catch (imageError) {
+        console.log("Could not add image to PDF: ", imageError);
+      }
+    }
+
     doc.moveDown();
 
     doc.fontSize(12).text(body, {
@@ -129,25 +149,33 @@ app.get("/notes/:id", authenticateUser, async (req, res) => {
   if (!result) return res.status(404).send("Resource not found.");
   res.send(result);
 });
-app.post("/notes", authenticateUser, upload.single("image"), async (req, res) => {
-  try {
-    const { title, body, labelId } = req.body;
+app.post(
+  "/notes",
+  authenticateUser,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { title, body, labelId } = req.body;
 
-    const noteData = ({
-      title,
-      body,
-      labelId: labelId && labelId !== "null" && labelId !== "undefined" ? labelId : null,
-      imageUrl: req.file ? req.file.path : null,
-      imagePublicId: req.file?.filename || null,
-    });
-    const result = await noteServices.addNote(noteData);
-    if (result) res.status(201).send(result);
-    else res.status(500).send("An error occurred in the server.");
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("An error occured in the server");
-  }
-});
+      const noteData = {
+        title,
+        body,
+        labelId:
+          labelId && labelId !== "null" && labelId !== "undefined"
+            ? labelId
+            : null,
+        imageUrl: req.file ? req.file.path : null,
+        imagePublicId: req.file?.filename || null,
+      };
+      const result = await noteServices.addNote(noteData);
+      if (result) res.status(201).send(result);
+      else res.status(500).send("An error occurred in the server.");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("An error occured in the server");
+    }
+  },
+);
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
   try {
     const note = await noteServices.getNoteById(req.params.id);
