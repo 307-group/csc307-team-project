@@ -7,6 +7,7 @@ const noteSchema = new mongoose.Schema(
     labelId: { type: String, default: null },
     imageUrl: { type: String, default: "" },
     imagePublicId: { type: String, default: null },
+    userId: { type: String, required: true },
   },
   { timestamps: true },
 );

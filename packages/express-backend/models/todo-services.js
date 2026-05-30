@@ -2,7 +2,7 @@
 import Todo from "./todo.js";
 
 async function getTodos() {
-  return await Todo.find();
+  return await Todo.find(userID);
 }
 
 async function getTodoById(id) {
@@ -14,9 +14,9 @@ async function getTodoById(id) {
   }
 }
 
-async function addTodo(todo) {
+async function addTodo(todo, userID) {
   try {
-    const newTodo = new Todo(todo);
+    const newTodo = new Todo({ ...todo, userId: userID });
     return await newTodo.save();
   } catch (error) {
     console.log(error);
@@ -24,9 +24,9 @@ async function addTodo(todo) {
   }
 }
 
-async function deleteTodo(id) {
+async function deleteTodo(id, userID) {
   try {
-    return await Todo.findByIdAndDelete(id);
+    return await Todo.findByIdAndDelete({ _id: id, userId: userID });
   } catch (error) {
     console.log(error);
     return undefined;
