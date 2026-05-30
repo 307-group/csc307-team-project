@@ -17,27 +17,7 @@ import { registerUser, loginUser, authenticateUser } from "./auth.js";
 import { v2 as cloudinary } from "cloudinary";
 import { Buffer } from "buffer";
 
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const envConfig = dotenv.config({ path: resolve(__dirname, ".env") });
-if (envConfig.error && envConfig.error.code !== "ENOENT") {
-  console.error("Error loading .env file:", envConfig.error);
-}
-
-// verify required environment variables
-const requiredVars = [
-  "MONGODB_URI",
-  "TOKEN_SECRET",
-  "CLOUDINARY_CLOUD_NAME",
-  "CLOUDINARY_API_KEY",
-  "CLOUDINARY_API_SECRET",
-];
-const missingVars = requiredVars.filter((v) => !process.env[v]);
-if (missingVars.length > 0) {
-  console.error("Missing required environment variables:", missingVars);
-}
+dotenv.config();
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -82,7 +62,7 @@ app.get("/me", authenticateUser, async (req, res) => {
 // Notes routes (protected)
 app.get("/notes", authenticateUser, async (req, res) => {
   try {
-    const notes = await noteServices.getNotes(req.user.userId);
+    const notes = await noteServices.getNotes();
     res.send({ notes_list: notes });
   } catch (error) {
     console.log(error);
@@ -229,12 +209,6 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
     console.log(error);
     res.status(500).send("An error occurred in the server.");
   }
-});
-
-app.put("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.updateNote(req.params["id"], req.body);
-  if (!result) return res.status(404).send("Resource not found.");
-  res.status(200).send(result);
 });
 
 // Labels routes (protected)

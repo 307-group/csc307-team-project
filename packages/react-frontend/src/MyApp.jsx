@@ -130,7 +130,7 @@ function MyApp() {
     })
       .then((res) => (res.status === 201 ? res.json() : undefined))
       .then((json) => {
-        if (json) setNotes((prev) => [...prev, json]);
+        if (json) setNotes((prev) => [json, ...prev]);
       })
       .catch((err) => console.log(err));
   }
