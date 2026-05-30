@@ -138,6 +138,7 @@ app.post("/notes", authenticateUser, upload.single("image"), async (req, res) =>
       body,
       labelId: labelId && labelId !== "null" && labelId !== "undefined" ? labelId : null,
       imageUrl: req.file ? req.file.path : null,
+      imagePublicId: req.file?.filename || null,
     });
     const result = await noteServices.addNote(noteData);
     if (result) res.status(201).send(result);
@@ -148,9 +149,23 @@ app.post("/notes", authenticateUser, upload.single("image"), async (req, res) =>
   }
 });
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.deleteNote(req.params["id"]);
-  if (!result) return res.status(404).send("Resource not found.");
-  res.status(200).send(result);
+  try {
+    const note = await noteServices.getNoteById(req.params.id);
+    if (!note) {
+      return res.status(404).send("Resource not found.");
+    }
+
+    if (note.imagePublicId) {
+      await cloudinary.uploader.destroy(note.imagePublicId);
+    }
+
+    const result = await noteServices.deleteNote(req.params.id);
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred in the server.");
+  }
 });
 
 // Labels routes (protected)
