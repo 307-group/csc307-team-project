@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import multer from "multer";
 import PDFDocument from "pdfkit";
+import fetch from "node-fetch";
 import noteServices from "./models/note-services.js";
 import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
@@ -14,7 +15,7 @@ import mongoose from "mongoose";
 import User from "./models/user.js";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { Buffer } from "buffer";
 
 dotenv.config();
 
@@ -35,15 +36,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "notes-app",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-  },
-});
-
-const upload = multer({ storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Auth routes (unprotected)
 app.post("/signup", registerUser);
@@ -157,6 +150,26 @@ app.post(
     try {
       const { title, body, labelId } = req.body;
 
+      let imageUrl = null;
+      let imagePublicId = null;
+
+      if (req.file) {
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "notes-app" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+
+          stream.end(req.file.buffer);
+        });
+
+        imageUrl = uploadResult.secure_url;
+        imagePublicId = uploadResult.public_id;
+      }
+
       const noteData = {
         title,
         body,
@@ -164,10 +177,12 @@ app.post(
           labelId && labelId !== "null" && labelId !== "undefined"
             ? labelId
             : null,
-        imageUrl: req.file ? req.file.path : null,
-        imagePublicId: req.file?.filename || null,
+        imageUrl,
+        imagePublicId,
       };
+
       const result = await noteServices.addNote(noteData);
+
       if (result) res.status(201).send(result);
       else res.status(500).send("An error occurred in the server.");
     } catch (err) {
