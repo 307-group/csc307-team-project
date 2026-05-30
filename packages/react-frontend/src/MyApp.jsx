@@ -135,6 +135,24 @@ function MyApp() {
       .catch((err) => console.log(err));
   }
 
+  function updateNote(id, updatedFields) {
+    fetch(`${API}/notes/${id}`, {
+      method: 'PUT',
+      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updatedFields),
+    })
+      .then((res) => (res.status === 200 ? res.json() : undefined))
+      .then((updated) => {
+        if (updated)
+          setNotes(
+            notes.map((n) =>
+              String(n._id || n.id) === String(id) ? updated : n
+            )
+          );
+      })
+      .catch((err) => console.log(err));
+  }
+
   function deleteNote(id) {
     fetch(`${API}/notes/${id}`, { method: 'DELETE', headers: addAuthHeader() })
       .then((res) => {
@@ -276,6 +294,7 @@ function MyApp() {
                 onCreateLabel={createLabel}
                 onDeleteLabel={deleteLabel}
                 onDownloadPdf={downloadNotePdf}
+                onUpdate={updateNote}
               />
             }
           />

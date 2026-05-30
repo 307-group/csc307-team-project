@@ -33,4 +33,13 @@ async function deleteNote(id) {
   }
 }
 
-export default { getNotes, getNoteById, addNote, deleteNote };
+async function updateNote(id, updatedFields) {
+  try {
+    return await Note.findByIdAndUpdate(id, updatedFields, { new: true });
+  } catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
+export default { getNotes, getNoteById, addNote, deleteNote, updateNote };

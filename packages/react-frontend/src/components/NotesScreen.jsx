@@ -42,12 +42,17 @@ function NotesScreen({
   onCreateLabel,
   onDeleteLabel,
   onDownloadPdf,
+  onUpdate,
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
 
   const selectedId = searchParams.get('id');
   const selectedLabelId = searchParams.get('labelId');
@@ -59,6 +64,7 @@ function NotesScreen({
   function handleSelectNote(id) {
     setSearchParams({ id });
     setShowForm(false);
+    setIsEditing(false);
   }
 
   function handleNewNote() {
@@ -173,39 +179,91 @@ function NotesScreen({
         ) : selectedNote ? (
           <div className="flex-1 flex flex-col p-8 max-w-2xl w-full overflow-y-auto">
             <div className="flex items-start justify-between mb-3">
-              <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                {selectedNote.title || 'Untitled Note'}
-              </h1>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  autoFocus
+                  className="text-2xl font-bold border-none outline-none bg-transparent text-gray-800 dark:text-gray-100 w-full"
+                />
+              ) : (
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                  {selectedNote.title || 'Untitled Note'}
+                </h1>
+              )}
 
               <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                <button
-                  onClick={() => onDownloadPdf(selectedNote)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <Download size={16} />
-                  PDF
-                </button>
-
-                <button
-                  onClick={() => {
-                    onDelete(selectedNote._id || selectedNote.id);
-                    setSearchParams({});
-                    navigate('/notes');
-                  }}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        onUpdate(selectedNote._id || selectedNote.id, {
+                          title: editTitle,
+                          body: editBody,
+                        });
+                        setIsEditing(false);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-300 transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditTitle(selectedNote.title || '');
+                        setEditBody(selectedNote.body || '');
+                        setIsEditing(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDownloadPdf(selectedNote)}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      <Download size={16} />
+                      PDF
+                    </button>
+                    <button
+                      onClick={() => {
+                        onDelete(selectedNote._id || selectedNote.id);
+                        setSearchParams({});
+                        navigate('/notes');
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             <div className="h-px bg-gray-100 dark:bg-gray-700 mb-4" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
-              {selectedNote.body || (
-                <span className="text-gray-300 dark:text-gray-600 italic">
-                  No content
-                </span>
-              )}
-            </p>
+            {isEditing ? (
+              <textarea
+                value={editBody}
+                onChange={(e) => setEditBody(e.target.value)}
+                className="flex-1 text-sm text-gray-700 dark:text-gray-300 border-none outline-none resize-none bg-transparent leading-relaxed"
+              />
+            ) : (
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
+                {selectedNote.body || (
+                  <span className="text-gray-300 dark:text-gray-600 italic">
+                    No content
+                  </span>
+                )}
+              </p>
+            )}
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-gray-300 dark:text-gray-600">

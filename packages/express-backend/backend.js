@@ -116,8 +116,15 @@ app.post("/notes", authenticateUser, async (req, res) => {
   if (result) res.status(201).send(result);
   else res.status(500).send("An error occurred in the server.");
 });
+
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
   const result = await noteServices.deleteNote(req.params["id"]);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
+});
+
+app.put("/notes/:id", authenticateUser, async (req, res) => {
+  const result = await noteServices.updateNote(req.params["id"], req.body);
   if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });
