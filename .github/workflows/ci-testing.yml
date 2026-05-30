@@ -24,3 +24,5 @@ jobs:
       - run: npm run -w react-frontend lint
 
       - run: npm run -w react-frontend build
+
+      - run: rm -rf node_modules package-lock.json && npm install
