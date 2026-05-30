@@ -5,13 +5,17 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import multer from "multer";
 import PDFDocument from "pdfkit";
+import fetch from "node-fetch";
 import noteServices from "./models/note-services.js";
 import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
 import mongoose from "mongoose";
 import User from "./models/user.js";
 import { registerUser, loginUser, authenticateUser } from "./auth.js";
+import { v2 as cloudinary } from "cloudinary";
+import { Buffer } from "buffer";
 
 dotenv.config();
 
@@ -25,6 +29,14 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Auth routes (unprotected)
 app.post("/signup", registerUser);
@@ -91,6 +103,26 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
       underline: true,
     });
 
+    if (note.imageUrl) {
+      try {
+        const imageResponse = await fetch(note.imageUrl);
+
+        if (imageResponse.ok) {
+          const imageArrayBuffer = await imageResponse.arrayBuffer();
+          const imageBuffer = Buffer.from(imageArrayBuffer);
+
+          doc.moveDown();
+
+          doc.image(imageBuffer, {
+            fit: [450, 300],
+            align: "center",
+          });
+        }
+      } catch (imageError) {
+        console.log("Could not add image to PDF: ", imageError);
+      }
+    }
+
     doc.moveDown();
 
     doc.fontSize(12).text(body, {
@@ -110,16 +142,73 @@ app.get("/notes/:id", authenticateUser, async (req, res) => {
   if (!result) return res.status(404).send("Resource not found.");
   res.send(result);
 });
+app.post(
+  "/notes",
+  authenticateUser,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { title, body, labelId } = req.body;
 
-app.post("/notes", authenticateUser, async (req, res) => {
-  const result = await noteServices.addNote(req.body);
-  if (result) res.status(201).send(result);
-  else res.status(500).send("An error occurred in the server.");
-});
+      let imageUrl = null;
+      let imagePublicId = null;
+
+      if (req.file) {
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "notes-app" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            },
+          );
+
+          stream.end(req.file.buffer);
+        });
+
+        imageUrl = uploadResult.secure_url;
+        imagePublicId = uploadResult.public_id;
+      }
+
+      const noteData = {
+        title,
+        body,
+        labelId:
+          labelId && labelId !== "null" && labelId !== "undefined"
+            ? labelId
+            : null,
+        imageUrl,
+        imagePublicId,
+      };
+
+      const result = await noteServices.addNote(noteData);
+
+      if (result) res.status(201).send(result);
+      else res.status(500).send("An error occurred in the server.");
+    } catch (err) {
+      console.log(err);
+      res.status(500).send("An error occured in the server");
+    }
+  },
+);
 app.delete("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.deleteNote(req.params["id"]);
-  if (!result) return res.status(404).send("Resource not found.");
-  res.status(200).send(result);
+  try {
+    const note = await noteServices.getNoteById(req.params.id);
+    if (!note) {
+      return res.status(404).send("Resource not found.");
+    }
+
+    if (note.imagePublicId) {
+      await cloudinary.uploader.destroy(note.imagePublicId);
+    }
+
+    const result = await noteServices.deleteNote(req.params.id);
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred in the server.");
+  }
 });
 
 // Labels routes (protected)
