@@ -1,8 +1,8 @@
 // models/todo-services.js
 import Todo from "./todo.js";
 
-async function getTodos() {
-  return await Todo.find(userID);
+async function getTodos(userID) {
+  return await Todo.find({ userId: userID });
 }
 
 async function getTodoById(id) {
@@ -26,7 +26,7 @@ async function addTodo(todo, userID) {
 
 async function deleteTodo(id, userID) {
   try {
-    return await Todo.findByIdAndDelete({ _id: id, userId: userID });
+    return await Todo.findOneAndDelete({ _id: id, userId: userID });
   } catch (error) {
     console.log(error);
     return undefined;
