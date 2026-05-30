@@ -199,6 +199,10 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
       return res.status(404).send("Resource not found.");
     }
 
+    if (String(note.userId) !== String(req.user.userId)) {
+      return res.status(403).send("Forbidden");
+    }
+
     if (note.imagePublicId) {
       await cloudinary.uploader.destroy(note.imagePublicId);
     }
@@ -213,7 +217,11 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
 });
 
 app.put("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.updateNote(req.params["id"], req.body);
+  const result = await noteServices.updateNote(
+    req.params["id"],
+    req.user.userId,
+    req.body,
+  );
   if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });

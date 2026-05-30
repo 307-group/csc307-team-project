@@ -24,18 +24,20 @@ async function addNote(note) {
   }
 }
 
-async function deleteNote(id) {
+async function deleteNote(id, userId) {
   try {
-    return await Note.findByIdAndDelete(id);
+    return await Note.findOneAndDelete({ _id: id, userId });
   } catch (error) {
     console.log(error);
     return undefined;
   }
 }
 
-async function updateNote(id, updatedFields) {
+async function updateNote(id, userId, updatedFields) {
   try {
-    return await Note.findByIdAndUpdate(id, updatedFields, { new: true });
+    return await Note.findOneAndUpdate({ _id: id, userId }, updatedFields, {
+      returnDocument: "after",
+    });
   } catch (error) {
     console.log(error);
     return undefined;
