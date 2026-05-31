@@ -1,6 +1,6 @@
 // src/MyApp.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
@@ -257,37 +257,49 @@ function MyApp() {
           <Route
             path="/"
             element={
-              <HomeScreen
-                notes={notes}
-                todos={todos}
-                labels={labels}
-                onToggleTodo={toggleTodo}
-              />
+              isLoggedIn ? (
+                <HomeScreen
+                  notes={notes}
+                  todos={todos}
+                  labels={labels}
+                  onToggleTodo={toggleTodo}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route
             path="/notes"
             element={
-              <NotesScreen
-                notes={notes}
-                labels={labels}
-                onAdd={addNote}
-                onDelete={deleteNote}
-                onCreateLabel={createLabel}
-                onDeleteLabel={deleteLabel}
-                onDownloadPdf={downloadNotePdf}
-              />
+              isLoggedIn ? (
+                <NotesScreen
+                  notes={notes}
+                  labels={labels}
+                  onAdd={addNote}
+                  onDelete={deleteNote}
+                  onCreateLabel={createLabel}
+                  onDeleteLabel={deleteLabel}
+                  onDownloadPdf={downloadNotePdf}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route
             path="/todos"
             element={
-              <ToDoScreen
-                todos={todos}
-                onCreateTodo={createTodo}
-                onToggleTodo={toggleTodo}
-                onDeleteTodo={deleteTodo}
-              />
+              isLoggedIn ? (
+                <ToDoScreen
+                  todos={todos}
+                  onCreateTodo={createTodo}
+                  onToggleTodo={toggleTodo}
+                  onDeleteTodo={deleteTodo}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route
