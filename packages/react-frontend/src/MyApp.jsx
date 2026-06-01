@@ -130,7 +130,25 @@ function MyApp() {
     })
       .then((res) => (res.status === 201 ? res.json() : undefined))
       .then((json) => {
-        if (json) setNotes((prev) => [...prev, json]);
+        if (json) setNotes((prev) => [json, ...prev]);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  function updateNote(id, updatedFields) {
+    fetch(`${API}/notes/${id}`, {
+      method: 'PUT',
+      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updatedFields),
+    })
+      .then((res) => (res.status === 200 ? res.json() : undefined))
+      .then((updated) => {
+        if (updated)
+          setNotes(
+            notes.map((n) =>
+              String(n._id || n.id) === String(id) ? updated : n
+            )
+          );
       })
       .catch((err) => console.log(err));
   }
@@ -245,7 +263,7 @@ function MyApp() {
     }
   }
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <NavBar
         darkMode={darkMode}
         onToggleDark={() => setDarkMode((v) => !v)}
@@ -276,6 +294,7 @@ function MyApp() {
                 onCreateLabel={createLabel}
                 onDeleteLabel={deleteLabel}
                 onDownloadPdf={downloadNotePdf}
+                onUpdate={updateNote}
               />
             }
           />

@@ -211,6 +211,12 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
   }
 });
 
+app.put("/notes/:id", authenticateUser, async (req, res) => {
+  const result = await noteServices.updateNote(req.params["id"], req.body);
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
+});
+
 // Labels routes (protected)
 app.get("/labels", authenticateUser, async (req, res) => {
   try {
