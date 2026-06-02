@@ -1,10 +1,10 @@
 name: Deploy to Azure
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
-    branches: [main]
+  push:
+    branches:
+      - main
+      - deploy-frontend
 
 jobs:
   build-and-deploy:
