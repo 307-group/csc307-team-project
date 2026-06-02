@@ -21,7 +21,10 @@ dotenv.config();
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => {
+    console.log("Connected to MongoDB");
+    console.log("Database:", mongoose.connection.db.databaseName);
+  })
   .catch((err) => console.log("MongoDB connection error:", err));
 
 const app = express();
@@ -188,7 +191,7 @@ app.post(
       else res.status(500).send("An error occurred in the server.");
     } catch (err) {
       console.log(err);
-      res.status(500).send("An error occured in the server");
+      res.status(500).send("An error occurred in the server.");
     }
   },
 );
