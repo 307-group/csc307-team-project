@@ -66,7 +66,7 @@ app.get("/notes", authenticateUser, async (req, res) => {
     res.send({ notes_list: notes });
   } catch (error) {
     console.log(error);
-    res.status(500).send(err.message || "POST /notes failed");
+    res.status(500).send("An error occurred in the server.");
   }
 });
 
@@ -188,7 +188,7 @@ app.post(
       else res.status(500).send("An error occurred in the server.");
     } catch (err) {
       console.log(err);
-      res.status(500).send("An error occured in the server");
+      res.status(500).send(err.message || "POST /notes failed");
     }
   },
 );
