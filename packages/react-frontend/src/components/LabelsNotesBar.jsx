@@ -49,7 +49,7 @@ function LabelsNotesBar({
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 mb-1">
+      <div className="flex items-center justify-between px-3 mb-1">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <Tag className="size-3" />
           Labels
@@ -65,7 +65,7 @@ function LabelsNotesBar({
       </div>
 
       {showForm && (
-        <div className="mx-3 my-2 rounded-xl border border-border bg-muted p-3">
+        <div className="mx-2 my-2 rounded-xl border border-border bg-muted p-3">
           <input
             type="text"
             placeholder="Label name..."
@@ -112,7 +112,7 @@ function LabelsNotesBar({
       )}
 
       {labels.length === 0 && !showForm ? (
-        <div className="mx-4 mb-3 rounded-xl border border-dashed border-border p-4 text-center">
+        <div className="mx-2 mb-3 rounded-xl border border-dashed border-border p-4 text-center">
           <p className="text-xs text-muted-foreground">No labels yet</p>
 
           <button
@@ -226,12 +226,6 @@ function LabelsNotesBar({
               </div>
             );
           })}
-        </div>
-      )}
-
-      {labels.length === 0 && (
-        <div className="px-4 mt-2 text-center text-muted-foreground">
-          <p className="text-sm">Create a label and start taking notes!</p>
         </div>
       )}
     </>
