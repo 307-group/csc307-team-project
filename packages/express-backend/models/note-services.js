@@ -1,8 +1,8 @@
 // models/note-services.js
 import Note from "./note.js";
 
-async function getNotes() {
-  return await Note.find();
+async function getNotes(userId) {
+  return await Note.find({ userId }).sort({ createdAt: -1 }); // newest first
 }
 
 async function getNoteById(id) {
@@ -24,13 +24,24 @@ async function addNote(note) {
   }
 }
 
-async function deleteNote(id) {
+async function deleteNote(id, userId) {
   try {
-    return await Note.findByIdAndDelete(id);
+    return await Note.findOneAndDelete({ _id: id, userId });
   } catch (error) {
     console.log(error);
     return undefined;
   }
 }
 
-export default { getNotes, getNoteById, addNote, deleteNote };
+async function updateNote(id, userId, updatedFields) {
+  try {
+    return await Note.findOneAndUpdate({ _id: id, userId }, updatedFields, {
+      returnDocument: "after",
+    });
+  } catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
+export default { getNotes, getNoteById, addNote, deleteNote, updateNote };

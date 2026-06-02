@@ -1,6 +1,6 @@
 // src/MyApp.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import HomeScreen from './components/HomeScreen';
 import NotesScreen from './components/NotesScreen';
 import ToDoScreen from './components/ToDoScreen';
@@ -130,7 +130,25 @@ function MyApp() {
     })
       .then((res) => (res.status === 201 ? res.json() : undefined))
       .then((json) => {
-        if (json) setNotes((prev) => [...prev, json]);
+        if (json) setNotes((prev) => [json, ...prev]);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  function updateNote(id, updatedFields) {
+    fetch(`${API}/notes/${id}`, {
+      method: 'PUT',
+      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updatedFields),
+    })
+      .then((res) => (res.status === 200 ? res.json() : undefined))
+      .then((updated) => {
+        if (updated)
+          setNotes(
+            notes.map((n) =>
+              String(n._id || n.id) === String(id) ? updated : n
+            )
+          );
       })
       .catch((err) => console.log(err));
   }
@@ -245,7 +263,7 @@ function MyApp() {
     }
   }
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <NavBar
         darkMode={darkMode}
         onToggleDark={() => setDarkMode((v) => !v)}
@@ -257,37 +275,50 @@ function MyApp() {
           <Route
             path="/"
             element={
-              <HomeScreen
-                notes={notes}
-                todos={todos}
-                labels={labels}
-                onToggleTodo={toggleTodo}
-              />
+              isLoggedIn ? (
+                <HomeScreen
+                  notes={notes}
+                  todos={todos}
+                  labels={labels}
+                  onToggleTodo={toggleTodo}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route
             path="/notes"
             element={
-              <NotesScreen
-                notes={notes}
-                labels={labels}
-                onAdd={addNote}
-                onDelete={deleteNote}
-                onCreateLabel={createLabel}
-                onDeleteLabel={deleteLabel}
-                onDownloadPdf={downloadNotePdf}
-              />
+              isLoggedIn ? (
+                <NotesScreen
+                  notes={notes}
+                  labels={labels}
+                  onAdd={addNote}
+                  onDelete={deleteNote}
+                  onCreateLabel={createLabel}
+                  onDeleteLabel={deleteLabel}
+                  onDownloadPdf={downloadNotePdf}
+                  onUpdate={updateNote}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route
             path="/todos"
             element={
-              <ToDoScreen
-                todos={todos}
-                onCreateTodo={createTodo}
-                onToggleTodo={toggleTodo}
-                onDeleteTodo={deleteTodo}
-              />
+              isLoggedIn ? (
+                <ToDoScreen
+                  todos={todos}
+                  onCreateTodo={createTodo}
+                  onToggleTodo={toggleTodo}
+                  onDeleteTodo={deleteTodo}
+                />
+              ) : (
+                <Navigate to="/account" replace />
+              )
             }
           />
           <Route

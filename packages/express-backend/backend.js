@@ -62,7 +62,7 @@ app.get("/me", authenticateUser, async (req, res) => {
 // Notes routes (protected)
 app.get("/notes", authenticateUser, async (req, res) => {
   try {
-    const notes = await noteServices.getNotes();
+    const notes = await noteServices.getNotes(req.user.userId);
     res.send({ notes_list: notes });
   } catch (error) {
     console.log(error);
@@ -179,6 +179,7 @@ app.post(
             : null,
         imageUrl,
         imagePublicId,
+        userId: req.user.userId,
       };
 
       const result = await noteServices.addNote(noteData);
@@ -198,6 +199,10 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
       return res.status(404).send("Resource not found.");
     }
 
+    if (String(note.userId) !== String(req.user.userId)) {
+      return res.status(403).send("Forbidden");
+    }
+
     if (note.imagePublicId) {
       await cloudinary.uploader.destroy(note.imagePublicId);
     }
@@ -209,6 +214,16 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
     console.log(error);
     res.status(500).send("An error occurred in the server.");
   }
+});
+
+app.put("/notes/:id", authenticateUser, async (req, res) => {
+  const result = await noteServices.updateNote(
+    req.params["id"],
+    req.user.userId,
+    req.body,
+  );
+  if (!result) return res.status(404).send("Resource not found.");
+  res.status(200).send(result);
 });
 
 // Labels routes (protected)
@@ -238,7 +253,7 @@ app.delete("/labels/:id", authenticateUser, async (req, res) => {
 // Todos routes (all protected now)
 app.get("/todos", authenticateUser, async (req, res) => {
   try {
-    const todos = await todoServices.getTodos();
+    const todos = await todoServices.getTodos(req.user.userId);
     res.send({ todos_list: todos });
   } catch (error) {
     console.log(error);
@@ -251,12 +266,15 @@ app.get("/todos/:id", authenticateUser, async (req, res) => {
   res.send(result);
 });
 app.post("/todos", authenticateUser, async (req, res) => {
-  const result = await todoServices.addTodo(req.body);
+  const result = await todoServices.addTodo(req.body, req.user.userId);
   if (result) res.status(201).send(result);
   else res.status(500).send("An error occurred in the server.");
 });
 app.delete("/todos/:id", authenticateUser, async (req, res) => {
-  const result = await todoServices.deleteTodo(req.params["id"]);
+  const result = await todoServices.deleteTodo(
+    req.params["id"],
+    req.user.userId,
+  );
   if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });
