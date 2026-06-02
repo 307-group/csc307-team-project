@@ -185,7 +185,12 @@ app.post(
         userId: req.user.userId,
       };
 
+      console.log("POST /notes");
+      console.log("Saving note:", noteData);
+
       const result = await noteServices.addNote(noteData);
+
+      console.log("Saved result: ", result);
 
       if (result) res.status(201).send(result);
       else res.status(500).send("An error occurred in the server.");
