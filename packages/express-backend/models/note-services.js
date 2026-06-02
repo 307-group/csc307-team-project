@@ -14,13 +14,23 @@ async function getNoteById(id) {
   }
 }
 
+// async function addNote(note) {
+//   try {
+//     const newNote = new Note(note);
+//     return await newNote.save();
+//   } catch (error) {
+//     console.log(error);
+//     return false;
+//   }
+// }
+
 async function addNote(note) {
   try {
     const newNote = new Note(note);
     return await newNote.save();
   } catch (error) {
-    console.log(error);
-    return false;
+    console.error("addNote error:", error);
+    throw error;
   }
 }
 
