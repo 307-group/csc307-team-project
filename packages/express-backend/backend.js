@@ -207,7 +207,14 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
       await cloudinary.uploader.destroy(note.imagePublicId);
     }
 
-    const result = await noteServices.deleteNote(req.params.id);
+    const result = await noteServices.deleteNote(
+      req.params.id,
+      req.user.userId,
+    );
+
+    if (!result) {
+      return res.status(404).send("Resource not found.");
+    }
 
     res.status(200).send(result);
   } catch (error) {
