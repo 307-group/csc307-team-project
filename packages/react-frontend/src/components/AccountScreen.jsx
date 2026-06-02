@@ -72,11 +72,7 @@ export function AccountScreen({ user, onLogout }) {
 
         {/* Info card */}
         <div
-          className="rounded-2xl overflow-hidden border"
-          style={{
-            backgroundColor: 'var(--surface)',
-            borderColor: 'var(--border)',
-          }}
+          className="rounded-2xl overflow-hidden border border-gray-200 dark:border-[var(--border)] bg-gray-50 dark:bg-[var(--surface)]"
         >
           <div
             className="px-5 py-3"
@@ -133,11 +129,7 @@ export function AccountScreen({ user, onLogout }) {
 
         {/* Sign out card */}
         <div
-          className="rounded-2xl overflow-hidden border"
-          style={{
-            backgroundColor: 'var(--surface)',
-            borderColor: 'var(--border)',
-          }}
+          className="rounded-2xl overflow-hidden border border-gray-200 dark:border-[var(--border)] bg-gray-50 dark:bg-[var(--surface)]"
         >
           <div
             className="px-5 py-3"

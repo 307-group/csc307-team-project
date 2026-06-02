@@ -202,7 +202,7 @@ function LabelsNotesBar({
                           className={`group px-3 py-1 cursor-pointer transition-all border mx-[8px] my-[4px] rounded-[12px] ${
                             String(selectedId) === String(note._id || note.id)
                               ? 'bg-muted/90 border-gray-300 dark:border-gray-600 shadow-sm'
-                              : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)] hover:bg-muted/40 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
+                              : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)]  hover:border-gray-300 dark: hover:shadow-sm'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
