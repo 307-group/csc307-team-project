@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - new-frontend-development
+      - new-frontend-deployment
 
 jobs:
   build-and-deploy:
