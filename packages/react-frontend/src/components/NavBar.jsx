@@ -84,8 +84,14 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
           backgroundColor: isActive ? 'var(--surface)' : 'transparent',
           color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
         })}
-        onMouseEnter={(e) => { if (e.currentTarget.style.backgroundColor === 'transparent') e.currentTarget.style.backgroundColor = 'var(--accent)'; }}
-        onMouseLeave={(e) => { if (e.currentTarget.style.backgroundColor === 'var(--accent)') e.currentTarget.style.backgroundColor = 'transparent'; }}
+        onMouseEnter={(e) => {
+          if (e.currentTarget.style.backgroundColor === 'transparent')
+            e.currentTarget.style.backgroundColor = 'var(--accent)';
+        }}
+        onMouseLeave={(e) => {
+          if (e.currentTarget.style.backgroundColor === 'var(--accent)')
+            e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         {isLoggedIn && color ? (
           <div
@@ -130,8 +136,14 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
               backgroundColor: isActive ? 'var(--surface)' : 'transparent',
               color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
             })}
-            onMouseEnter={(e) => { if (e.currentTarget.style.backgroundColor === 'transparent') e.currentTarget.style.backgroundColor = 'var(--accent)'; }}
-            onMouseLeave={(e) => { if (e.currentTarget.style.backgroundColor === 'var(--accent)') e.currentTarget.style.backgroundColor = 'transparent'; }}
+            onMouseEnter={(e) => {
+              if (e.currentTarget.style.backgroundColor === 'transparent')
+                e.currentTarget.style.backgroundColor = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              if (e.currentTarget.style.backgroundColor === 'var(--accent)')
+                e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={!expanded ? label : undefined}
           >
             <IconComponent className="size-5 shrink-0" />
