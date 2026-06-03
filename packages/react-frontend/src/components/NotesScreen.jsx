@@ -210,13 +210,13 @@ function NotesScreen({
         {showForm && !selectedId ? (
           // ── New note form ──
           // new note form
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            <div className="flex w-full flex-col gap-5 p-4 md:p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="flex-1 overflow-y-auto flex flex-col"
+          >
+            <div className="flex w-full flex-col gap-5 p-4 md:p-6 h-full">
               {/* Note Title Block */}
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Note title
-                </label>
                 <input
                   type="text"
                   placeholder="Note title..."
@@ -228,11 +228,7 @@ function NotesScreen({
               </div>
 
               {/* Note Content Block */}
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-3 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Content
-                </label>
-
+              <div className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)] flex flex-col">
                 {imageURL && (
                   <div className="relative mb-4 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[var(--border)] dark:bg-[var(--background)]">
                     <button
@@ -265,11 +261,10 @@ function NotesScreen({
                     e.target.style.height = 'auto';
                     e.target.style.height = `${e.target.scrollHeight}px`;
                   }}
-                  rows={8}
-                  className="min-h-[280px] w-full resize-none overflow-hidden border-none bg-transparent text-sm leading-relaxed text-gray-700 outline-none placeholder-gray-300 dark:text-gray-300 dark:placeholder-gray-600"
+                  className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-gray-700 outline-none placeholder-gray-300 dark:text-gray-300 dark:placeholder-gray-600"
                 />
 
-                <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-24 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <button
                       type="button"
@@ -310,14 +305,10 @@ function NotesScreen({
           </form>
         ) : selectedNote ? (
           // ── Selected note view ──
-          <div className="flex-1 overflow-y-auto">
-            <div className="flex w-full flex-col gap-5 p-4 md:p-6">
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            <div className="flex w-full flex-col gap-5 p-4 md:p-6 h-full">
               {/* Note Title Block */}
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Note title
-                </label>
-
                 {isEditing ? (
                   <input
                     type="text"
@@ -333,19 +324,14 @@ function NotesScreen({
                 )}
               </div>
               {/* Note Content Block */}
-              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-3 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Content
-                </label>
-
+              <div className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)] flex flex-col">
                 {isEditing ? (
                   <>
                     <textarea
                       value={editBody}
                       onChange={(e) => setEditBody(e.target.value)}
                       placeholder="Start typing your note..."
-                      rows={10}
-                      className="min-h-[320px] w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder-gray-300 dark:text-muted-foreground dark:placeholder-gray-600"
+                      className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder-gray-300 dark:text-muted-foreground dark:placeholder-gray-600"
                     />
 
                     <div className="mt-5 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)]">
@@ -382,7 +368,7 @@ function NotesScreen({
                       />
                     )}
 
-                    <div className="min-h-[260px] text-sm leading-relaxed text-foreground">
+                    <div className="flex-1 text-sm leading-relaxed text-foreground overflow-y-auto">
                       {selectedNote.body ? (
                         <p className="whitespace-pre-wrap">
                           {selectedNote.body}
