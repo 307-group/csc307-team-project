@@ -95,7 +95,7 @@ function TodoCard({ todo, onToggle, onDelete }) {
     <div
       className={`group flex items-start gap-3 p-4 rounded-xl border transition-all ${
         todo.completed
-          ? 'bg-gray-50 dark:bg-[var(--surface)] border-gray-100 dark:border-[var(--border)]'
+          ? 'bg-gray-100 dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)]'
           : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)] hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
       }`}
     >

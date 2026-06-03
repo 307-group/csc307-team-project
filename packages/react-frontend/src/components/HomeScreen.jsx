@@ -47,7 +47,7 @@ function SectionHeader({ title, count, to }) {
 
 function TodoRow({ todo, onToggle, onNavigate }) {
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-[var(--border)] last:border-0 group">
+    <div className="flex items-start gap-3 py-3 border-b border-gray-100 dark:border-[var(--border)] last:border-0 group hover:bg-muted/60 dark:hover:bg-muted/80 transition-all px-2 rounded-xl">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -91,7 +91,7 @@ function NoteCard({ note, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="text-left bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
+      className="text-left bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-xl p-4  dark:hover:bg-muted/20 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all flex flex-col gap-2 min-w-0"
     >
       <div
         className="h-1 w-8 rounded-full"
@@ -179,7 +179,7 @@ export default function HomeScreen({
               </button>
             </div>
           ) : (
-            <div className="bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-2xl px-4 divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="bg-white dark:bg-[var(--surface)] border border-gray-200 dark:border-[var(--border)] rounded-2xl  divide-y divide-gray-100 dark:divide-gray-800">
               {activeTodos.map((todo) => (
                 <TodoRow
                   key={todo._id || todo.id}

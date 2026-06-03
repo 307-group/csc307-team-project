@@ -215,6 +215,10 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
       req.user.userId,
     );
 
+    if (!result) {
+      return res.status(404).send("Resource not found.");
+    }
+
     res.status(200).send(result);
   } catch (error) {
     console.log(error);

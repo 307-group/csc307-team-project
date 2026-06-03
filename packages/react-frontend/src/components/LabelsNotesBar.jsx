@@ -28,6 +28,7 @@ function LabelsNotesBar({
   onNewNoteForLabel,
   onSelectNote,
   onDeleteNote,
+  selectedId,
 }) {
   const [showForm, setShowForm] = useState(false);
   const [labelName, setLabelName] = useState('');
@@ -49,7 +50,7 @@ function LabelsNotesBar({
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 mb-1">
+      <div className="flex items-center justify-between px-3 mb-1">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <Tag className="size-3" />
           Labels
@@ -65,7 +66,7 @@ function LabelsNotesBar({
       </div>
 
       {showForm && (
-        <div className="mx-3 my-2 rounded-xl border border-border bg-muted p-3">
+        <div className="mx-2 my-2 rounded-xl border border-border bg-muted p-3">
           <input
             type="text"
             placeholder="Label name..."
@@ -112,7 +113,7 @@ function LabelsNotesBar({
       )}
 
       {labels.length === 0 && !showForm ? (
-        <div className="mx-4 mb-3 rounded-xl border border-dashed border-border p-4 text-center">
+        <div className="mx-2 mb-3 rounded-xl border border-dashed border-border p-4 text-center">
           <p className="text-xs text-muted-foreground">No labels yet</p>
 
           <button
@@ -135,7 +136,7 @@ function LabelsNotesBar({
 
             return (
               <div key={labelId} className="select-none">
-                <div className="group/header flex items-center gap-1 px-3 py-1.5 hover:bg-muted transition-colors">
+                <div className="group/header flex items-center gap-1 px-3 py-1.5 hover:bg-muted transition-colors rounded-[10px] mx-[-2px]">
                   <button
                     type="button"
                     onClick={() =>
@@ -188,7 +189,7 @@ function LabelsNotesBar({
                 </div>
 
                 {isExpanded && (
-                  <div className="pl-4">
+                  <div className="pl-6 -mr-3">
                     {labelNotes.length === 0 ? (
                       <p className="px-3 py-2 text-sm italic text-muted-foreground">
                         No notes
@@ -198,7 +199,11 @@ function LabelsNotesBar({
                         <div
                           key={note._id || note.id}
                           onClick={() => onSelectNote(note._id || note.id)}
-                          className="group px-3 py-2 cursor-pointer border-b border-border transition-colors hover:bg-muted/50 mx-[16px] my-[0px] rounded-[14px]"
+                          className={`group px-3 py-1 cursor-pointer transition-all border mx-[8px] my-[4px] rounded-[12px] ${
+                            String(selectedId) === String(note._id || note.id)
+                              ? 'bg-muted/90 border-gray-300 dark:border-gray-600 shadow-sm'
+                              : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)]  hover:border-gray-300 dark: hover:shadow-sm'
+                          }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
@@ -226,12 +231,6 @@ function LabelsNotesBar({
               </div>
             );
           })}
-        </div>
-      )}
-
-      {labels.length === 0 && (
-        <div className="px-4 mt-2 text-center text-muted-foreground">
-          <p className="text-sm">Create a label and start taking notes!</p>
         </div>
       )}
     </>
