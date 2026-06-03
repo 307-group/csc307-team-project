@@ -214,9 +214,6 @@ function NotesScreen({
             <div className="flex w-full flex-col gap-5 p-4 md:p-6">
               {/* Note Title Block */}
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Note title
-                </label>
                 <input
                   type="text"
                   placeholder="Note title..."
@@ -229,10 +226,6 @@ function NotesScreen({
 
               {/* Note Content Block */}
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)]">
-                <label className="mb-3 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Content
-                </label>
-
                 {imageURL && (
                   <div className="relative mb-4 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[var(--border)] dark:bg-[var(--background)]">
                     <button
