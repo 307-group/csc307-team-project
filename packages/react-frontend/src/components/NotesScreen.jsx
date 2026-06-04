@@ -69,10 +69,13 @@ function NotesScreen({
   const [rawFile, setRawFile] = useState(null);
 
   const fileUploadRef = useRef();
+  const editFileUploadRef = useRef();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editBody, setEditBody] = useState('');
+  const [editImageURL, setEditImageURL] = useState(null);
+  const [editRawFile, setEditRawFile] = useState(null);
 
   const selectedId = searchParams.get('id');
   const selectedLabelId = searchParams.get('labelId');
@@ -81,10 +84,20 @@ function NotesScreen({
     (n) => String(n._id || n.id) === String(selectedId)
   );
 
+  function resetEditDraft() {
+    setEditImageURL(null);
+    setEditRawFile(null);
+
+    if (editFileUploadRef.current) {
+      editFileUploadRef.current.value = '';
+    }
+  }
+
   function handleSelectNote(id) {
     setSearchParams({ id });
     setShowForm(false);
     setIsEditing(false);
+    resetEditDraft();
   }
 
   function resetDraft() {
@@ -146,6 +159,23 @@ function NotesScreen({
     setRawFile(uploadedFile);
     const cachedURL = URL.createObjectURL(uploadedFile);
     setImageURL(cachedURL);
+  }
+
+  function handleEditImageUpload(e) {
+    e.preventDefault();
+
+    if (!editFileUploadRef.current) return;
+
+    editFileUploadRef.current.value = '';
+    editFileUploadRef.current.click();
+  }
+
+  function uploadEditImageDisplay() {
+    const uploadedFile = editFileUploadRef.current?.files?.[0];
+    if (!uploadedFile) return;
+
+    setEditRawFile(uploadedFile);
+    setEditImageURL(URL.createObjectURL(uploadedFile));
   }
 
   return (
@@ -230,7 +260,7 @@ function NotesScreen({
               {/* Note Content Block */}
               <div className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)] flex flex-col">
                 {imageURL && (
-                  <div className="relative mb-4 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[var(--border)] dark:bg-[var(--background)]">
+                  <div className="relative mb-4 w-fit max-w-full self-start">
                     <button
                       type="button"
                       onClick={() => {
@@ -248,7 +278,7 @@ function NotesScreen({
                     <img
                       src={imageURL}
                       alt="Note attachment preview"
-                      className="max-h-72 w-full object-cover"
+                      className="block h-auto max-h-[70vh] max-w-full rounded-xl object-contain"
                     />
                   </div>
                 )}
@@ -331,31 +361,72 @@ function NotesScreen({
                       value={editBody}
                       onChange={(e) => setEditBody(e.target.value)}
                       placeholder="Start typing your note..."
-                      className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder-gray-300 dark:text-muted-foreground dark:placeholder-gray-600"
+                      className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
                     />
 
-                    <div className="mt-5 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)]">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditing(false)}
-                        className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-                      >
-                        Cancel
-                      </button>
+                    {editImageURL && (
+                      <img
+                        src={editImageURL}
+                        alt={editTitle || 'Note attachment preview'}
+                        className="mt-5 block h-auto w-auto max-w-full self-start rounded-xl"
+                      />
+                    )}
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onUpdate(selectedNote._id || selectedNote.id, {
-                            title: editTitle,
-                            body: editBody,
-                          });
-                          setIsEditing(false);
-                        }}
-                        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
-                      >
-                        Save Changes
-                      </button>
+                    <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleEditImageUpload}
+                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                        >
+                          <ImageIcon size={16} />
+                          {editImageURL ? 'Change Image' : 'Add Image'}
+                        </button>
+
+                        <input
+                          type="file"
+                          ref={editFileUploadRef}
+                          accept="image/*"
+                          onChange={uploadEditImageDisplay}
+                          hidden
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsEditing(false);
+                            resetEditDraft();
+                          }}
+                          className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const formData = new FormData();
+                            formData.append('title', editTitle);
+                            formData.append('body', editBody);
+
+                            if (editRawFile) {
+                              formData.append('image', editRawFile);
+                            }
+
+                            onUpdate(
+                              selectedNote._id || selectedNote.id,
+                              formData
+                            );
+                            setIsEditing(false);
+                            resetEditDraft();
+                          }}
+                          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -364,7 +435,7 @@ function NotesScreen({
                       <img
                         src={selectedNote.imageUrl}
                         alt={selectedNote.title || 'Note attachment'}
-                        className="mb-5 max-h-80 w-full rounded-xl object-cover"
+                        className="mb-5 block h-auto max-h-[70vh] max-w-full self-start rounded-xl object-contain"
                       />
                     )}
 
@@ -386,6 +457,8 @@ function NotesScreen({
                         onClick={() => {
                           setEditTitle(selectedNote.title || '');
                           setEditBody(selectedNote.body || '');
+                          setEditImageURL(selectedNote.imageUrl || null);
+                          setEditRawFile(null);
                           setIsEditing(true);
                         }}
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
