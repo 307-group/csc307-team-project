@@ -26,6 +26,7 @@ describe('Navbar', () => {
       onBeforeLoad(win) {
         win.localStorage.setItem('token', 'fake-token');
         win.localStorage.setItem('user', JSON.stringify(fakeUser));
+        win.localStorage.removeItem('notes-app-dark');
       },
     });
   });
