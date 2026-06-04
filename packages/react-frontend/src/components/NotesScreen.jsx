@@ -178,23 +178,6 @@ function NotesScreen({
     setEditImageURL(URL.createObjectURL(uploadedFile));
   }
 
-  function handleEditImageUpload(e) {
-    e.preventDefault();
-
-    if (!editFileUploadRef.current) return;
-
-    editFileUploadRef.current.value = '';
-    editFileUploadRef.current.click();
-  }
-
-  function uploadEditImageDisplay() {
-    const uploadedFile = editFileUploadRef.current?.files?.[0];
-    if (!uploadedFile) return;
-
-    setEditRawFile(uploadedFile);
-    setEditImageURL(URL.createObjectURL(uploadedFile));
-  }
-
   return (
     <div className="flex h-screen bg-white dark:bg-[var(--surface)] overflow-hidden">
       {/* ── Left Sidebar ───────────────────────────────────────── */}
