@@ -136,19 +136,24 @@ function MyApp() {
   }
 
   function updateNote(id, updatedFields) {
+    const isFormData = updatedFields instanceof FormData;
+
     fetch(`${API}/notes/${id}`, {
       method: 'PUT',
-      headers: addAuthHeader({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(updatedFields),
+      headers: isFormData
+        ? addAuthHeader()
+        : addAuthHeader({ 'Content-Type': 'application/json' }),
+      body: isFormData ? updatedFields : JSON.stringify(updatedFields),
     })
       .then((res) => (res.status === 200 ? res.json() : undefined))
       .then((updated) => {
-        if (updated)
-          setNotes(
-            notes.map((n) =>
+        if (updated) {
+          setNotes((prevNotes) =>
+            prevNotes.map((n) =>
               String(n._id || n.id) === String(id) ? updated : n
             )
           );
+        }
       })
       .catch((err) => console.log(err));
   }
