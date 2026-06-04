@@ -59,8 +59,14 @@ describe('Navbar', () => {
   });
 
   it('toggles dark mode', () => {
-    cy.get('button[title="Switch to dark mode"]').click();
+    cy.get('html').then(($html) => {
+      const wasDark = $html.hasClass('dark');
 
-    cy.get('html').should('have.class', 'dark');
+      cy.get('button[title^="Switch to"]').click();
+
+      cy.get('html').should(($updatedHtml) => {
+        expect($updatedHtml.hasClass('dark')).to.eq(!wasDark);
+      });
+    });
   });
 });
