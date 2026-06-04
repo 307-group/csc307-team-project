@@ -2,9 +2,8 @@ name: Deploy to Azure
 
 on:
   push:
-    branches: [main, cypress-testing]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
