@@ -26,6 +26,7 @@ describe('Navbar', () => {
       onBeforeLoad(win) {
         win.localStorage.setItem('token', 'fake-token');
         win.localStorage.setItem('user', JSON.stringify(fakeUser));
+        win.localStorage.removeItem('notes-app-dark');
       },
     });
   });
@@ -51,7 +52,7 @@ describe('Navbar', () => {
   });
 
   it('goes to account from the navbar', () => {
-    cy.get('a[title="Chat User"]').click();
+    cy.get('a[href="/account"]').click();
 
     cy.url().should('include', '/account');
     cy.contains('Chat User').should('be.visible');
