@@ -230,7 +230,7 @@ function NotesScreen({
               {/* Note Content Block */}
               <div className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)] flex flex-col">
                 {imageURL && (
-                  <div className="relative mb-4 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 dark:border-[var(--border)] dark:bg-[var(--background)]">
+                  <div className="relative mb-4 w-fit max-w-full self-start">
                     <button
                       type="button"
                       onClick={() => {
@@ -248,7 +248,7 @@ function NotesScreen({
                     <img
                       src={imageURL}
                       alt="Note attachment preview"
-                      className="max-h-72 w-full object-cover"
+                      className="block h-auto max-h-[70vh] max-w-full rounded-xl object-contain"
                     />
                   </div>
                 )}
@@ -364,7 +364,7 @@ function NotesScreen({
                       <img
                         src={selectedNote.imageUrl}
                         alt={selectedNote.title || 'Note attachment'}
-                        className="mb-5 max-h-80 w-full rounded-xl object-cover"
+                        className="mb-5 block h-auto max-h-[70vh] max-w-full self-start rounded-xl object-contain"
                       />
                     )}
 
