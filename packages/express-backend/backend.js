@@ -215,6 +215,10 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
       req.user.userId,
     );
 
+    if (!result) {
+      return res.status(404).send("Resource not found.");
+    }
+
     res.status(200).send(result);
   } catch (error) {
     console.log(error);
@@ -222,15 +226,65 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
   }
 });
 
-app.put("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.updateNote(
-    req.params["id"],
-    req.user.userId,
-    req.body,
-  );
-  if (!result) return res.status(404).send("Resource not found.");
-  res.status(200).send(result);
-});
+app.put(
+  "/notes/:id",
+  authenticateUser,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const note = await noteServices.getNoteById(req.params.id);
+
+      if (!note) {
+        return res.status(404).send("Resource not found.");
+      }
+
+      if (String(note.userId) !== String(req.user.userId)) {
+        return res.status(403).send("Forbidden");
+      }
+
+      const updatedFields = {
+        title: req.body.title,
+        body: req.body.body,
+      };
+
+      if (req.file) {
+        if (note.imagePublicId) {
+          await cloudinary.uploader.destroy(note.imagePublicId);
+        }
+
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "notes-app" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            },
+          );
+
+          stream.end(req.file.buffer);
+        });
+
+        updatedFields.imageUrl = uploadResult.secure_url;
+        updatedFields.imagePublicId = uploadResult.public_id;
+      }
+
+      const result = await noteServices.updateNote(
+        req.params.id,
+        req.user.userId,
+        updatedFields,
+      );
+
+      if (!result) {
+        return res.status(404).send("Resource not found.");
+      }
+
+      res.status(200).send(result);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("An error occurred in the server.");
+    }
+  },
+);
 
 // Labels routes (protected)
 app.get("/labels", authenticateUser, async (req, res) => {

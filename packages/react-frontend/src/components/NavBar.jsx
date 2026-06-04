@@ -63,7 +63,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
       {/* Hamburger */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="flex items-center justify-center h-14 shrink-0 transition-colors"
+        className="flex items-center justify-center h-14 shrink-0 transition-colors mx-2 mt-2 rounded-lg"
         style={{ color: 'var(--muted-foreground)' }}
         onMouseEnter={(e) =>
           (e.currentTarget.style.backgroundColor = 'var(--surface)')
@@ -84,9 +84,14 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
           backgroundColor: isActive ? 'var(--surface)' : 'transparent',
           color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
         })}
-        title={
-          !expanded ? (isLoggedIn ? currentUser?.name : 'Account') : undefined
-        }
+        onMouseEnter={(e) => {
+          if (e.currentTarget.style.backgroundColor === 'transparent')
+            e.currentTarget.style.backgroundColor = 'var(--accent)';
+        }}
+        onMouseLeave={(e) => {
+          if (e.currentTarget.style.backgroundColor === 'var(--accent)')
+            e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         {isLoggedIn && color ? (
           <div
@@ -131,6 +136,14 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
               backgroundColor: isActive ? 'var(--surface)' : 'transparent',
               color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
             })}
+            onMouseEnter={(e) => {
+              if (e.currentTarget.style.backgroundColor === 'transparent')
+                e.currentTarget.style.backgroundColor = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              if (e.currentTarget.style.backgroundColor === 'var(--accent)')
+                e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={!expanded ? label : undefined}
           >
             <IconComponent className="size-5 shrink-0" />
@@ -141,7 +154,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
 
       <div className="flex-1" />
 
-      <div className="p-2 pb-4">
+      <div className="p-2 pb-2">
         <button
           onClick={onToggleDark}
           className="flex items-center gap-3 px-2 py-2.5 rounded-lg w-full transition-colors"
