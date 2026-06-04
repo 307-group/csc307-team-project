@@ -1,4 +1,4 @@
-﻿# CSC 307 Team Project — Markr - Notes & Todos App
+﻿# CSC 307 Team Project — Markr — Notes & Todos App
 
 A full-stack productivity app built with React, Express, and MongoDB. Sign up, log in, and manage your personal notes (with images and labels) and todos — everything is scoped to your account.
 
