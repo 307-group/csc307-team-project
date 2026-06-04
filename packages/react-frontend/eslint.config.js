@@ -26,4 +26,18 @@ export default defineConfig([
       'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    files: ['cypress/**/*.{js,jsx}', 'cypress.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.mocha,
+        cy: 'readonly',
+        Cypress: 'readonly',
+        expect: 'readonly',
+        assert: 'readonly',
+      },
+    },
+  },
 ]);
