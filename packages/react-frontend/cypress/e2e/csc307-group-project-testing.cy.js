@@ -71,10 +71,7 @@ describe('Home page', () => {
   });
 
   it('goes to todos when clicking View all in the To-Do section', () => {
-    cy.contains('h2', 'To-Do')
-      .parents('section')
-      .contains('View all')
-      .click();
+    cy.contains('h2', 'To-Do').parents('section').contains('View all').click();
 
     cy.url().should('include', '/todos');
   });
