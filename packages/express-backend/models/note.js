@@ -8,6 +8,26 @@ const noteSchema = new mongoose.Schema(
     imageUrl: { type: String, default: "" },
     imagePublicId: { type: String, default: null },
     userId: { type: String, required: true },
+    shareId: { type: String, unique: true, sparse: true },
+    isShared: {
+      type: Boolean,
+      default: false,
+    },
+    syncedFromShareId: {
+      type: String,
+      default: null,
+    },
+
+    syncedFromNoteId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Note",
+      default: null,
+    },
+
+    isSyncedCopy: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
