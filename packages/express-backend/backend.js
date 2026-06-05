@@ -34,7 +34,7 @@ mongoose
 const app = express();
 const port = 8000;
 
-const allowedOrigins = ["http://localhost:5173", process.env.FRONTEND_URL];
+const allowedOrigins = [process.env.FRONTEND_URL];
 
 app.use(
   cors({
