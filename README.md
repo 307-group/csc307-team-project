@@ -20,6 +20,12 @@ A full-stack productivity app built with React, Express, and MongoDB. Sign up, l
 
 ---
 
+## Demo Video
+
+[![Demo Video](https://img.youtube.com/vi/dlnTNkM1WYw/0.jpg)](https://youtu.be/dlnTNkM1WYw)
+
+---
+
 ## Features
 
 - JWT-based sign up / sign in (passwords hashed with bcrypt)
@@ -107,8 +113,9 @@ npm run lint   # check formatting + linting
 ## Running Tests
 
 ```bash
-cd packages/express-backend
-npm test
+cd packages/react-frontend
+npx cypress open   # interactive mode
+npx cypress run    # headless mode
 ```
 
 ---

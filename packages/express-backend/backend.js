@@ -494,7 +494,7 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
     }
 
     const title = note.title || "Untitled Note";
-    const body = note.body || "";
+    const body = (note.body || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
     const safeTitle =
       title
