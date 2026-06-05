@@ -836,16 +836,16 @@ app.put(
         updatedFields,
       );
 
+      if (!result) {
+        return res.status(404).send("Resource not found.");
+      }
+
       if (result?.shareId && result?.isShared) {
         await noteServices.updateSyncedCopies(result.shareId, {
           title: result.title,
           body: result.body,
           imageUrl: result.imageUrl || null,
         });
-      }
-
-      if (!result) {
-        return res.status(404).send("Resource not found.");
       }
 
       res.status(200).send(result);
@@ -1147,36 +1147,36 @@ io.on("connection", (socket) => {
     console.log(`${socket.id} joined shared note ${shareId}`);
   });
 
-  socket.on("shared-note-change", async ({ shareId, body }) => {
-    try {
-      const updatedNote = await noteServices.updateSharedNote(shareId, {
-        body,
-      });
+socket.on("shared-note-change", async ({ shareId, body }) => {
+  try {
+    const updatedNote = await noteServices.updateSharedNote(shareId, {
+      body,
+    });
 
-      await noteServices.updateSyncedCopies(shareId, {
-        title: updatedNote.title,
-        body: updatedNote.body,
-        imageUrl: updatedNote.imageUrl || null,
-      });
-
-      if (!updatedNote) {
-        socket.emit("note-save-error", {
-          message: "Shared note not found.",
-        });
-        return;
-      }
-
-      socket.to(shareId).emit("shared-note-change", {
-        shareId,
-        body: updatedNote.body,
-      });
-    } catch (error) {
-      console.log("Shared note save error:", error);
+    if (!updatedNote) {
       socket.emit("note-save-error", {
-        message: "Could not save shared note.",
+        message: "Shared note not found.",
       });
+      return;
     }
-  });
+
+    await noteServices.updateSyncedCopies(shareId, {
+      title: updatedNote.title,
+      body: updatedNote.body,
+      imageUrl: updatedNote.imageUrl || null,
+    });
+
+    socket.to(shareId).emit("shared-note-change", {
+      shareId,
+      body: updatedNote.body,
+    });
+  } catch (error) {
+    console.log("Shared note save error:", error);
+    socket.emit("note-save-error", {
+      message: "Could not save shared note.",
+    });
+  }
+});
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
