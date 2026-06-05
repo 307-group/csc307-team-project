@@ -1,5 +1,5 @@
 // src/components/NotesScreen.jsx
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus,
@@ -9,46 +9,15 @@ import {
   Download,
   ImageIcon,
   X,
+  Share2,
 } from 'lucide-react';
+
 import LabelsNotesBar from './LabelsNotesBar';
-
-function NoteListItem({ note, isActive, onClick, onDelete }) {
-  const preview = (note.body || '').slice(0, 55);
-  const displayTitle = note.title || 'Untitled Note';
-
-  return (
-    <div
-      onClick={onClick}
-      className={`group px-3 py-2 cursor-pointer transition-all border ${
-        isActive
-          ? 'bg-muted/90 border-gray-300 dark:border-gray-600 shadow-sm'
-          : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)] hover:bg-muted/20 dark:hover:bg-muted/20 hover:shadow-sm'
-      } mx-[8px] my-[4px] rounded-[12px]`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate text-foreground">
-            {displayTitle}
-          </h3>
-          {preview && (
-            <p className="text-xs text-muted-foreground truncate mt-0.5">
-              {preview}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-        >
-          <Trash2 size={13} />
-        </button>
-      </div>
-    </div>
-  );
-}
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import NoteListItem from './NoteListItem';
 
 function NotesScreen({
   notes,
@@ -62,6 +31,11 @@ function NotesScreen({
   setHasUnsavedChanges,
   hasUnsavedChanges,
   setPendingNavigation,
+  onCreateShareLink,
+  onJoinSharedNoteRoom,
+  onListenForSharedNoteChanges,
+  onUpdateSharedNoteLocal,
+  onEmitSharedNoteChange,
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -86,6 +60,37 @@ function NotesScreen({
   const selectedNote = notes.find(
     (n) => String(n._id || n.id) === String(selectedId)
   );
+  const activeShareId =
+    selectedNote?.shareId || selectedNote?.syncedFromShareId || null;
+  useEffect(() => {
+    if (!activeShareId) return;
+
+    onJoinSharedNoteRoom?.(activeShareId);
+
+    const cleanup = onListenForSharedNoteChanges?.((update) => {
+      if (String(update.shareId) !== String(activeShareId)) return;
+
+      onUpdateSharedNoteLocal?.(activeShareId, {
+        title: update.title,
+        body: update.body || '',
+        imageUrl: update.imageUrl || null,
+      });
+
+      if (isEditing) {
+        setEditTitle(update.title || '');
+        setEditBody(update.body || '');
+        setEditImageURL(update.imageUrl || null);
+      }
+    });
+
+    return cleanup;
+  }, [
+    activeShareId,
+    isEditing,
+    onJoinSharedNoteRoom,
+    onListenForSharedNoteChanges,
+    onUpdateSharedNoteLocal,
+  ]);
 
   function resetEditDraft() {
     setEditImageURL(null);
@@ -374,8 +379,17 @@ function NotesScreen({
                     type="text"
                     value={editTitle}
                     onChange={(e) => {
-                      setEditTitle(e.target.value);
+                      const newTitle = e.target.value;
+
+                      setEditTitle(newTitle);
                       setHasUnsavedChanges(true);
+
+                      if (activeShareId) {
+                        onEmitSharedNoteChange?.(activeShareId, {
+                          title: newTitle,
+                          body: editBody,
+                        });
+                      }
                     }}
                     autoFocus
                     className="w-full border-none bg-transparent text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground"
@@ -393,8 +407,17 @@ function NotesScreen({
                     <textarea
                       value={editBody}
                       onChange={(e) => {
-                        setEditBody(e.target.value);
+                        const newBody = e.target.value;
+
+                        setEditBody(newBody);
                         setHasUnsavedChanges(true);
+
+                        if (activeShareId) {
+                          onEmitSharedNoteChange?.(activeShareId, {
+                            title: editTitle,
+                            body: newBody,
+                          });
+                        }
                       }}
                       placeholder="Start typing your note..."
                       className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
@@ -482,9 +505,58 @@ function NotesScreen({
 
                     <div className="flex-1 text-sm leading-relaxed text-foreground overflow-y-auto">
                       {selectedNote.body ? (
-                        <p className="whitespace-pre-wrap">
-                          {selectedNote.body}
-                        </p>
+                        <div className="max-w-none text-foreground text-sm leading-relaxed">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              h1: ({ children }) => (
+                                <h1 className="mb-4 text-3xl font-bold leading-tight">
+                                  {children}
+                                </h1>
+                              ),
+                              h2: ({ children }) => (
+                                <h2 className="mb-3 mt-5 text-2xl font-bold leading-tight">
+                                  {children}
+                                </h2>
+                              ),
+                              h3: ({ children }) => (
+                                <h3 className="mb-2 mt-4 text-xl font-semibold leading-tight">
+                                  {children}
+                                </h3>
+                              ),
+                              ul: ({ children }) => (
+                                <ul className="mb-3 ml-6 list-disc space-y-1">
+                                  {children}
+                                </ul>
+                              ),
+                              li: ({ children }) => (
+                                <li className="pl-1">{children}</li>
+                              ),
+                              code({ className, children, ...props }) {
+                                const match = /language-(\w+)/.exec(
+                                  className || ''
+                                );
+
+                                return match ? (
+                                  <SyntaxHighlighter
+                                    style={oneDark}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...props}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono">
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {selectedNote.body || ''}
+                          </ReactMarkdown>
+                        </div>
                       ) : (
                         <p className="italic text-muted-foreground">
                           No content
@@ -505,6 +577,14 @@ function NotesScreen({
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                       >
                         Edit
+                      </button>
+
+                      <button
+                        onClick={() => onCreateShareLink(selectedNote)}
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <Share2 size={16} />
+                        Share
                       </button>
 
                       <button
