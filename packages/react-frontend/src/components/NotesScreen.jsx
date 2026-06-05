@@ -10,7 +10,12 @@ import {
   ImageIcon,
   X,
 } from 'lucide-react';
+
 import LabelsNotesBar from './LabelsNotesBar';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 function NoteListItem({ note, isActive, onClick, onDelete }) {
   const preview = (note.body || '').slice(0, 55);
@@ -482,9 +487,58 @@ function NotesScreen({
 
                     <div className="flex-1 text-sm leading-relaxed text-foreground overflow-y-auto">
                       {selectedNote.body ? (
-                        <p className="whitespace-pre-wrap">
-                          {selectedNote.body}
-                        </p>
+                        <div className="max-w-none text-foreground text-sm leading-relaxed">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              h1: ({ children }) => (
+                                <h1 className="mb-4 text-3xl font-bold leading-tight">
+                                  {children}
+                                </h1>
+                              ),
+                              h2: ({ children }) => (
+                                <h2 className="mb-3 mt-5 text-2xl font-bold leading-tight">
+                                  {children}
+                                </h2>
+                              ),
+                              h3: ({ children }) => (
+                                <h3 className="mb-2 mt-4 text-xl font-semibold leading-tight">
+                                  {children}
+                                </h3>
+                              ),
+                              ul: ({ children }) => (
+                                <ul className="mb-3 ml-6 list-disc space-y-1">
+                                  {children}
+                                </ul>
+                              ),
+                              li: ({ children }) => (
+                                <li className="pl-1">{children}</li>
+                              ),
+                              code({ className, children, ...props }) {
+                                const match = /language-(\w+)/.exec(
+                                  className || ''
+                                );
+
+                                return match ? (
+                                  <SyntaxHighlighter
+                                    style={oneDark}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...props}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono">
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {selectedNote.body || ''}
+                          </ReactMarkdown>
+                        </div>
                       ) : (
                         <p className="italic text-muted-foreground">
                           No content
