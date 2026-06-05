@@ -18,6 +18,8 @@ import { v2 as cloudinary } from "cloudinary";
 import { Buffer } from "buffer";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -32,7 +34,14 @@ mongoose
 const app = express();
 const port = 8000;
 
-app.use(cors());
+const allowedOrigins = ["http://localhost:5173", process.env.FRONTEND_URL];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  }),
+);
+
 app.use(express.json());
 
 const swaggerOptions = {
@@ -209,6 +218,245 @@ app.get("/notes", authenticateUser, async (req, res) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /notes/{id}/share:
+ *   post:
+ *     summary: Create a share link for a note
+ *     description: Enables sharing for a note owned by the logged-in user and returns a public share URL. Only the owner of the note can create the share link.
+ *     tags:
+ *       - Notes
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The note ID to share
+ *         example: 665f123456789abc12345678
+ *     responses:
+ *       200:
+ *         description: Share link created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 shareId:
+ *                   type: string
+ *                   example: a1b2c3d4e5f6g7h8
+ *                 shareUrl:
+ *                   type: string
+ *                   example: /notes/shared/a1b2c3d4e5f6g7h8
+ *                 note:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 665f123456789abc12345678
+ *                     title:
+ *                       type: string
+ *                       example: Project notes
+ *                     body:
+ *                       type: string
+ *                       example: These are my shared project notes.
+ *                     labelId:
+ *                       type: string
+ *                       nullable: true
+ *                       example: 665f123456789abc12345679
+ *                     imageUrl:
+ *                       type: string
+ *                       nullable: true
+ *                       example: https://res.cloudinary.com/demo/image/upload/example.jpg
+ *                     imagePublicId:
+ *                       type: string
+ *                       nullable: true
+ *                       example: notes-app/example
+ *                     userId:
+ *                       type: string
+ *                       example: 665f123456789abc12345670
+ *                     shareId:
+ *                       type: string
+ *                       example: a1b2c3d4e5f6g7h8
+ *                     isShared:
+ *                       type: boolean
+ *                       example: true
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Unauthorized. Missing or invalid token.
+ *       404:
+ *         description: Note not found or not owned by user.
+ *       500:
+ *         description: Could not create share link.
+ */
+app.post("/notes/:id/share", authenticateUser, async (req, res) => {
+  try {
+    const note = await noteServices.enableShare(
+      req.params.id,
+      req.user.userId,
+    );
+
+    if (!note) {
+      return res.status(404).send("Note not found or not owned by user.");
+    }
+
+    res.status(200).send({
+      shareId: note.shareId,
+      shareUrl: `/notes/shared/${note.shareId}`,
+      note,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Could not create share link.");
+  }
+});
+
+/**
+ * @swagger
+ * /notes/shared/{shareId}:
+ *   get:
+ *     summary: Get a shared note by share ID
+ *     description: Loads a shared note using its public share ID. This route does not require authentication because anyone with the share link can access it.
+ *     tags:
+ *       - Notes
+ *     parameters:
+ *       - in: path
+ *         name: shareId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The public share ID for the note
+ *         example: a1b2c3d4e5f6g7h8
+ *     responses:
+ *       200:
+ *         description: Shared note returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 665f123456789abc12345678
+ *                 title:
+ *                   type: string
+ *                   example: Shared project notes
+ *                 body:
+ *                   type: string
+ *                   example: This is a shared note.
+ *                 labelId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: 665f123456789abc12345679
+ *                 imageUrl:
+ *                   type: string
+ *                   nullable: true
+ *                   example: https://res.cloudinary.com/demo/image/upload/example.jpg
+ *                 imagePublicId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: notes-app/example
+ *                 userId:
+ *                   type: string
+ *                   example: 665f123456789abc12345670
+ *                 shareId:
+ *                   type: string
+ *                   example: a1b2c3d4e5f6g7h8
+ *                 isShared:
+ *                   type: boolean
+ *                   example: true
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Shared note not found
+ *       500:
+ *         description: Could not load shared note
+ */
+app.get("/notes/shared/:shareId", async (req, res) => {
+  try {
+    const note = await noteServices.getNoteByShareId(req.params.shareId);
+
+    if (!note) {
+      return res.status(404).send("Shared note not found.");
+    }
+
+    res.status(200).send(note);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Could not load shared note.");
+  }
+});
+
+/**
+ * @swagger
+ * /notes/shared/{shareId}/save-copy:
+ *   post:
+ *     summary: Save a synced copy of a shared note to my notes
+ *     description: Creates a linked copy of a shared note under the logged-in user's account. The copy stays synced when the shared note changes.
+ *     tags:
+ *       - Notes
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: shareId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The public share ID for the shared note
+ *         example: 09071705a5c47f8c
+ *     responses:
+ *       201:
+ *         description: Synced copy created or returned successfully
+ *       401:
+ *         description: Unauthorized. User must be logged in.
+ *       404:
+ *         description: Shared note not found.
+ *       500:
+ *         description: Could not save synced copy.
+ */
+app.post(
+  "/notes/shared/:shareId/save-copy",
+  authenticateUser,
+  async (req, res) => {
+    try {
+      const sharedNote = await noteServices.getNoteByShareId(
+        req.params.shareId,
+      );
+
+      if (!sharedNote) {
+        return res.status(404).send("Shared note not found.");
+      }
+
+      const syncedCopy = await noteServices.saveSyncedCopy(
+        sharedNote,
+        req.user.userId,
+      );
+
+      if (!syncedCopy) {
+        return res.status(500).send("Could not save synced copy.");
+      }
+
+      res.status(201).send(syncedCopy);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Could not save shared note to your notes.");
+    }
+  },
+);
+
 /**
  * @swagger
  * /notes/{id}/pdf:
@@ -243,7 +491,7 @@ app.get("/notes", authenticateUser, async (req, res) => {
  */
 app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
   try {
-    const note = await noteServices.getNoteById(req.params.id);
+    const note = await noteServices.getNoteById(req.params.id, req.user.userId);
 
     if (!note) {
       return res.status(404).send("Note not found.");
@@ -336,7 +584,7 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
  *         description: Server error
  */
 app.get("/notes/:id", authenticateUser, async (req, res) => {
-  const result = await noteServices.getNoteById(req.params["id"]);
+  const result = await noteServices.getNoteById(req.params.id, req.user.userId);
   if (!result) return res.status(404).send("Resource not found.");
   res.send(result);
 });
@@ -587,6 +835,14 @@ app.put(
         req.user.userId,
         updatedFields,
       );
+
+      if (result?.shareId && result?.isShared) {
+        await noteServices.updateSyncedCopies(result.shareId, {
+          title: result.title,
+          body: result.body,
+          imageUrl: result.imageUrl || null,
+        });
+      }
 
       if (!result) {
         return res.status(404).send("Resource not found.");
@@ -872,7 +1128,62 @@ app.patch("/todos/:id", authenticateUser, async (req, res) => {
   res.status(200).send(result);
 });
 
-app.listen(process.env.PORT || port, () => {
+
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("join-shared-note", (shareId) => {
+    socket.join(shareId);
+    console.log(`${socket.id} joined shared note ${shareId}`);
+  });
+
+  socket.on("shared-note-change", async ({ shareId, body }) => {
+    try {
+      const updatedNote = await noteServices.updateSharedNote(shareId, {
+        body,
+      });
+
+      await noteServices.updateSyncedCopies(shareId, {
+        title: updatedNote.title,
+        body: updatedNote.body,
+        imageUrl: updatedNote.imageUrl || null,
+      });
+
+      if (!updatedNote) {
+        socket.emit("note-save-error", {
+          message: "Shared note not found.",
+        });
+        return;
+      }
+
+      socket.to(shareId).emit("shared-note-change", {
+        shareId,
+        body: updatedNote.body,
+      });
+    } catch (error) {
+      console.log("Shared note save error:", error);
+      socket.emit("note-save-error", {
+        message: "Could not save shared note.",
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+server.listen(process.env.PORT || port, () => {
   console.log(
     `Backend running at http://localhost:${process.env.PORT || port}`,
   );

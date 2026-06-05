@@ -9,8 +9,12 @@ import { SignInScreen } from './components/SignInScreen';
 import { AccountScreen } from './components/AccountScreen';
 import DeleteModal from './components/DeleteModal';
 import UnsavedModal from './components/UnsavedModal';
+import { io } from 'socket.io-client';
+import SharedNoteScreen from './components/SharedNoteScreen';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const socket = io(API);
+
 const INVALID_TOKEN = 'INVALID_TOKEN';
 const DARK_KEY = 'notes-app-dark';
 
@@ -308,6 +312,97 @@ function MyApp() {
   function handleCancel() {
     setPendingNavigation(false);
   }
+
+  async function createShareLink(note) {
+    try {
+      const noteId = note._id || note.id;
+
+      const response = await fetch(`${API}/notes/${noteId}/share`, {
+        method: 'POST',
+        headers: addAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create share link');
+      }
+
+      const data = await response.json();
+
+      const fullShareUrl = `${window.location.origin}${data.shareUrl}`;
+
+      await navigator.clipboard.writeText(fullShareUrl);
+
+      alert(`Share link copied:\n${fullShareUrl}`);
+
+      return fullShareUrl;
+    } catch (error) {
+      console.error(error);
+      alert('Could not create share link.');
+      return null;
+    }
+  }
+
+  function joinSharedNoteRoom(shareId) {
+    if (!shareId) return;
+    socket.emit('join-shared-note', shareId);
+  }
+
+  function emitSharedNoteChange(shareId, body) {
+    if (!shareId) return;
+
+    socket.emit('shared-note-change', {
+      shareId,
+      body,
+    });
+  }
+
+  function listenForSharedNoteChanges(callback) {
+    socket.on('shared-note-change', callback);
+
+    return () => {
+      socket.off('shared-note-change', callback);
+    };
+  }
+
+  function listenForNoteSaveErrors(callback) {
+    socket.on('note-save-error', callback);
+
+    return () => {
+      socket.off('note-save-error', callback);
+    };
+  }
+  async function saveSharedNoteToMyNotes(shareId) {
+    try {
+      if (!isLoggedIn) {
+        alert('Please sign in to save this shared note to your notes.');
+        navigate('/account');
+        return null;
+      }
+
+      const response = await fetch(`${API}/notes/shared/${shareId}/save-copy`, {
+        method: 'POST',
+        headers: addAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save shared note.');
+      }
+
+      const copiedNote = await response.json();
+
+      setNotes((prevNotes) => [copiedNote, ...prevNotes]);
+
+      alert('Shared note saved to your notes!');
+
+      navigate(`/notes?id=${copiedNote._id || copiedNote.id}`);
+
+      return copiedNote;
+    } catch (error) {
+      console.error(error);
+      alert('Could not save shared note to your notes.');
+      return null;
+    }
+  }
   return (
     <div className="flex h-screen overflow-hidden">
       <NavBar
@@ -333,6 +428,19 @@ function MyApp() {
               ) : (
                 <Navigate to="/account" replace />
               )
+            }
+          />
+          <Route
+            path="/notes/shared/:shareId"
+            element={
+              <SharedNoteScreen
+                API={API}
+                onJoinSharedNoteRoom={joinSharedNoteRoom}
+                onEmitSharedNoteChange={emitSharedNoteChange}
+                onListenForSharedNoteChanges={listenForSharedNoteChanges}
+                onListenForNoteSaveErrors={listenForNoteSaveErrors}
+                onSaveSharedNoteToMyNotes={saveSharedNoteToMyNotes}
+              />
             }
           />
           <Route
@@ -367,6 +475,7 @@ function MyApp() {
                   hasUnsavedChanges={hasUnsavedChanges}
                   setHasUnsavedChanges={setHasUnsavedChanges}
                   setPendingNavigation={setPendingNavigation}
+                  onCreateShareLink={createShareLink}
                 />
               ) : (
                 <Navigate to="/account" replace />

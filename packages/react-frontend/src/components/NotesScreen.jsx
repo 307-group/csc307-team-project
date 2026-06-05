@@ -9,46 +9,10 @@ import {
   Download,
   ImageIcon,
   X,
+  Share2,
 } from 'lucide-react';
 import LabelsNotesBar from './LabelsNotesBar';
-
-function NoteListItem({ note, isActive, onClick, onDelete }) {
-  const preview = (note.body || '').slice(0, 55);
-  const displayTitle = note.title || 'Untitled Note';
-
-  return (
-    <div
-      onClick={onClick}
-      className={`group px-3 py-2 cursor-pointer transition-all border ${
-        isActive
-          ? 'bg-muted/90 border-gray-300 dark:border-gray-600 shadow-sm'
-          : 'bg-white dark:bg-[var(--surface)] border-gray-200 dark:border-[var(--border)] hover:bg-muted/20 dark:hover:bg-muted/20 hover:shadow-sm'
-      } mx-[8px] my-[4px] rounded-[12px]`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium truncate text-foreground">
-            {displayTitle}
-          </h3>
-          {preview && (
-            <p className="text-xs text-muted-foreground truncate mt-0.5">
-              {preview}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 p-1 rounded text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-        >
-          <Trash2 size={13} />
-        </button>
-      </div>
-    </div>
-  );
-}
+import NoteListItem from './NoteListItem';
 
 function NotesScreen({
   notes,
@@ -62,6 +26,7 @@ function NotesScreen({
   setHasUnsavedChanges,
   hasUnsavedChanges,
   setPendingNavigation,
+  onCreateShareLink,
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -505,6 +470,14 @@ function NotesScreen({
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                       >
                         Edit
+                      </button>
+
+                      <button
+                        onClick={() => onCreateShareLink(selectedNote)}
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <Share2 size={16} />
+                        Share
                       </button>
 
                       <button
