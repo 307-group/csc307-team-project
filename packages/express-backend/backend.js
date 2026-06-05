@@ -518,6 +518,13 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
       underline: true,
     });
 
+    doc.moveDown();
+
+    doc.fontSize(12).text(body, {
+      align: "left",
+      lineGap: 6,
+    });
+
     if (note.imageUrl) {
       try {
         const imageResponse = await fetch(note.imageUrl);
@@ -537,13 +544,6 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
         console.log("Could not add image to PDF: ", imageError);
       }
     }
-
-    doc.moveDown();
-
-    doc.fontSize(12).text(body, {
-      align: "left",
-      lineGap: 6,
-    });
 
     doc.end();
   } catch (error) {
