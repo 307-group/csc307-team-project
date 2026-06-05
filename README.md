@@ -1,33 +1,123 @@
-﻿## Contributing
+﻿# CSC 307 Team Project — Markr — Notes & Todos App
 
-To keep the codebase clean, consistent, and easy to maintain, please follow the guidelines below.
+A full-stack productivity app built with React, Express, and MongoDB. Sign up, log in, and manage your personal notes (with images and labels) and todos — everything is scoped to your account.
 
-### Coding Standards
+**Live App:** https://gray-grass-078797010.7.azurestaticapps.net/
 
-This project uses **Prettier** for automatic code formatting.
-
-- All code **must be formatted with Prettier before committing**
+**UI Prototype:** https://www.figma.com/make/JgY0HgYEdnu3v1RJZGnBTW/Notes-app---team-6---307?t=2BxbfZZ1zbLz19NE-20&fullscreen=1
 
 ---
 
-### IDE Setup (VS Code + Prettier)
+## Team
 
-1. Open **Extensions** in VS Code
-2. Search for **Prettier – Code formatter**
-3. Click **Install**
-4. Reload VS Code
+| Name                | GitHub          |
+| ------------------- | --------------- |
+| _Erick Guerrero_    | _bobboyyy_      |
+| _Haixin Huang_      | _haiixin_       |
+| _Antonio Munoz_     | _antoniomunoz2_ |
+| _Yun Waddy_         | _Yun2828_       |
+| _Dasha Baitazarova_ | _evilmeowie_    |
 
 ---
 
-### Enable Auto Format
+## Features
 
-1. Open Command Palette:
-   - `Ctrl + Shift + P` (Windows)
-   - `Cmd + Shift + P` (Mac)
-2. Open **Settings**
-3. Search for: `format on save`
-4. Enable **Format On Save**
-5. Set Prettier as default formatter.
+- JWT-based sign up / sign in (passwords hashed with bcrypt)
+- Create, edit, and delete notes — with optional image uploads (Cloudinary) and label tagging
+- Create, delete, and toggle completion on todos
+- Create and delete labels to organize notes
+- Export notes as a PDF
+
+---
+
+## Repo Structure
+
+```
+packages/
+├── express-backend/   # Node.js + Express REST API + MongoDB/Mongoose
+└── react-frontend/    # React SPA (Vite)
+```
+
+---
+
+## Dev Environment Setup
+
+### Prerequisites
+
+- Node.js v18+
+- A [MongoDB Atlas](https://www.mongodb.com/atlas) cluster (or local MongoDB)
+- A [Cloudinary](https://cloudinary.com/) account (for image uploads)
+
+### Steps
+
+1. **Clone the repo**
+
+   ```bash
+   git clone https://github.com/307-group/csc307-team-project.git
+   cd csc307-team-project
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   cd packages/express-backend && npm install
+   cd ../react-frontend && npm install
+   ```
+
+3. **Set up environment variables** — create a `.env` file in `packages/express-backend/`:
+
+   ```
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   ```
+
+   > Never commit this file — it's already in `.gitignore`.
+
+4. **Run the backend**
+
+   ```bash
+   cd packages/express-backend
+   npm run dev   # runs on http://localhost:3000
+   ```
+
+5. **Run the frontend**
+   ```bash
+   cd packages/react-frontend
+   npm run dev   # runs on http://localhost:5173
+   ```
+
+---
+
+## Code Style
+
+Uses **Prettier** for formatting and **ESLint** for linting. Format your code before committing.
+
+**VS Code:** Install the Prettier extension and enable Format On Save.
+
+```bash
+npm run lint   # check formatting + linting
+```
+
+---
+
+## Running Tests
+
+```bash
+cd packages/express-backend
+npm test
+```
+
+---
+
+## Diagrams
+
+### UML Class Diagram
+
+![APP UML Diagram](APP%20UML%20Diagram.jpg)
 
 ---
 

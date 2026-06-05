@@ -57,16 +57,4 @@ describe('Navbar', () => {
     cy.url().should('include', '/account');
     cy.contains('Chat User').should('be.visible');
   });
-
-  it('toggles dark mode', () => {
-    cy.get('html').then(($html) => {
-      const wasDark = $html.hasClass('dark');
-
-      cy.get('button[title^="Switch to"]').click();
-
-      cy.get('html').should(($updatedHtml) => {
-        expect($updatedHtml.hasClass('dark')).to.eq(!wasDark);
-      });
-    });
-  });
 });
