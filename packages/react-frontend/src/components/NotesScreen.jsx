@@ -1,5 +1,5 @@
 // src/components/NotesScreen.jsx
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus,
@@ -27,6 +27,10 @@ function NotesScreen({
   hasUnsavedChanges,
   setPendingNavigation,
   onCreateShareLink,
+  onJoinSharedNoteRoom,
+  onListenForSharedNoteChanges,
+  onUpdateSharedNoteLocal,
+  onEmitSharedNoteChange,
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,6 +55,37 @@ function NotesScreen({
   const selectedNote = notes.find(
     (n) => String(n._id || n.id) === String(selectedId)
   );
+  const activeShareId =
+    selectedNote?.shareId || selectedNote?.syncedFromShareId || null;
+  useEffect(() => {
+    if (!activeShareId) return;
+
+    onJoinSharedNoteRoom?.(activeShareId);
+
+    const cleanup = onListenForSharedNoteChanges?.((update) => {
+      if (String(update.shareId) !== String(activeShareId)) return;
+
+      onUpdateSharedNoteLocal?.(activeShareId, {
+        title: update.title,
+        body: update.body || '',
+        imageUrl: update.imageUrl || null,
+      });
+
+      if (isEditing) {
+        setEditTitle(update.title || '');
+        setEditBody(update.body || '');
+        setEditImageURL(update.imageUrl || null);
+      }
+    });
+
+    return cleanup;
+  }, [
+    activeShareId,
+    isEditing,
+    onJoinSharedNoteRoom,
+    onListenForSharedNoteChanges,
+    onUpdateSharedNoteLocal,
+  ]);
 
   function resetEditDraft() {
     setEditImageURL(null);
@@ -339,8 +374,17 @@ function NotesScreen({
                     type="text"
                     value={editTitle}
                     onChange={(e) => {
-                      setEditTitle(e.target.value);
+                      const newTitle = e.target.value;
+
+                      setEditTitle(newTitle);
                       setHasUnsavedChanges(true);
+
+                      if (activeShareId) {
+                        onEmitSharedNoteChange?.(activeShareId, {
+                          title: newTitle,
+                          body: editBody,
+                        });
+                      }
                     }}
                     autoFocus
                     className="w-full border-none bg-transparent text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground"
@@ -358,8 +402,17 @@ function NotesScreen({
                     <textarea
                       value={editBody}
                       onChange={(e) => {
-                        setEditBody(e.target.value);
+                        const newBody = e.target.value;
+
+                        setEditBody(newBody);
                         setHasUnsavedChanges(true);
+
+                        if (activeShareId) {
+                          onEmitSharedNoteChange?.(activeShareId, {
+                            title: editTitle,
+                            body: newBody,
+                          });
+                        }
                       }}
                       placeholder="Start typing your note..."
                       className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"

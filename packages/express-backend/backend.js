@@ -814,17 +814,17 @@ app.put(
           await cloudinary.uploader.destroy(note.imagePublicId);
         }
 
-        const uploadResult = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: "notes-app" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            },
-          );
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "notes-app" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
 
-          stream.end(req.file.buffer);
-        });
+        stream.end(req.file.buffer);
+      });
 
         updatedFields.imageUrl = uploadResult.secure_url;
         updatedFields.imagePublicId = uploadResult.public_id;
@@ -840,8 +840,30 @@ app.put(
         return res.status(404).send("Resource not found.");
       }
 
-      if (result?.shareId && result?.isShared) {
-        await noteServices.updateSyncedCopies(result.shareId, {
+      if (!result) {
+        return res.status(404).send("Resource not found.");
+      }
+
+      const activeShareId = result.shareId || result.syncedFromShareId;
+
+      if (activeShareId) {
+        const updatedOriginal = await noteServices.updateSharedNote(
+          activeShareId,
+          {
+            title: result.title,
+            body: result.body,
+            imageUrl: result.imageUrl || null,
+          },
+        );
+
+        await noteServices.updateSyncedCopies(activeShareId, {
+          title: result.title,
+          body: result.body,
+          imageUrl: result.imageUrl || null,
+        });
+
+        io.to(activeShareId).emit("shared-note-change", {
+          shareId: activeShareId,
           title: result.title,
           body: result.body,
           imageUrl: result.imageUrl || null,
@@ -1147,36 +1169,49 @@ io.on("connection", (socket) => {
     console.log(`${socket.id} joined shared note ${shareId}`);
   });
 
-socket.on("shared-note-change", async ({ shareId, body }) => {
-  try {
-    const updatedNote = await noteServices.updateSharedNote(shareId, {
-      body,
-    });
+  socket.on("shared-note-change", async ({ shareId, title, body }) => {
+    try {
+      const updateFields = {};
 
-    if (!updatedNote) {
-      socket.emit("note-save-error", {
-        message: "Shared note not found.",
+      if (typeof title === "string") {
+        updateFields.title = title;
+      }
+
+      if (typeof body === "string") {
+        updateFields.body = body;
+      }
+
+      const updatedOriginal = await noteServices.updateSharedNote(
+        shareId,
+        updateFields,
+      );
+
+      if (!updatedOriginal) {
+        socket.emit("note-save-error", {
+          message: "Shared note not found.",
+        });
+        return;
+      }
+
+      await noteServices.updateSyncedCopies(shareId, {
+        title: updatedOriginal.title,
+        body: updatedOriginal.body,
+        imageUrl: updatedOriginal.imageUrl || null,
       });
-      return;
+
+      io.to(shareId).emit("shared-note-change", {
+        shareId,
+        title: updatedOriginal.title,
+        body: updatedOriginal.body,
+        imageUrl: updatedOriginal.imageUrl || null,
+      });
+    } catch (error) {
+      console.log("Shared note save error:", error);
+      socket.emit("note-save-error", {
+        message: "Could not save shared note.",
+      });
     }
-
-    await noteServices.updateSyncedCopies(shareId, {
-      title: updatedNote.title,
-      body: updatedNote.body,
-      imageUrl: updatedNote.imageUrl || null,
-    });
-
-    socket.to(shareId).emit("shared-note-change", {
-      shareId,
-      body: updatedNote.body,
-    });
-  } catch (error) {
-    console.log("Shared note save error:", error);
-    socket.emit("note-save-error", {
-      message: "Could not save shared note.",
-    });
-  }
-});
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);

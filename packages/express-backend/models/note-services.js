@@ -87,7 +87,7 @@ async function updateSharedNote(shareId, updatedFields) {
         isShared: true,
       },
       updatedFields,
-      { new: true },
+      { returnDocument: "after" },
     );
   } catch (error) {
     console.log(error);

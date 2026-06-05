@@ -131,7 +131,29 @@ function MyApp() {
       .then((json) => setLabels(json['labels_list'] || json || []))
       .catch((err) => console.log('Error fetching labels:', err));
   }, [token, addAuthHeader]);
+  useEffect(() => {
+    function handleSharedNoteChange(update) {
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          String(note.shareId) === String(update.shareId) ||
+          String(note.syncedFromShareId) === String(update.shareId)
+            ? {
+                ...note,
+                title: update.title || note.title,
+                body: update.body || '',
+                imageUrl: update.imageUrl || note.imageUrl,
+              }
+            : note
+        )
+      );
+    }
 
+    socket.on('shared-note-change', handleSharedNoteChange);
+
+    return () => {
+      socket.off('shared-note-change', handleSharedNoteChange);
+    };
+  }, []);
   function addNote({ formData }) {
     fetch(`${API}/notes`, {
       method: 'POST',
@@ -328,6 +350,21 @@ function MyApp() {
 
       const data = await response.json();
 
+      // IMPORTANT: update local state so NotesScreen immediately gets note.shareId
+      if (data.note) {
+        setNotes((prevNotes) =>
+          prevNotes.map((existingNote) =>
+            String(existingNote._id || existingNote.id) === String(noteId)
+              ? data.note
+              : existingNote
+          )
+        );
+
+        if (data.note.shareId) {
+          joinSharedNoteRoom(data.note.shareId);
+        }
+      }
+
       const fullShareUrl = `${window.location.origin}${data.shareUrl}`;
 
       await navigator.clipboard.writeText(fullShareUrl);
@@ -342,35 +379,35 @@ function MyApp() {
     }
   }
 
-  function joinSharedNoteRoom(shareId) {
+  const joinSharedNoteRoom = useCallback((shareId) => {
     if (!shareId) return;
     socket.emit('join-shared-note', shareId);
-  }
+  }, []);
 
-  function emitSharedNoteChange(shareId, body) {
+  const emitSharedNoteChange = useCallback((shareId, updates) => {
     if (!shareId) return;
 
     socket.emit('shared-note-change', {
       shareId,
-      body,
+      ...updates,
     });
-  }
+  }, []);
 
-  function listenForSharedNoteChanges(callback) {
+  const listenForSharedNoteChanges = useCallback((callback) => {
     socket.on('shared-note-change', callback);
 
     return () => {
       socket.off('shared-note-change', callback);
     };
-  }
+  }, []);
 
-  function listenForNoteSaveErrors(callback) {
+  const listenForNoteSaveErrors = useCallback((callback) => {
     socket.on('note-save-error', callback);
 
     return () => {
       socket.off('note-save-error', callback);
     };
-  }
+  }, []);
   async function saveSharedNoteToMyNotes(shareId) {
     try {
       if (!isLoggedIn) {
@@ -390,11 +427,19 @@ function MyApp() {
 
       const copiedNote = await response.json();
 
-      setNotes((prevNotes) => [copiedNote, ...prevNotes]);
+      setNotes((prevNotes) => {
+        const exists = prevNotes.some(
+          (note) =>
+            String(note._id || note.id) ===
+            String(copiedNote._id || copiedNote.id)
+        );
 
-      alert('Shared note saved to your notes!');
+        if (exists) return prevNotes;
 
-      navigate(`/notes?id=${copiedNote._id || copiedNote.id}`);
+        return [copiedNote, ...prevNotes];
+      });
+
+      alert('Synced copy saved to your notes! You can keep editing here.');
 
       return copiedNote;
     } catch (error) {
@@ -402,6 +447,16 @@ function MyApp() {
       alert('Could not save shared note to your notes.');
       return null;
     }
+  }
+  function updateSharedNoteLocal(shareId, updates) {
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        String(note.shareId) === String(shareId) ||
+        String(note.syncedFromShareId) === String(shareId)
+          ? { ...note, ...updates }
+          : note
+      )
+    );
   }
   return (
     <div className="flex h-screen overflow-hidden">
@@ -476,6 +531,10 @@ function MyApp() {
                   setHasUnsavedChanges={setHasUnsavedChanges}
                   setPendingNavigation={setPendingNavigation}
                   onCreateShareLink={createShareLink}
+                  onJoinSharedNoteRoom={joinSharedNoteRoom}
+                  onListenForSharedNoteChanges={listenForSharedNoteChanges}
+                  onUpdateSharedNoteLocal={updateSharedNoteLocal}
+                  onEmitSharedNoteChange={emitSharedNoteChange}
                 />
               ) : (
                 <Navigate to="/account" replace />

@@ -3,12 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FileText, LogOut, Save } from 'lucide-react';
 
 function SharedNoteScreen({
-    API,
-    onJoinSharedNoteRoom,
-    onEmitSharedNoteChange,
-    onListenForSharedNoteChanges,
-    onListenForNoteSaveErrors,
-    onSaveSharedNoteToMyNotes,
+  API,
+  onJoinSharedNoteRoom,
+  onEmitSharedNoteChange,
+  onListenForSharedNoteChanges,
+  onListenForNoteSaveErrors,
+  onSaveSharedNoteToMyNotes,
 }) {
   const navigate = useNavigate();
   const { shareId } = useParams();
@@ -26,17 +26,19 @@ function SharedNoteScreen({
         const response = await fetch(`${API}/notes/shared/${shareId}`);
 
         if (!response.ok) {
-          throw new Error('Shared note not found.');
+          const errorText = await response.text();
+          throw new Error(`${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
 
         setNote(data);
         setBody(data.body || '');
-        onJoinSharedNoteRoom(shareId);
+
+        onJoinSharedNoteRoom?.(shareId);
       } catch (err) {
         console.error(err);
-        setError('Could not load shared note.');
+        setError(err.message || 'Could not load shared note.');
       } finally {
         setLoading(false);
       }
@@ -46,12 +48,20 @@ function SharedNoteScreen({
   }, [API, shareId, onJoinSharedNoteRoom]);
 
   useEffect(() => {
-    const cleanup = onListenForSharedNoteChanges((update) => {
+    const cleanup = onListenForSharedNoteChanges?.((update) => {
       if (String(update.shareId) !== String(shareId)) return;
 
       setBody(update.body || '');
+
       setNote((currentNote) =>
-        currentNote ? { ...currentNote, body: update.body || '' } : currentNote
+        currentNote
+          ? {
+              ...currentNote,
+              title: update.title || currentNote.title,
+              body: update.body || '',
+              imageUrl: update.imageUrl || currentNote.imageUrl,
+            }
+          : currentNote
       );
     });
 
@@ -59,7 +69,7 @@ function SharedNoteScreen({
   }, [shareId, onListenForSharedNoteChanges]);
 
   useEffect(() => {
-    const cleanup = onListenForNoteSaveErrors((socketError) => {
+    const cleanup = onListenForNoteSaveErrors?.((socketError) => {
       console.error(socketError.message);
     });
 
@@ -74,7 +84,9 @@ function SharedNoteScreen({
       currentNote ? { ...currentNote, body: newBody } : currentNote
     );
 
-    onEmitSharedNoteChange(shareId, newBody);
+    onEmitSharedNoteChange?.(shareId, {
+      body: newBody,
+    });
   }
 
   if (loading) {
@@ -118,7 +130,7 @@ function SharedNoteScreen({
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => onSaveSharedNoteToMyNotes(shareId)}
+                  onClick={() => onSaveSharedNoteToMyNotes?.(shareId)}
                   className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 dark:border-[var(--border)] dark:bg-[var(--surface)] dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                 >
                   <Save size={16} />
