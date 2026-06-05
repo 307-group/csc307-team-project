@@ -124,7 +124,7 @@ npx cypress run    # headless mode
 
 ### UML Class Diagram
 
-![APP UML Diagram](APP%20UML%20Diagram.jpg)
+<img width="1672" height="941" alt="Image" src="https://github.com/user-attachments/assets/15f7ce6f-c8d2-4d7c-8c13-103cb3a7598f" />
 
 ---
 
