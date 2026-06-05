@@ -218,7 +218,6 @@ app.get("/notes", authenticateUser, async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /notes/{id}/share:
@@ -299,10 +298,7 @@ app.get("/notes", authenticateUser, async (req, res) => {
  */
 app.post("/notes/:id/share", authenticateUser, async (req, res) => {
   try {
-    const note = await noteServices.enableShare(
-      req.params.id,
-      req.user.userId,
-    );
+    const note = await noteServices.enableShare(req.params.id, req.user.userId);
 
     if (!note) {
       return res.status(404).send("Note not found or not owned by user.");
@@ -814,17 +810,17 @@ app.put(
           await cloudinary.uploader.destroy(note.imagePublicId);
         }
 
-      const uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "notes-app" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "notes-app" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            },
+          );
 
-        stream.end(req.file.buffer);
-      });
+          stream.end(req.file.buffer);
+        });
 
         updatedFields.imageUrl = uploadResult.secure_url;
         updatedFields.imagePublicId = uploadResult.public_id;
@@ -847,14 +843,11 @@ app.put(
       const activeShareId = result.shareId || result.syncedFromShareId;
 
       if (activeShareId) {
-        const updatedOriginal = await noteServices.updateSharedNote(
-          activeShareId,
-          {
-            title: result.title,
-            body: result.body,
-            imageUrl: result.imageUrl || null,
-          },
-        );
+        await noteServices.updateSharedNote(activeShareId, {
+          title: result.title,
+          body: result.body,
+          imageUrl: result.imageUrl || null,
+        });
 
         await noteServices.updateSyncedCopies(activeShareId, {
           title: result.title,
@@ -1149,8 +1142,6 @@ app.patch("/todos/:id", authenticateUser, async (req, res) => {
   if (!result) return res.status(404).send("Resource not found.");
   res.status(200).send(result);
 });
-
-
 
 const server = http.createServer(app);
 
