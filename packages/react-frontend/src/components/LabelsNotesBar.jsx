@@ -29,6 +29,7 @@ function LabelsNotesBar({
   onSelectNote,
   onDeleteNote,
   selectedId,
+  setHasUnsavedChanges,
 }) {
   const [showForm, setShowForm] = useState(false);
   const [labelName, setLabelName] = useState('');
@@ -71,7 +72,10 @@ function LabelsNotesBar({
             type="text"
             placeholder="Label name..."
             value={labelName}
-            onChange={(e) => setLabelName(e.target.value)}
+            onChange={(e) => {
+              setLabelName(e.target.value);
+              setHasUnsavedChanges?.(true);
+            }}
             className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground mb-2.5"
           />
 
@@ -95,7 +99,10 @@ function LabelsNotesBar({
             <button
               type="button"
               disabled={!labelName.trim()}
-              onClick={handleCreateLabel}
+              onClick={(e) => {
+                handleCreateLabel();
+                setHasUnsavedChanges?.(false);
+              }}
               className="flex-1 text-xs py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Create label
@@ -103,7 +110,12 @@ function LabelsNotesBar({
 
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setLabelName('');
+                setSelectedColor(LABEL_COLORS[0]);
+                setHasUnsavedChanges?.(false);
+              }}
               className="px-3 text-xs py-1.5 rounded-lg border border-border text-muted-foreground hover:bg-accent transition-colors"
             >
               Cancel

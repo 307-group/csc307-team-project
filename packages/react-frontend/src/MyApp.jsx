@@ -7,6 +7,8 @@ import ToDoScreen from './components/ToDoScreen';
 import NavBar from './components/NavBar';
 import { SignInScreen } from './components/SignInScreen';
 import { AccountScreen } from './components/AccountScreen';
+import DeleteModal from './components/DeleteModal';
+import UnsavedModal from './components/UnsavedModal';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const INVALID_TOKEN = 'INVALID_TOKEN';
@@ -41,6 +43,10 @@ function MyApp() {
       return false;
     }
   });
+
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     try {
@@ -267,6 +273,41 @@ function MyApp() {
       alert('Could not download PDF.');
     }
   }
+  function handleConfirmDelete() {
+    if (!pendingDelete) return;
+    const id =
+      pendingDelete.item._id || pendingDelete.item.id || pendingDelete.item;
+
+    if (pendingDelete.type === 'task') {
+      deleteTodo(id);
+    }
+
+    if (pendingDelete.type === 'label') {
+      deleteLabel(id);
+    }
+
+    if (pendingDelete.type === 'note') {
+      deleteNote(id);
+    }
+
+    setPendingDelete(null);
+  }
+
+  function handleDiscard() {
+    setHasUnsavedChanges(false);
+    if (pendingNavigation) {
+      if (typeof pendingNavigation === 'function') {
+        pendingNavigation();
+      } else {
+        navigate(pendingNavigation);
+      }
+    }
+    setPendingNavigation(null);
+  }
+
+  function handleCancel() {
+    setPendingNavigation(false);
+  }
   return (
     <div className="flex h-screen overflow-hidden">
       <NavBar
@@ -274,6 +315,8 @@ function MyApp() {
         onToggleDark={() => setDarkMode((v) => !v)}
         isLoggedIn={isLoggedIn}
         currentUser={currentUser}
+        hasUnsavedChanges={hasUnsavedChanges}
+        setPendingNavigation={setPendingNavigation}
       />
       <div style={{ flex: 1 }}>
         <Routes>
@@ -300,11 +343,30 @@ function MyApp() {
                   notes={notes}
                   labels={labels}
                   onAdd={addNote}
-                  onDelete={deleteNote}
+                  onDelete={(note) =>
+                    setPendingDelete({
+                      type: 'note',
+                      item: note,
+                      title: 'Delete note',
+                      message:
+                        'Are you sure you want to delete this note? This action cannot be undone.',
+                    })
+                  }
                   onCreateLabel={createLabel}
-                  onDeleteLabel={deleteLabel}
+                  onDeleteLabel={(label) =>
+                    setPendingDelete({
+                      type: 'label',
+                      item: label,
+                      title: 'Delete label',
+                      message:
+                        'Are you sure you want to delete this label? This action cannot be undone.',
+                    })
+                  }
                   onDownloadPdf={downloadNotePdf}
                   onUpdate={updateNote}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  setHasUnsavedChanges={setHasUnsavedChanges}
+                  setPendingNavigation={setPendingNavigation}
                 />
               ) : (
                 <Navigate to="/account" replace />
@@ -319,7 +381,15 @@ function MyApp() {
                   todos={todos}
                   onCreateTodo={createTodo}
                   onToggleTodo={toggleTodo}
-                  onDeleteTodo={deleteTodo}
+                  onDeleteTodo={(todo) =>
+                    setPendingDelete({
+                      type: 'task',
+                      item: todo,
+                      title: 'Delete task',
+                      message:
+                        'Are you sure you want to delete this task? This action cannot be undone.',
+                    })
+                  }
                 />
               ) : (
                 <Navigate to="/account" replace />
@@ -338,6 +408,18 @@ function MyApp() {
           />
         </Routes>
       </div>
+      {pendingDelete && (
+        <DeleteModal
+          title={pendingDelete.title}
+          message={pendingDelete.message}
+          confirmText="Delete"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+      {pendingNavigation && (
+        <UnsavedModal onDiscard={handleDiscard} onCancel={handleCancel} />
+      )}
     </div>
   );
 }

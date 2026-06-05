@@ -59,6 +59,9 @@ function NotesScreen({
   onDeleteLabel,
   onDownloadPdf,
   onUpdate,
+  setHasUnsavedChanges,
+  hasUnsavedChanges,
+  setPendingNavigation,
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -94,6 +97,10 @@ function NotesScreen({
   }
 
   function handleSelectNote(id) {
+    if (hasUnsavedChanges) {
+      setPendingNavigation(`/notes?id=${id}`);
+      return;
+    }
     setSearchParams({ id });
     setShowForm(false);
     setIsEditing(false);
@@ -111,10 +118,19 @@ function NotesScreen({
     }
   }
 
-  function handleNewNote() {
-    setSearchParams({});
+  function openNewNote(nextSearchParams = {}) {
+    setSearchParams(nextSearchParams);
     resetDraft();
     setShowForm(true);
+    setIsEditing(false);
+  }
+
+  function handleNewNote() {
+    if (hasUnsavedChanges) {
+      setPendingNavigation(() => () => openNewNote());
+      return;
+    }
+    openNewNote();
   }
 
   function handleSubmit(e) {
@@ -133,6 +149,7 @@ function NotesScreen({
     }
 
     onAdd({ formData });
+    setHasUnsavedChanges(false);
 
     resetDraft();
     setShowForm(false);
@@ -202,13 +219,16 @@ function NotesScreen({
             onCreateLabel={onCreateLabel}
             onDeleteLabel={onDeleteLabel}
             onNewNoteForLabel={(labelId) => {
-              setSearchParams({ labelId });
-              resetDraft();
-              setShowForm(true);
+              if (hasUnsavedChanges) {
+                setPendingNavigation(() => () => openNewNote({ labelId }));
+                return;
+              }
+              openNewNote({ labelId });
             }}
             onSelectNote={handleSelectNote}
             onDeleteNote={onDelete}
             selectedId={selectedId}
+            setHasUnsavedChanges={setHasUnsavedChanges}
           />
           {unlabeledNotes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-300 dark:text-gray-600 py-8">
@@ -251,7 +271,10 @@ function NotesScreen({
                   type="text"
                   placeholder="Note title..."
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    setHasUnsavedChanges(true);
+                  }}
                   autoFocus
                   className="w-full border-none bg-transparent text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground"
                 />
@@ -290,6 +313,7 @@ function NotesScreen({
                     setBody(e.target.value);
                     e.target.style.height = 'auto';
                     e.target.style.height = `${e.target.scrollHeight}px`;
+                    setHasUnsavedChanges(true);
                   }}
                   className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-gray-700 outline-none placeholder-gray-300 dark:text-gray-300 dark:placeholder-gray-600"
                 />
@@ -309,7 +333,10 @@ function NotesScreen({
                       id="file"
                       ref={fileUploadRef}
                       accept="image/*"
-                      onChange={uploadImageDisplay}
+                      onChange={(e) => {
+                        uploadImageDisplay(e);
+                        setHasUnsavedChanges(true);
+                      }}
                       hidden
                     />
                   </div>
@@ -317,7 +344,10 @@ function NotesScreen({
                   <div className="flex justify-end gap-3">
                     <button
                       type="button"
-                      onClick={handleCancelCreate}
+                      onClick={(e) => {
+                        handleCancelCreate();
+                        setHasUnsavedChanges(false);
+                      }}
                       className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                     >
                       Cancel
@@ -343,7 +373,10 @@ function NotesScreen({
                   <input
                     type="text"
                     value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
+                    onChange={(e) => {
+                      setEditTitle(e.target.value);
+                      setHasUnsavedChanges(true);
+                    }}
                     autoFocus
                     className="w-full border-none bg-transparent text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground"
                   />
@@ -359,7 +392,10 @@ function NotesScreen({
                   <>
                     <textarea
                       value={editBody}
-                      onChange={(e) => setEditBody(e.target.value)}
+                      onChange={(e) => {
+                        setEditBody(e.target.value);
+                        setHasUnsavedChanges(true);
+                      }}
                       placeholder="Start typing your note..."
                       className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
                     />
@@ -387,7 +423,10 @@ function NotesScreen({
                           type="file"
                           ref={editFileUploadRef}
                           accept="image/*"
-                          onChange={uploadEditImageDisplay}
+                          onChange={(e) => {
+                            uploadEditImageDisplay(e);
+                            setHasUnsavedChanges(true);
+                          }}
                           hidden
                         />
                       </div>
@@ -398,6 +437,7 @@ function NotesScreen({
                           onClick={() => {
                             setIsEditing(false);
                             resetEditDraft();
+                            setHasUnsavedChanges(false);
                           }}
                           className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                         >
@@ -421,6 +461,7 @@ function NotesScreen({
                             );
                             setIsEditing(false);
                             resetEditDraft();
+                            setHasUnsavedChanges(false);
                           }}
                           className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
                         >
