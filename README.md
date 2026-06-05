@@ -113,8 +113,9 @@ npm run lint   # check formatting + linting
 ## Running Tests
 
 ```bash
-cd packages/express-backend
-npm test
+cd packages/react-frontend
+npx cypress open   # interactive mode
+npx cypress run    # headless mode
 ```
 
 ---
