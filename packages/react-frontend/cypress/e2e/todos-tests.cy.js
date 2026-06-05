@@ -122,6 +122,12 @@ describe('To-Do page', () => {
       .find('button[title="Delete task"]')
       .click({ force: true });
 
+    cy.contains('Delete task')
+      .parents('[class*="fixed"]')
+      .within(() => {
+        cy.contains('button', 'Delete').click();
+      });
+
     cy.wait('@deleteTodo');
 
     cy.contains('Study Cypress').should('not.exist');

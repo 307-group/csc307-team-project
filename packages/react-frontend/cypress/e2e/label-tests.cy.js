@@ -87,6 +87,12 @@ describe('Labels on Notes page', () => {
 
     cy.get('button[title="Delete label"]').click({ force: true });
 
+    cy.contains('Delete label')
+      .parents('[class*="fixed"]')
+      .within(() => {
+        cy.contains('button', 'Delete').click();
+      });
+
     cy.wait('@deleteLabel');
 
     cy.contains('School').should('not.exist');

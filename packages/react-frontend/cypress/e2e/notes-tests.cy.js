@@ -84,6 +84,75 @@ describe('Notes page', () => {
     cy.contains('New Test Note').should('be.visible');
   });
 
+  it('shows unsaved modal when navigating away from a draft note', () => {
+    cy.contains('New').click();
+
+    cy.get('input[placeholder="Note title..."]').type('Draft Note');
+
+    cy.get('a[title="To-Do"]').click();
+
+    cy.contains('Unsaved changes').should('be.visible');
+    cy.url().should('include', '/notes');
+  });
+
+  it('keeps draft when unsaved modal is cancelled', () => {
+    cy.contains('New').click();
+
+    cy.get('input[placeholder="Note title..."]').type('Draft Note');
+
+    cy.get('a[title="To-Do"]').click();
+
+    cy.contains('Unsaved changes')
+      .parents('[class*="fixed"]')
+      .within(() => {
+        cy.contains('button', 'Cancel').click();
+      });
+
+    cy.url().should('include', '/notes');
+    cy.get('input[placeholder="Note title..."]').should(
+      'have.value',
+      'Draft Note'
+    );
+  });
+
+  it('discards draft and navigates when discard is clicked', () => {
+    cy.contains('New').click();
+
+    cy.get('input[placeholder="Note title..."]').type('Draft Note');
+
+    cy.get('a[title="To-Do"]').click();
+
+    cy.contains('Unsaved changes')
+      .parents('[class*="fixed"]')
+      .within(() => {
+        cy.contains('button', 'Discard').click();
+      });
+
+    cy.url().should('include', '/todos');
+  });
+
+  it('shows unsaved modal when switching notes with unsaved edits', () => {
+    cy.contains('New').click();
+
+    cy.get('input[placeholder="Note title..."]').type('Draft Note');
+
+    cy.contains('My First Note').click();
+
+    cy.contains('Unsaved changes').should('be.visible');
+    cy.url().should('include', '/notes');
+  });
+
+  it('shows unsaved modal when clicking New with unsaved edits', () => {
+    cy.contains('New').click();
+
+    cy.get('input[placeholder="Note title..."]').type('Draft Note');
+
+    cy.contains('New').click();
+
+    cy.contains('Unsaved changes').should('be.visible');
+    cy.url().should('include', '/notes');
+  });
+
   it('edits a note', () => {
     cy.intercept('PUT', 'http://localhost:8000/notes/note1', {
       statusCode: 200,
@@ -116,7 +185,13 @@ describe('Notes page', () => {
 
     cy.contains('My First Note').click();
 
-    cy.get('button').last().click();
+    cy.contains('button', 'Delete').click();
+
+    cy.contains('Delete note')
+      .parents('[class*="fixed"]')
+      .within(() => {
+        cy.contains('button', 'Delete').click();
+      });
 
     cy.wait('@deleteNote');
 

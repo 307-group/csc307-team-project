@@ -17,7 +17,14 @@ const NAV_ITEMS = [
   { to: '/todos', label: 'To-Do', Icon: CheckSquare },
 ];
 
-function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
+function NavBar({
+  darkMode,
+  onToggleDark,
+  isLoggedIn,
+  currentUser,
+  hasUnsavedChanges,
+  setPendingNavigation,
+}) {
   function avatarColor(str) {
     const colors = [
       '#3b82f6',
@@ -52,6 +59,12 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
   const initials =
     isLoggedIn && currentUser ? getInitials(currentUser.name) : null;
 
+  function handleNavigation(e, targetRoute) {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      setPendingNavigation(targetRoute);
+    }
+  }
   return (
     <div
       className={`${expanded ? 'w-44' : 'w-14'} shrink-0 flex flex-col h-screen transition-all duration-200 overflow-hidden`}
@@ -92,6 +105,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
           if (e.currentTarget.style.backgroundColor === 'var(--accent)')
             e.currentTarget.style.backgroundColor = 'transparent';
         }}
+        onClick={(e) => handleNavigation(e, '/account')}
       >
         {isLoggedIn && color ? (
           <div
@@ -145,6 +159,7 @@ function NavBar({ darkMode, onToggleDark, isLoggedIn, currentUser }) {
                 e.currentTarget.style.backgroundColor = 'transparent';
             }}
             title={!expanded ? label : undefined}
+            onClick={(e) => handleNavigation(e, to)}
           >
             <IconComponent className="size-5 shrink-0" />
             {expanded && <span className="text-sm font-medium">{label}</span>}
