@@ -8,6 +8,8 @@ import dotenv from "dotenv";
 import multer from "multer";
 import PDFDocument from "pdfkit";
 import fetch from "node-fetch";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 import noteServices from "./models/note-services.js";
 import labelServices from "./models/label-services.js";
 import todoServices from "./models/todo-services.js";
@@ -32,6 +34,35 @@ const port = 8000;
 
 app.use(cors());
 app.use(express.json());
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "NoteApp API",
+      version: "1.0.0",
+      description: "API documentation for NoteApp backend",
+    },
+    servers: [
+      {
+        url: "http://localhost:8000",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+  },
+  apis: ["./backend.js"],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -41,8 +72,72 @@ cloudinary.config({
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Auth routes (unprotected)
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Create a new user account
+ *     description: Registers a new user with name, email, and password.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: john@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid input
+ */
 app.post("/signup", registerUser);
+
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Log in a user
+ *     description: Logs in a user using email and password. Returns a token if successful.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: student@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid email or password
+ */
 app.post("/login", loginUser);
 
 // GET current user profile from token
@@ -62,7 +157,22 @@ app.get("/me", authenticateUser, async (req, res) => {
   }
 });
 
-// Notes routes (protected)
+/**
+ * @swagger
+ * /notes:
+ *   get:
+ *     summary: Get all notes
+ *     description: Gets all notes for the currently logged-in user.
+ *     tags:
+ *       - Notes
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Notes returned successfully
+ *       401:
+ *         description: Unauthorized. Missing or invalid token.
+ */
 app.get("/notes", authenticateUser, async (req, res) => {
   try {
     const notes = await noteServices.getNotes(req.user.userId);
