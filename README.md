@@ -15,7 +15,7 @@ A full-stack productivity app built with React, Express, and MongoDB. Sign up, l
 | _Erick Guerrero_    | _bobboyyy_      |
 | _Haixin Huang_      | _haiixin_       |
 | _Antonio Munoz_     | _antoniomunoz2_ |
-| _Yun Waddy_         | _Yun2828_       |
+| _Yun Waddy Oo_      | _Yun2828_       |
 | _Dasha Baitazarova_ | _evilmeowie_    |
 
 ---
