@@ -495,14 +495,6 @@ function NotesScreen({
                   </>
                 ) : (
                   <>
-                    {selectedNote.imageUrl && (
-                      <img
-                        src={selectedNote.imageUrl}
-                        alt={selectedNote.title || 'Note attachment'}
-                        className="mb-5 block h-auto max-h-[70vh] max-w-full self-start rounded-xl object-contain"
-                      />
-                    )}
-
                     <div className="flex-1 text-sm leading-relaxed text-foreground overflow-y-auto">
                       {selectedNote.body ? (
                         <div className="max-w-none text-foreground text-sm leading-relaxed">
@@ -563,6 +555,14 @@ function NotesScreen({
                         </p>
                       )}
                     </div>
+
+                    {selectedNote.imageUrl && (
+                      <img
+                        src={selectedNote.imageUrl}
+                        alt={selectedNote.title || 'Note attachment'}
+                        className="mt-5 block h-auto max-h-[70vh] max-w-full self-start rounded-xl object-contain"
+                      />
+                    )}
 
                     <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-end">
                       <button
