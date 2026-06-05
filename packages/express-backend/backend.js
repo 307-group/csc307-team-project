@@ -54,7 +54,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.VITE_API_URL,
+        url: process.env.BACKEND_URL,
       },
     ],
     components: {
