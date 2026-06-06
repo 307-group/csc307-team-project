@@ -26,3 +26,15 @@ jobs:
       - run: npm run -w react-frontend lint
 
       - run: npm run -w react-frontend build
+
+      - name: Run Cypress with coverage
+        run: |
+          npm run -w react-frontend dev &
+          npx wait-on http://localhost:5173
+          npm run -w react-frontend cypress:run
+
+      - name: Check coverage file
+        run: |
+          ls -la packages/react-frontend/coverage
+          test -f packages/react-frontend/coverage/lcov.info
+

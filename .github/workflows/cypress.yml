@@ -29,4 +29,4 @@ jobs:
           install: false
           start: npm run dev
           wait-on: http://localhost:5173
-          browser: chrome
+          
