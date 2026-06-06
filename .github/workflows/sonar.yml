@@ -7,13 +7,17 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main]
 
-
 jobs:
   sonarqube:
     name: SonarQube Cloud Scan
     runs-on: ubuntu-latest
 
-    steps: 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,10 +36,6 @@ jobs:
         run: |
           ls -la packages/react-frontend/coverage
           test -f packages/react-frontend/coverage/lcov.info
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
