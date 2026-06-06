@@ -79,6 +79,28 @@ describe('Labels on Notes page', () => {
     cy.contains('Work').should('be.visible');
   });
 
+  it('cancels new label creation', () => {
+    cy.get('button[title="Create new label"]').click();
+
+    cy.get('input[placeholder="Label name..."]').type('Canceled Label');
+    cy.contains('button', 'Cancel').click();
+
+    cy.get('input[placeholder="Label name..."]').should('not.exist');
+    cy.contains('Canceled Label').should('not.exist');
+  });
+
+  it('opens a new note form for a label', () => {
+    cy.contains('School').click();
+
+    cy.get('button[title="New note in this label"]').click({ force: true });
+
+    cy.url().should('include', 'labelId=label1');
+    cy.get('input[placeholder="Note title..."]').should('be.visible');
+    cy.get('textarea[placeholder="Start typing your note..."]').should(
+      'be.visible'
+    );
+  });
+
   it('deletes a label', () => {
     cy.intercept('DELETE', 'http://localhost:8000/labels/label1', {
       statusCode: 200,

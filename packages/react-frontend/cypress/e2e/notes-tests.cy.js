@@ -27,6 +27,12 @@ describe('Notes page', () => {
             body: '# Markdown Heading\n\n- List item\n\nInline `code`',
             updatedAt: new Date().toISOString(),
           },
+          {
+            _id: 'note2',
+            title: '',
+            body: '',
+            updatedAt: new Date().toISOString(),
+          },
         ],
       },
     }).as('getNotes');
@@ -56,6 +62,12 @@ describe('Notes page', () => {
     cy.get('h1').contains('Markdown Heading').should('be.visible');
     cy.get('ul').contains('List item').should('be.visible');
     cy.get('code').contains('code').should('be.visible');
+  });
+
+  it('shows fallback title and empty content for untitled notes', () => {
+    cy.contains('Untitled Note').click();
+
+    cy.contains('No content').should('be.visible');
   });
 
   it('opens the new note form', () => {
@@ -183,6 +195,82 @@ describe('Notes page', () => {
     cy.wait('@updateNote');
 
     cy.contains('Updated Note').should('be.visible');
+  });
+
+  it('downloads a note PDF', () => {
+    cy.intercept('GET', 'http://localhost:8000/notes/note1/pdf', {
+      statusCode: 200,
+      headers: {
+        'content-type': 'application/pdf',
+      },
+      body: 'PDF content',
+    }).as('downloadPdf');
+
+    cy.window().then((win) => {
+      cy.stub(win.URL, 'createObjectURL').returns('blob:note-pdf');
+      cy.stub(win.URL, 'revokeObjectURL').as('revokeObjectURL');
+    });
+
+    cy.contains('My First Note').click();
+    cy.contains('Download PDF').click();
+
+    cy.wait('@downloadPdf');
+    cy.get('@revokeObjectURL').should('have.been.calledWith', 'blob:note-pdf');
+  });
+
+  it('shows an alert when PDF download fails', () => {
+    cy.intercept('GET', 'http://localhost:8000/notes/note1/pdf', {
+      statusCode: 500,
+      body: 'Could not generate PDF.',
+    }).as('downloadPdf');
+
+    cy.window().then((win) => {
+      cy.stub(win, 'alert').as('alert');
+    });
+
+    cy.contains('My First Note').click();
+    cy.contains('Download PDF').click();
+
+    cy.wait('@downloadPdf');
+    cy.get('@alert').should('have.been.calledWith', 'Could not download PDF.');
+  });
+
+  it('creates and copies a share link', () => {
+    cy.intercept('POST', 'http://localhost:8000/notes/note1/share', {
+      statusCode: 200,
+      body: {
+        shareUrl: '/notes/shared/share1',
+        note: {
+          _id: 'note1',
+          title: 'My First Note',
+          body: '# Markdown Heading\n\n- List item\n\nInline `code`',
+          shareId: 'share1',
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    }).as('createShareLink');
+
+    cy.window().then((win) => {
+      const writeText = cy.stub().resolves();
+
+      Object.defineProperty(win.navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText },
+      });
+
+      cy.stub(win, 'alert').as('alert');
+      cy.wrap(writeText).as('writeText');
+    });
+
+    cy.contains('My First Note').click();
+    cy.contains('Share').click();
+
+    cy.wait('@createShareLink');
+    cy.get('@writeText').should(
+      'have.been.calledWith',
+      'http://localhost:5173/notes/shared/share1'
+    );
+    cy.get('@alert').should('have.been.called');
   });
 
   it('deletes a note', () => {

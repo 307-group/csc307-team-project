@@ -57,4 +57,17 @@ describe('Navbar', () => {
     cy.url().should('include', '/account');
     cy.contains('Chat User').should('be.visible');
   });
+
+  it('signs out from the account page', () => {
+    cy.get('a[href="/account"]').click();
+
+    cy.contains('Sign out').click();
+
+    cy.url().should('include', '/account');
+    cy.contains('Welcome back').should('be.visible');
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem('token')).to.equal(null);
+      expect(win.localStorage.getItem('user')).to.equal(null);
+    });
+  });
 });
