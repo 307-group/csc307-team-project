@@ -379,17 +379,8 @@ function NotesScreen({
                     type="text"
                     value={editTitle}
                     onChange={(e) => {
-                      const newTitle = e.target.value;
-
-                      setEditTitle(newTitle);
+                      setEditTitle(e.target.value);
                       setHasUnsavedChanges(true);
-
-                      if (activeShareId) {
-                        onEmitSharedNoteChange?.(activeShareId, {
-                          title: newTitle,
-                          body: editBody,
-                        });
-                      }
                     }}
                     autoFocus
                     className="w-full border-none bg-transparent text-2xl font-bold text-foreground outline-none placeholder:text-muted-foreground"
@@ -407,17 +398,8 @@ function NotesScreen({
                     <textarea
                       value={editBody}
                       onChange={(e) => {
-                        const newBody = e.target.value;
-
-                        setEditBody(newBody);
+                        setEditBody(e.target.value);
                         setHasUnsavedChanges(true);
-
-                        if (activeShareId) {
-                          onEmitSharedNoteChange?.(activeShareId, {
-                            title: editTitle,
-                            body: newBody,
-                          });
-                        }
                       }}
                       placeholder="Start typing your note..."
                       className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
