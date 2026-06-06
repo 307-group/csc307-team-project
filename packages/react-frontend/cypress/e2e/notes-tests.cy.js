@@ -24,7 +24,7 @@ describe('Notes page', () => {
           {
             _id: 'note1',
             title: 'My First Note',
-            body: 'This is the body of the note.',
+            body: '# Markdown Heading\n\n- List item\n\nInline `code`',
             updatedAt: new Date().toISOString(),
           },
         ],
@@ -47,7 +47,15 @@ describe('Notes page', () => {
   it('opens a note when clicked', () => {
     cy.contains('My First Note').click();
 
-    cy.contains('This is the body of the note.').should('be.visible');
+    cy.contains('Markdown Heading').should('be.visible');
+  });
+
+  it('renders markdown in note body', () => {
+    cy.contains('My First Note').click();
+
+    cy.get('h1').contains('Markdown Heading').should('be.visible');
+    cy.get('ul').contains('List item').should('be.visible');
+    cy.get('code').contains('code').should('be.visible');
   });
 
   it('opens the new note form', () => {
