@@ -68,9 +68,7 @@ describe('to do screen path', () => {
 
     cy.contains('New Task').click();
 
-    cy.get('input[placeholder="What needs to get done?"]').type(
-      'finish test'
-    );
+    cy.get('input[placeholder="What needs to get done?"]').type('finish test');
     cy.get('textarea[placeholder="Any extra details..."]').type(
       'created by cypress.'
     );
