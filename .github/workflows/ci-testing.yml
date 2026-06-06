@@ -31,7 +31,7 @@ jobs:
         run: |
           npm run -w react-frontend dev &
           npx wait-on http://localhost:5173
-          npm run -w react-frontend cypress:run
+          npm run -w react-frontend test:e2e
 
       - name: Check coverage file
         run: |
