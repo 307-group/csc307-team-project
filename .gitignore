@@ -2,3 +2,5 @@ node_modules/
 .env
 .env.dms
 .DS_Store
+coverage/     
+.nyc_output/
