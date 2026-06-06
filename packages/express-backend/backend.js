@@ -744,7 +744,7 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
  * /notes/{id}:
  *   put:
  *     summary: Update a note
- *     description: Updates the title, body, label, or image of an existing note.
+ *     description: Updates the title, body, or image of an existing note owned by the logged-in user. If a new image is uploaded, the old image is removed from Cloudinary.
  *     tags:
  *       - Notes
  *     security:
@@ -756,6 +756,7 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
  *         schema:
  *           type: string
  *         description: The note ID
+ *         example: 665f123456789abc12345678
  *     requestBody:
  *       required: true
  *       content:
@@ -769,23 +770,67 @@ app.delete("/notes/:id", authenticateUser, async (req, res) => {
  *               body:
  *                 type: string
  *                 example: Updated note body
- *               labelId:
- *                 type: string
- *                 example: 665f123456789abc12345678
  *               image:
  *                 type: string
  *                 format: binary
+ *                 description: Optional new image file for the note
  *     responses:
  *       200:
  *         description: Note updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 665f123456789abc12345678
+ *                 title:
+ *                   type: string
+ *                   example: Updated note title
+ *                 body:
+ *                   type: string
+ *                   example: Updated note body
+ *                 labelId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: 665f123456789abc12345679
+ *                 imageUrl:
+ *                   type: string
+ *                   nullable: true
+ *                   example: https://res.cloudinary.com/demo/image/upload/example.jpg
+ *                 imagePublicId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: notes-app/example
+ *                 userId:
+ *                   type: string
+ *                   example: 665f123456789abc12345670
+ *                 shareId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: a1b2c3d4e5f6g7h8
+ *                 syncedFromShareId:
+ *                   type: string
+ *                   nullable: true
+ *                   example: a1b2c3d4e5f6g7h8
+ *                 isShared:
+ *                   type: boolean
+ *                   example: true
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized. Missing or invalid token.
  *       403:
- *         description: Forbidden
+ *         description: Forbidden. User does not own this note.
  *       404:
- *         description: Resource not found
+ *         description: Resource not found.
  *       500:
- *         description: Server error
+ *         description: Server error.
  */
 app.put(
   "/notes/:id",
