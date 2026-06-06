@@ -24,7 +24,7 @@ A full-stack productivity app built with React, Express, and MongoDB. Sign up, l
 
 ## Demo Video
 
-[![Demo Video](https://img.youtube.com/vi/dlnTNkM1WYw/0.jpg)](https://youtu.be/dlnTNkM1WYw)
+[![Demo Video](https://img.youtube.com/vi/0OOWTk4AEf0/maxresdefault.jpg)](https://youtu.be/0OOWTk4AEf0)
 
 ---
 
