@@ -51,6 +51,16 @@ async function updateNote(id, userId, updatedFields) {
 
 async function enableShare(id, userId) {
   try {
+    const existingNote = await Note.findOne({ _id: id, userId });
+
+    if (!existingNote) {
+      return undefined;
+    }
+
+    if (existingNote.isShared && existingNote.shareId) {
+      return existingNote;
+    }
+
     const shareId = crypto.randomBytes(8).toString("hex");
 
     return await Note.findOneAndUpdate(
@@ -59,7 +69,7 @@ async function enableShare(id, userId) {
         isShared: true,
         shareId,
       },
-      { new: true },
+      { returnDocument: "after" },
     );
   } catch (error) {
     console.log(error);
