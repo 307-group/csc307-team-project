@@ -6,6 +6,8 @@ A full-stack productivity app built with React, Express, and MongoDB. Sign up, l
 
 **UI Prototype:** https://www.figma.com/make/JgY0HgYEdnu3v1RJZGnBTW/Notes-app---team-6---307?t=2BxbfZZ1zbLz19NE-20&fullscreen=1
 
+**Presentation Slides:** https://docs.google.com/presentation/d/135Hm4ywgKe34g26ozDVTlmi-WJEeRVSwYcTPArTV--0/edit?usp=sharing
+
 ---
 
 ## Team
