@@ -287,8 +287,20 @@ function NotesScreen({
 
               {/* Note Content Block */}
               <div className="flex-1 rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm dark:border-[var(--border)] dark:bg-[var(--background)] flex flex-col">
+                <textarea
+                  placeholder="Start typing your note..."
+                  value={body}
+                  onChange={(e) => {
+                    setBody(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${e.target.scrollHeight}px`;
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-gray-700 outline-none placeholder-gray-300 dark:text-gray-300 dark:placeholder-gray-600"
+                />
+
                 {imageURL && (
-                  <div className="relative mb-4 w-fit max-w-full self-start">
+                  <div className="relative mt-5 w-fit max-w-full self-start">
                     <button
                       type="button"
                       onClick={() => {
@@ -310,18 +322,6 @@ function NotesScreen({
                     />
                   </div>
                 )}
-
-                <textarea
-                  placeholder="Start typing your note..."
-                  value={body}
-                  onChange={(e) => {
-                    setBody(e.target.value);
-                    e.target.style.height = 'auto';
-                    e.target.style.height = `${e.target.scrollHeight}px`;
-                    setHasUnsavedChanges(true);
-                  }}
-                  className="flex-1 w-full resize-none border-none bg-transparent text-sm leading-relaxed text-gray-700 outline-none placeholder-gray-300 dark:text-gray-300 dark:placeholder-gray-600"
-                />
 
                 <div className="mt-24 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-between">
                   <div>

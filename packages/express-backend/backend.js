@@ -540,7 +540,7 @@ app.get("/notes/:id/pdf", authenticateUser, async (req, res) => {
 
           doc.image(imageBuffer, {
             fit: [450, 300],
-            align: "center",
+            align: "left",
           });
         }
       } catch (imageError) {
