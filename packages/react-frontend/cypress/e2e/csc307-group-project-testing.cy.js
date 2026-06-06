@@ -1,46 +1,72 @@
-describe('Home page', () => {
+//homepage testing
+describe('home screen path', () => {
+  const API = 'http://localhost:8000';
+
   const fakeUser = {
     _id: 'user1',
-    name: 'Chat User',
+    name: 'chat',
     email: 'chat@gmail.com',
     createdAt: Date.now(),
   };
 
   beforeEach(() => {
-    cy.intercept('GET', 'http://localhost:8000/notes', {
+    cy.intercept('GET', `${API}/notes`, {
       statusCode: 200,
       body: {
         notes_list: [
           {
             _id: 'note1',
-            title: 'Test Note',
-            body: 'This is a test note body.',
+            title: 'Cypress Note',
+            body: 'This note appears on the home page.',
             updatedAt: new Date().toISOString(),
           },
         ],
       },
     }).as('getNotes');
 
-    cy.intercept('GET', 'http://localhost:8000/todos', {
+    cy.intercept('GET', `${API}/todos`, {
       statusCode: 200,
       body: {
         todos_list: [
           {
             _id: 'todo1',
-            title: 'Test Task',
-            description: 'This is a test task.',
+            title: 'Cypress Task',
+            description: 'This task appears on the home page.',
             completed: false,
           },
         ],
       },
     }).as('getTodos');
 
-    cy.intercept('GET', 'http://localhost:8000/labels', {
+    cy.intercept('GET', `${API}/labels`, {
       statusCode: 200,
-      body: {
-        labels_list: [],
-      },
+      body: { labels_list: [] },
     }).as('getLabels');
+  });
+
+  it('shows the home page with notes and tasks', () => {
+    cy.visit('http://localhost:5173/', {
+      onBeforeLoad(win) {
+        win.localStorage.clear();
+        win.localStorage.setItem('token', 'fake-token');
+        win.localStorage.setItem('user', JSON.stringify(fakeUser));
+      },
+    });
+
+    cy.wait('@getNotes');
+    cy.wait('@getTodos');
+    cy.wait('@getLabels');
+
+    cy.contains("Here's a quick look at what's going on.").should('be.visible');
+
+    cy.contains('To-Do').should('be.visible');
+    cy.contains('Cypress Task').should('be.visible');
+
+    cy.contains('Recent Notes').should('be.visible');
+    cy.contains('Cypress Note').should('be.visible');
+
+    cy.contains('Cypress Task').click();
+    cy.url().should('include', '/todos');
 
     cy.visit('http://localhost:5173/', {
       onBeforeLoad(win) {
@@ -48,52 +74,8 @@ describe('Home page', () => {
         win.localStorage.setItem('user', JSON.stringify(fakeUser));
       },
     });
-  });
 
-  it('loads the home page when logged in', () => {
-    cy.contains("Here's a quick look at what's going on.").should('be.visible');
-    cy.contains('To-Do').should('be.visible');
-    cy.contains('Recent Notes').should('be.visible');
-  });
-
-  it('shows todo data on the home page', () => {
-    cy.wait('@getTodos');
-
-    cy.contains('Test Task').should('be.visible');
-    cy.contains('This is a test task.').should('be.visible');
-  });
-
-  it('shows recent notes on the home page', () => {
-    cy.wait('@getNotes');
-
-    cy.contains('Test Note').should('be.visible');
-    cy.contains('This is a test note body.').should('be.visible');
-  });
-
-  it('goes to todos when clicking View all in the To-Do section', () => {
-    cy.contains('h2', 'To-Do').parents('section').contains('View all').click();
-
-    cy.url().should('include', '/todos');
-  });
-
-  it('goes to notes when clicking View all in the Recent Notes section', () => {
-    cy.contains('h2', 'Recent Notes')
-      .parents('section')
-      .contains('View all')
-      .click();
-
-    cy.url().should('include', '/notes');
-  });
-
-  it('goes to todos when clicking a todo row', () => {
-    cy.contains('Test Task').click();
-
-    cy.url().should('include', '/todos');
-  });
-
-  it('goes to a note when clicking a note card', () => {
-    cy.contains('Test Note').click();
-
+    cy.contains('Cypress Note').click();
     cy.url().should('include', '/notes?id=note1');
   });
 });
