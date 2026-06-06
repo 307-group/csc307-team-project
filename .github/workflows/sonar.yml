@@ -7,12 +7,32 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main]
 
+
 jobs:
   sonarqube:
     name: SonarQube Cloud Scan
     runs-on: ubuntu-latest
 
-    steps:
+    steps: 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend Cypress tests with coverage
+        run: |
+          npm run -w react-frontend dev &
+          npx wait-on http://localhost:5173
+          npx cypress run --project packages/react-frontend
+
+      - name: Check coverage file
+        run: |
+          ls -la packages/react-frontend/coverage
+          test -f packages/react-frontend/coverage/lcov.info
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
