@@ -33,6 +33,7 @@ A full-stack productivity app built with React, Express, and MongoDB. Sign up, l
 - Create, delete, and toggle completion on todos
 - Create and delete labels to organize notes
 - Export notes as a PDF
+- Edit shared notes together in real time
 
 ---
 
